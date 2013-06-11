@@ -1977,6 +1977,11 @@ namespace DotCMIS.Binding.AtomPub
 
             if (link == null)
             {
+                link = LoadLink(repositoryId, folderId, AtomPubConstants.RelDown, null);
+            }
+
+            if (link == null)
+            {
                 ThrowLinkException(repositoryId, folderId, AtomPubConstants.RelDown, AtomPubConstants.MediatypeDescendants);
             }
 
