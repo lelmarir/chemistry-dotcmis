@@ -195,7 +195,12 @@ namespace DotCMISUnitTest
             contentStream.Length = content.Length;
             contentStream.Stream = new MemoryStream(content);
 
-            IDocument doc = TestFolder.CreateDocument(properties, contentStream, null);
+            VersioningState? state = null;
+            if (true != RepositoryInfo.Capabilities.IsAllVersionsSearchableSupported)
+            {
+                state = VersioningState.None;
+            }
+            IDocument doc = TestFolder.CreateDocument(properties, contentStream, state);
 
             // check doc
             Assert.NotNull(doc);
@@ -212,10 +217,13 @@ namespace DotCMISUnitTest
             Assert.AreEqual(properties[PropertyIds.ObjectTypeId], type.Id);
 
             // check versions
-            IList<IDocument> versions = doc.GetAllVersions();
-            Assert.NotNull(versions);
-            Assert.AreEqual(1, versions.Count);
-            //Assert.AreEqual(doc.Id, versions[0].Id);
+            if (true == RepositoryInfo.Capabilities.IsAllVersionsSearchableSupported)
+            {
+                IList<IDocument> versions = doc.GetAllVersions();
+                Assert.NotNull(versions);
+                Assert.AreEqual(1, versions.Count);
+                //Assert.AreEqual(doc.Id, versions[0].Id);
+            }
 
             // check content
             IContentStream retrievedContentStream = doc.GetContentStream();
