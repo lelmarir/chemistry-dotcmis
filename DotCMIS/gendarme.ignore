@@ -3,3 +3,10 @@ N: DotCMIS.CMISWebServicesReference
 
 R: Gendarme.Rules.Performance.AvoidRepetitiveCallsToPropertiesRule
 N: DotCMIS.CMISWebServicesReference
+
+R: Gendarme.Rules.BadPractice.AvoidVisibleConstantFieldRule
+A: DotCMIS
+
+R: Gendarme.Rules.Design.Generic.DoNotExposeNestedGenericSignaturesRule
+A: DotCMIS
+
