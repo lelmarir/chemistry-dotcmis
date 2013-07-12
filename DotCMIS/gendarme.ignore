@@ -1,2 +1,5 @@
 R: Gendarme.Rules.Serialization.MarkAllNonSerializableFieldsRule
 N: DotCMIS.CMISWebServicesReference
+
+R: Gendarme.Rules.Performance.AvoidRepetitiveCallsToPropertiesRule
+N: DotCMIS.CMISWebServicesReference

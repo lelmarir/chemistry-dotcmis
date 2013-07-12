@@ -365,7 +365,7 @@ namespace DotCMIS.Binding.Impl
                 }
                 catch (CmisBaseException ce)
                 {
-                    throw ce;
+                    throw;
                 }
                 catch (Exception e)
                 {
