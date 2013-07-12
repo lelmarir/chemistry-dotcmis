@@ -1,1 +1,2 @@
+R: Gendarme.Rules.Serialization.MarkAllNonSerializableFieldsRule
 N: DotCMIS.CMISWebServicesReference
