@@ -1887,7 +1887,6 @@ namespace DotCMIS.Binding
             }
             else if (element.Children != null)
             {
-                List<XmlElement> children = new List<XmlElement>();
                 foreach (ICmisExtensionElement child in element.Children)
                 {
                     XmlElement xml = CreateXmlElement(doc, child);
