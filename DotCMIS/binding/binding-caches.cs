@@ -41,10 +41,6 @@ namespace DotCMIS.Binding
         void Remove(string[] keys);
 
         int Check(string[] keys);
-
-        void Lock();
-
-        void Unlock();
     }
 
     internal interface IBindingCacheLevel
@@ -86,8 +82,7 @@ namespace DotCMIS.Binding
                 throw new ArgumentException("Cache config must not be empty!");
             }
 
-            Lock();
-            try
+            lock (cacheLock)
             {
                 cacheLevels = new List<Type>();
                 cacheLevelParameters = new List<IDictionary<string, string>>();
@@ -108,10 +103,6 @@ namespace DotCMIS.Binding
 
                 root = CreateCacheLevel(0);
             }
-            finally
-            {
-                Unlock();
-            }
         }
 
         public void Put(string[] keys, object value)
@@ -123,8 +114,7 @@ namespace DotCMIS.Binding
                 throw new ArgumentException("Wrong number of keys!");
             }
 
-            Lock();
-            try
+            lock (cacheLock)
             {
                 IBindingCacheLevel cacheLevel = root;
 
@@ -151,10 +141,6 @@ namespace DotCMIS.Binding
                     Trace.WriteLine(name + ": put [" + GetFormattedKeys(keys) + "] = " + value);
                 }
             }
-            finally
-            {
-                Unlock();
-            }
         }
 
         public object Get(string[] keys)
@@ -168,8 +154,7 @@ namespace DotCMIS.Binding
 
             object result = null;
 
-            Lock();
-            try
+            lock (cacheLock)
             {
                 IBindingCacheLevel cacheLevel = root;
 
@@ -188,10 +173,6 @@ namespace DotCMIS.Binding
                 // get the value
                 result = cacheLevel[keys[keys.Length - 1]];
             }
-            finally
-            {
-                Unlock();
-            }
 
             return result;
         }
@@ -200,8 +181,7 @@ namespace DotCMIS.Binding
         {
             if (keys == null) { return; }
 
-            Lock();
-            try
+            lock (cacheLock)
             {
                 IBindingCacheLevel cacheLevel = root;
 
@@ -224,18 +204,13 @@ namespace DotCMIS.Binding
                     Trace.WriteLine(name + ": removed [" + GetFormattedKeys(keys) + "]");
                 }
             }
-            finally
-            {
-                Unlock();
-            }
         }
 
         public int Check(string[] keys)
         {
             if (keys == null) { return -1; }
 
-            Lock();
-            try
+            lock (cacheLock)
             {
                 IBindingCacheLevel cacheLevel = root;
 
@@ -253,20 +228,6 @@ namespace DotCMIS.Binding
 
                 return keys.Length;
             }
-            finally
-            {
-                Unlock();
-            }
-        }
-
-        public void Lock()
-        {
-            Monitor.Enter(cacheLock);
-        }
-
-        public void Unlock()
-        {
-            Monitor.Exit(cacheLock);
         }
 
         // --- internal ---

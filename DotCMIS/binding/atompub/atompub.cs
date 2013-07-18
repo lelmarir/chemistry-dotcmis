@@ -137,6 +137,9 @@ namespace DotCMIS.Binding.AtomPub
 
         protected BindingSession Session { get; set; }
 
+        protected object lockLink = new object();
+        protected object lockTypeLink = new object();
+
 
         // ---- link cache ----
 
@@ -199,16 +202,6 @@ namespace DotCMIS.Binding.AtomPub
             GetLinkCache().RemoveLinks(repositoryId, id);
         }
 
-        protected void LockLinks()
-        {
-            GetLinkCache().LockLinks();
-        }
-
-        protected void UnlockLinks()
-        {
-            GetLinkCache().UnlockLinks();
-        }
-
         protected string GetTypeLink(string repositoryId, string typeId, string rel, string type)
         {
             if (repositoryId == null)
@@ -254,16 +247,6 @@ namespace DotCMIS.Binding.AtomPub
         protected void RemoveTypeLinks(string repositoryId, string id)
         {
             GetLinkCache().RemoveTypeLinks(repositoryId, id);
-        }
-
-        protected void LockTypeLinks()
-        {
-            GetLinkCache().LockTypeLinks();
-        }
-
-        protected void UnlockTypeLinks()
-        {
-            GetLinkCache().UnlockTypeLinks();
         }
 
         protected string GetCollection(string repositoryId, string collection)
@@ -766,8 +749,7 @@ namespace DotCMIS.Binding.AtomPub
                 throw new CmisConnectionException("Received Atom entry is not a CMIS entry!");
             }
 
-            LockLinks();
-            try
+            lock (lockLink)
             {
                 RemoveLinks(repositoryId, entry.Id);
 
@@ -782,10 +764,6 @@ namespace DotCMIS.Binding.AtomPub
                         result = Converter.Convert((cmisObjectType)element.Object);
                     }
                 }
-            }
-            finally
-            {
-                UnlockLinks();
             }
 
             return result;
@@ -814,8 +792,7 @@ namespace DotCMIS.Binding.AtomPub
                 throw new CmisConnectionException("Received Atom entry is not a CMIS entry!");
             }
 
-            LockTypeLinks();
-            try
+            lock (lockTypeLink)
             {
                 // clean up cache
                 RemoveTypeLinks(repositoryId, entry.Id);
@@ -832,10 +809,6 @@ namespace DotCMIS.Binding.AtomPub
                         result = Converter.Convert((cmisTypeDefinitionType)element.Object);
                     }
                 }
-            }
-            finally
-            {
-                UnlockTypeLinks();
             }
 
             return result;
@@ -918,8 +891,7 @@ namespace DotCMIS.Binding.AtomPub
             {
                 ITypeDefinition child = null;
 
-                LockTypeLinks();
-                try
+                lock (lockTypeLink)
                 {
                     foreach (AtomElement element in entry.GetElements())
                     {
@@ -932,10 +904,6 @@ namespace DotCMIS.Binding.AtomPub
                             child = Converter.Convert((cmisTypeDefinitionType)element.Object);
                         }
                     }
-                }
-                finally
-                {
-                    UnlockTypeLinks();
                 }
 
                 if (child != null)
@@ -995,8 +963,7 @@ namespace DotCMIS.Binding.AtomPub
                 List<ITypeDefinitionContainer> childContainerList = new List<ITypeDefinitionContainer>();
 
                 // walk through the entry
-                LockTypeLinks();
-                try
+                lock (lockTypeLink)
                 {
                     foreach (AtomElement element in entry.GetElements())
                     {
@@ -1014,10 +981,6 @@ namespace DotCMIS.Binding.AtomPub
                             AddTypeDescendantsLevel(repositoryId, (AtomFeed)element.Object, childContainerList);
                         }
                     }
-                }
-                finally
-                {
-                    UnlockTypeLinks();
                 }
 
                 if (childContainer != null)
@@ -1092,8 +1055,7 @@ namespace DotCMIS.Binding.AtomPub
                     ObjectInFolderData child = null;
                     String pathSegment = null;
 
-                    LockLinks();
-                    try
+                    lock (lockLink)
                     {
                         // clean up cache
                         RemoveLinks(repositoryId, entry.Id);
@@ -1115,10 +1077,6 @@ namespace DotCMIS.Binding.AtomPub
                                 child.Object = Converter.Convert((cmisObjectType)element.Object);
                             }
                         }
-                    }
-                    finally
-                    {
-                        UnlockLinks();
                     }
 
                     if (child != null)
@@ -1259,8 +1217,7 @@ namespace DotCMIS.Binding.AtomPub
             ObjectParentData result = null;
             String relativePathSegment = null;
 
-            LockLinks();
-            try
+            lock (lockLink)
             {
                 // clean up cache
                 RemoveLinks(repositoryId, entry.Id);
@@ -1282,10 +1239,6 @@ namespace DotCMIS.Binding.AtomPub
                         relativePathSegment = (string)element.Object;
                     }
                 }
-            }
-            finally
-            {
-                UnlockLinks();
             }
 
             if (result != null)
@@ -1335,8 +1288,7 @@ namespace DotCMIS.Binding.AtomPub
                 throw new CmisRuntimeException("Unexpected document!");
             }
 
-            LockLinks();
-            try
+            lock (lockLink)
             {
                 // clean up cache
                 RemoveLinks(repositoryId, entry.Id);
@@ -1353,10 +1305,6 @@ namespace DotCMIS.Binding.AtomPub
                         result = Converter.Convert((cmisObjectType)element.Object);
                     }
                 }
-            }
-            finally
-            {
-                UnlockLinks();
             }
 
             return result;
@@ -1415,8 +1363,7 @@ namespace DotCMIS.Binding.AtomPub
                 {
                     IObjectData child = null;
 
-                    LockLinks();
-                    try
+                    lock (lockLink)
                     {
                         // clean up cache
                         RemoveLinks(repositoryId, entry.Id);
@@ -1433,10 +1380,6 @@ namespace DotCMIS.Binding.AtomPub
                                 child = Converter.Convert((cmisObjectType)element.Object);
                             }
                         }
-                    }
-                    finally
-                    {
-                        UnlockLinks();
                     }
 
                     if (child != null)
@@ -1463,8 +1406,7 @@ namespace DotCMIS.Binding.AtomPub
                 string pathSegment = null;
                 IList<IObjectInFolderContainer> childContainerList = new List<IObjectInFolderContainer>();
 
-                LockLinks();
-                try
+                lock (lockLink)
                 {
                     // clean up cache
                     RemoveLinks(repositoryId, entry.Id);
@@ -1490,10 +1432,6 @@ namespace DotCMIS.Binding.AtomPub
                             AddDescendantsLevel(repositoryId, (AtomFeed)element.Object, childContainerList);
                         }
                     }
-                }
-                finally
-                {
-                    UnlockLinks();
                 }
 
                 if (objectInFolder != null)
@@ -1853,8 +1791,7 @@ namespace DotCMIS.Binding.AtomPub
             objectId = entry.Id;
             changeToken = null;
 
-            LockLinks();
-            try
+            lock (lockLink)
             {
                 // clean up cache
                 RemoveLinks(repositoryId, entry.Id);
@@ -1887,10 +1824,6 @@ namespace DotCMIS.Binding.AtomPub
                         }
                     }
                 }
-            }
-            finally
-            {
-                UnlockLinks();
             }
         }
 
@@ -2207,8 +2140,7 @@ namespace DotCMIS.Binding.AtomPub
 
             objectId = entry.Id;
 
-            LockLinks();
-            try
+            lock (lockLink)
             {
                 // clean up cache
                 RemoveLinks(repositoryId, entry.Id);
@@ -2221,10 +2153,6 @@ namespace DotCMIS.Binding.AtomPub
                         AddLink(repositoryId, entry.Id, (AtomLink)element.Object);
                     }
                 }
-            }
-            finally
-            {
-                UnlockLinks();
             }
 
             contentCopied = null;
@@ -2322,8 +2250,7 @@ namespace DotCMIS.Binding.AtomPub
 
             IAcl originalAces = null;
 
-            LockLinks();
-            try
+            lock (lockLink)
             {
                 // clean up cache
                 RemoveLinks(repositoryId, entry.Id);
@@ -2342,10 +2269,6 @@ namespace DotCMIS.Binding.AtomPub
                         originalAces = Converter.Convert(cmisObject.acl, cmisObject.exactACLSpecified ? (bool?)cmisObject.exactACL : null);
                     }
                 }
-            }
-            finally
-            {
-                UnlockLinks();
             }
 
             // handle ACL modifications
@@ -2417,8 +2340,7 @@ namespace DotCMIS.Binding.AtomPub
                 {
                     IObjectData version = null;
 
-                    LockLinks();
-                    try
+                    lock (lockLink)
                     {
                         // clean up cache
                         RemoveLinks(repositoryId, entry.Id);
@@ -2435,10 +2357,6 @@ namespace DotCMIS.Binding.AtomPub
                                 version = Converter.Convert((cmisObjectType)element.Object);
                             }
                         }
-                    }
-                    finally
-                    {
-                        UnlockLinks();
                     }
 
                     if (version != null)
@@ -2511,8 +2429,7 @@ namespace DotCMIS.Binding.AtomPub
                 {
                     IObjectData relationship = null;
 
-                    LockLinks();
-                    try
+                    lock (lockLink)
                     {
                         // clean up cache
                         RemoveLinks(repositoryId, entry.Id);
@@ -2529,10 +2446,6 @@ namespace DotCMIS.Binding.AtomPub
                                 relationship = Converter.Convert((cmisObjectType)element.Object);
                             }
                         }
-                    }
-                    finally
-                    {
-                        UnlockLinks();
                     }
 
                     if (relationship != null)

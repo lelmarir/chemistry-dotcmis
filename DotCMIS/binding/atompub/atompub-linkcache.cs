@@ -145,16 +145,6 @@ namespace DotCMIS.Binding.AtomPub
             return linkCache.Check(new string[] { repositoryId, id, rel, type });
         }
 
-        public void LockLinks()
-        {
-            linkCache.Lock();
-        }
-
-        public void UnlockLinks()
-        {
-            linkCache.Unlock();
-        }
-
         // ---- type links ---
 
         public void AddTypeLink(string repositoryId, string id, string rel, string type, string link)
@@ -173,16 +163,6 @@ namespace DotCMIS.Binding.AtomPub
         public string GetTypeLink(string repositoryId, string id, string rel, string type)
         {
             return (string)typeLinkCache.Get(new string[] { repositoryId, id, rel, type });
-        }
-
-        public void LockTypeLinks()
-        {
-            typeLinkCache.Lock();
-        }
-
-        public void UnlockTypeLinks()
-        {
-            typeLinkCache.Unlock();
         }
 
         // ---- collections ----

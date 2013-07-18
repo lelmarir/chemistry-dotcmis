@@ -34,6 +34,8 @@ namespace DotCMIS.Binding.Impl
         private BindingSession session;
         private BindingRepositoryService repositoryServiceWrapper;
 
+        private object bindingLock = new object();
+
         public CmisBinding(IDictionary<string, string> sessionParameters)
             : this(sessionParameters, null)
         {
@@ -164,18 +166,13 @@ namespace DotCMIS.Binding.Impl
         {
             CheckSession();
 
-            session.Lock();
-            try
+            lock (bindingLock)
             {
                 session.PutValue(BindingSession.RepositoryInfoCache, new RepositoryInfoCache(session));
                 session.PutValue(BindingSession.TypeDefinitionCache, new TypeDefinitionCache(session));
 
                 ICmisSpi spi = GetSpi();
                 spi.ClearAllCaches();
-            }
-            finally
-            {
-                session.Unlock();
             }
         }
 
@@ -188,8 +185,7 @@ namespace DotCMIS.Binding.Impl
                 return;
             }
 
-            session.Lock();
-            try
+            lock (bindingLock)
             {
                 RepositoryInfoCache repInfoCache = session.GetRepositoryInfoCache();
                 repInfoCache.Remove(repositoryId);
@@ -200,24 +196,15 @@ namespace DotCMIS.Binding.Impl
                 ICmisSpi spi = GetSpi();
                 spi.ClearRepositoryCache(repositoryId);
             }
-            finally
-            {
-                session.Unlock();
-            }
         }
 
         public void Dispose()
         {
             CheckSession();
 
-            session.Lock();
-            try
+            lock (bindingLock)
             {
                 GetSpi().Dispose();
-            }
-            finally
-            {
-                session.Unlock();
                 session = null;
             }
         }
@@ -263,8 +250,7 @@ namespace DotCMIS.Binding.Impl
         {
             object result = null;
 
-            Lock();
-            try
+            lock (sessionLock)
             {
                 if (data.TryGetValue(key, out result))
                 {
@@ -274,10 +260,6 @@ namespace DotCMIS.Binding.Impl
                 {
                     return defValue;
                 }
-            }
-            finally
-            {
-                Unlock();
             }
         }
 
@@ -305,34 +287,23 @@ namespace DotCMIS.Binding.Impl
 
         public void PutValue(string key, object value)
         {
-            Lock();
-            try
+            lock (sessionLock)
             {
                 data[key] = value;
-            }
-            finally
-            {
-                Unlock();
             }
         }
 
         public void RemoveValue(string key)
         {
-            Lock();
-            try
+            lock (sessionLock)
             {
                 data.Remove(key);
-            }
-            finally
-            {
-                Unlock();
             }
         }
 
         public ICmisSpi GetSpi()
         {
-            Lock();
-            try
+            lock (sessionLock)
             {
                 ICmisSpi spi = GetValue(SpiObject) as ICmisSpi;
                 if (spi != null)
@@ -377,10 +348,6 @@ namespace DotCMIS.Binding.Impl
 
                 return spi;
             }
-            finally
-            {
-                Unlock();
-            }
         }
 
         public RepositoryInfoCache GetRepositoryInfoCache()
@@ -396,16 +363,6 @@ namespace DotCMIS.Binding.Impl
         public IAuthenticationProvider GetAuthenticationProvider()
         {
             return GetValue(AuthenticationProvider) as IAuthenticationProvider;
-        }
-
-        public void Lock()
-        {
-            Monitor.Enter(sessionLock);
-        }
-
-        public void Unlock()
-        {
-            Monitor.Exit(sessionLock);
         }
 
         public override string ToString()
