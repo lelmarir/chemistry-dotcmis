@@ -80,8 +80,8 @@ namespace DotCMIS.Binding.AtomPub
 
             linkCache = new Cache("Link Cache");
             linkCache.Initialize(new string[] {
-                dictionaryLevelName + " " + DictionaryCacheLevel.Capacity + "=" + repCount, // repository
-                lruLevelName + " " + LruCacheLevel.MaxEntries + "=" + objCount, // id
+                dictionaryLevelName + " " + DictionaryCacheLevel.Capacity + "=" + repCount.ToString(), // repository
+                lruLevelName + " " + LruCacheLevel.MaxEntries + "=" + objCount.ToString(), // id
                 dictionaryLevelName + " " + DictionaryCacheLevel.Capacity + "=16", // rel
                 contentTypeLevelName + " " + DictionaryCacheLevel.Capacity + "=3,"
                         + DictionaryCacheLevel.SingleValue + "=true" // type
@@ -89,8 +89,8 @@ namespace DotCMIS.Binding.AtomPub
 
             typeLinkCache = new Cache("Type Link Cache");
             typeLinkCache.Initialize(new string[] {
-                dictionaryLevelName + " " + DictionaryCacheLevel.Capacity + "=" + repCount, // repository
-                lruLevelName + " " + LruCacheLevel.MaxEntries + "=" + typeCount, // id
+                dictionaryLevelName + " " + DictionaryCacheLevel.Capacity + "=" + repCount.ToString(), // repository
+                lruLevelName + " " + LruCacheLevel.MaxEntries + "=" + typeCount.ToString(), // id
                 dictionaryLevelName + " " + DictionaryCacheLevel.Capacity + "=16", // rel
                 contentTypeLevelName + " " + DictionaryCacheLevel.Capacity + "=3,"
                         + DictionaryCacheLevel.SingleValue + "=true"// type
@@ -98,19 +98,19 @@ namespace DotCMIS.Binding.AtomPub
 
             collectionLinkCache = new Cache("Collection Link Cache");
             collectionLinkCache.Initialize(new string[] {
-                dictionaryLevelName + " " + DictionaryCacheLevel.Capacity + "=" + repCount, // repository
+                dictionaryLevelName + " " + DictionaryCacheLevel.Capacity + "=" + repCount.ToString(), // repository
                 dictionaryLevelName + " " + DictionaryCacheLevel.Capacity + "=8" // collection
             });
 
             templateCache = new Cache("URI Template Cache");
             templateCache.Initialize(new string[] {
-                dictionaryLevelName + " " + DictionaryCacheLevel.Capacity + "=" + repCount, // repository
+                dictionaryLevelName + " " + DictionaryCacheLevel.Capacity + "=" + repCount.ToString(), // repository
                 dictionaryLevelName + " " + DictionaryCacheLevel.Capacity + "=6" // type
             });
 
             repositoryLinkCache = new Cache("Repository Link Cache");
             repositoryLinkCache.Initialize(new string[] {
-                dictionaryLevelName + " " + DictionaryCacheLevel.Capacity + "=" + repCount, // repository
+                dictionaryLevelName + " " + DictionaryCacheLevel.Capacity + "=" + repCount.ToString(), // repository
                 dictionaryLevelName + " " + DictionaryCacheLevel.Capacity + "=6" // rel
             });
         }

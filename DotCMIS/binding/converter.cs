@@ -126,7 +126,10 @@ namespace DotCMIS.Binding
                 }
             }
 
-            return (T)s.Deserialize(new XmlNodeReader(element));
+            using (XmlNodeReader reader = new XmlNodeReader(element))
+            {
+                return (T)s.Deserialize(reader);
+            }
         }
 
         /// <summary>

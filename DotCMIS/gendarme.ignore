@@ -10,3 +10,9 @@ A: DotCMIS
 R: Gendarme.Rules.Design.Generic.DoNotExposeNestedGenericSignaturesRule
 A: DotCMIS
 
+R: Gendarme.Rules.BadPractice.PreferTryParseRule
+T: DotCMIS.Binding.Converter
+M: DotCMIS.Binding.AtomPub.AtomElement DotCMIS.Binding.AtomPub.AtomPubParser::ParseLong(System.Xml.XmlReader)
+
+R: Gendarme.Rules.Performance.AvoidLargeNumberOfLocalVariablesRule
+M: DotCMIS.Data.IPropertyDefinition DotCMIS.Binding.Converter::Convert(DotCMIS.CMISWebServicesReference.cmisPropertyDefinitionType)
