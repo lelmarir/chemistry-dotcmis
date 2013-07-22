@@ -219,7 +219,7 @@ namespace DotCMIS.Binding.Impl
 
         private ICmisSpi GetSpi()
         {
-            return session.GetSpi();
+            return session.Spi;
         }
     }
 
@@ -301,52 +301,56 @@ namespace DotCMIS.Binding.Impl
             }
         }
 
-        public ICmisSpi GetSpi()
+        //  As an IDisposable object, implemented as Property
+        public ICmisSpi Spi
         {
-            lock (sessionLock)
+            get
             {
-                ICmisSpi spi = GetValue(SpiObject) as ICmisSpi;
-                if (spi != null)
+                lock (sessionLock)
                 {
-                    return spi;
-                }
-
-                // ok, we have to create it...
-                try
-                {
-                    object spiObject;
-                    if (data.TryGetValue(SessionParameter.BindingSpiClass, out spiObject))
+                    ICmisSpi spi = GetValue(SpiObject) as ICmisSpi;
+                    if (spi != null)
                     {
-                        string spiClassName = spiObject as string;
-                        if (spiClassName != null)
+                        return spi;
+                    }
+
+                    // ok, we have to create it...
+                    try
+                    {
+                        object spiObject;
+                        if (data.TryGetValue(SessionParameter.BindingSpiClass, out spiObject))
                         {
-                            Type spiClass = Type.GetType(spiClassName);
-                            spi = (ICmisSpi)Activator.CreateInstance(spiClass);
-                            spi.initialize(this);
+                            string spiClassName = spiObject as string;
+                            if (spiClassName != null)
+                            {
+                                Type spiClass = Type.GetType(spiClassName);
+                                spi = (ICmisSpi)Activator.CreateInstance(spiClass);
+                                spi.initialize(this);
+                            }
+                            else
+                            {
+                                throw new CmisRuntimeException("SPI class is not set!");
+                            }
                         }
                         else
                         {
                             throw new CmisRuntimeException("SPI class is not set!");
                         }
                     }
-                    else
+                    catch (CmisBaseException)
                     {
-                        throw new CmisRuntimeException("SPI class is not set!");
+                        throw;
                     }
-                }
-                catch (CmisBaseException)
-                {
-                    throw;
-                }
-                catch (Exception e)
-                {
-                    throw new CmisRuntimeException("SPI cannot be initialized: " + e.Message, e);
-                }
+                    catch (Exception e)
+                    {
+                        throw new CmisRuntimeException("SPI cannot be initialized: " + e.Message, e);
+                    }
 
-                // we have a SPI object -> put it into the session
-                data[SpiObject] = spi;
+                    // we have a SPI object -> put it into the session
+                    data[SpiObject] = spi;
 
-                return spi;
+                    return spi;
+                }
             }
         }
 
@@ -389,7 +393,7 @@ namespace DotCMIS.Binding.Impl
             bool hasExtension = (extension != null) && (extension.Extensions != null) && (extension.Extensions.Count > 0);
 
             // get the SPI and fetch the repository infos
-            ICmisSpi spi = session.GetSpi();
+            ICmisSpi spi = session.Spi;
             result = spi.GetRepositoryService().GetRepositoryInfos(extension);
 
             // put it into the cache
@@ -423,7 +427,7 @@ namespace DotCMIS.Binding.Impl
             }
 
             // it was not in the cache -> get the SPI and fetch the repository info
-            ICmisSpi spi = session.GetSpi();
+            ICmisSpi spi = session.Spi;
             result = spi.GetRepositoryService().GetRepositoryInfo(repositoryId, extension);
 
             // put it into the cache
@@ -442,7 +446,7 @@ namespace DotCMIS.Binding.Impl
             bool hasExtension = (extension != null) && (extension.Extensions != null) && (extension.Extensions.Count > 0);
 
             // get the SPI and fetch the type definitions
-            ICmisSpi spi = session.GetSpi();
+            ICmisSpi spi = session.Spi;
             result = spi.GetRepositoryService().GetTypeChildren(repositoryId, typeId, includePropertyDefinitions, maxItems,
                     skipCount, extension);
 
@@ -466,7 +470,7 @@ namespace DotCMIS.Binding.Impl
             bool hasExtension = (extension != null) && (extension.Extensions != null) && (extension.Extensions.Count > 0);
 
             // get the SPI and fetch the type definitions
-            ICmisSpi spi = session.GetSpi();
+            ICmisSpi spi = session.Spi;
             result = spi.GetRepositoryService().GetTypeDescendants(repositoryId, typeId, depth, includePropertyDefinitions,
                     extension);
 
@@ -512,7 +516,7 @@ namespace DotCMIS.Binding.Impl
             }
 
             // it was not in the cache -> get the SPI and fetch the type definition
-            ICmisSpi spi = session.GetSpi();
+            ICmisSpi spi = session.Spi;
             result = spi.GetRepositoryService().GetTypeDefinition(repositoryId, typeId, extension);
 
             // put it into the cache
