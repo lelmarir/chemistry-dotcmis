@@ -214,12 +214,7 @@ namespace DotCMISUnitTest
                 contentStream.Length = bytes.Length;
             }
 
-            VersioningState? state = null;
-            if (true != Binding.GetRepositoryService().GetRepositoryInfos(null)[0].Capabilities.IsAllVersionsSearchableSupported)
-            {
-                state = VersioningState.None;
-            }
-            string newDocId = Binding.GetObjectService().CreateDocument(RepositoryInfo.Id, properties, folderId, contentStream, state, null, null, null, null);
+            string newDocId = Binding.GetObjectService().CreateDocument(RepositoryInfo.Id, properties, folderId, contentStream, null, null, null, null, null);
 
             Assert.NotNull(newDocId);
 
