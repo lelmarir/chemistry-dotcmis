@@ -24,3 +24,17 @@ M: System.Void DotCMIS.Binding.Converter/<>c__DisplayClass18::<Convert>b__b(Syst
 #this function is ok, though large number of local variables
 R: Gendarme.Rules.Performance.AvoidLargeNumberOfLocalVariablesRule
 M: DotCMIS.Data.IPropertyDefinition DotCMIS.Binding.Converter::Convert(DotCMIS.CMISWebServicesReference.cmisPropertyDefinitionType)
+
+#Windows Gendarme issue, no raising such defects on newer Linux Gendarme
+R: Gendarme.Rules.Correctness.EnsureLocalDisposalRule
+M: System.Void DotCMIS.Binding.Impl.CmisBinding::Dispose()
+
+#Windows Gendarme issue, no raising such defects on newer Linux Gendarme
+#new Gendarme will ignore the disposable instance field that is passed as constructor parameter
+R: Gendarme.Rules.Design.TypesWithDisposableFieldsShouldBeDisposableRule
+T: DotCMIS.Binding.AtomPub.AtomPubParser
+T: DotCMIS.Binding.AtomPub.AtomEntryWriter
+T: DotCMIS.Binding.Impl.HttpUtils/Response
+T: DotCMIS.Client.Impl.Session
+T: DotCMIS.Client.Impl.AbstractEnumerable`1
+T: DotCMIS.Data.Impl.ContentStream
