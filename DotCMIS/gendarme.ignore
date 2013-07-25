@@ -14,6 +14,7 @@ R: Gendarme.Rules.BadPractice.PreferTryParseRule
 T: DotCMIS.Binding.Converter
 M: DotCMIS.Binding.AtomPub.AtomElement DotCMIS.Binding.AtomPub.AtomPubParser::ParseLong(System.Xml.XmlReader)
 M: System.Void DotCMIS.Binding.Converter/<Convert>c__AnonStorey9::<>m__9(System.Xml.XmlElement)
+M: System.Void DotCMIS.Binding.Converter/<>c__DisplayClass18::<Convert>b__b(System.Xml.XmlElement)
 
 R: Gendarme.Rules.Performance.AvoidLargeNumberOfLocalVariablesRule
 M: DotCMIS.Data.IPropertyDefinition DotCMIS.Binding.Converter::Convert(DotCMIS.CMISWebServicesReference.cmisPropertyDefinitionType)
