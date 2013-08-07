@@ -97,14 +97,14 @@ namespace DotCMISUnitTest
             MockObject[] mocks = new MockObject[10];
             for (int i = 0; i < 10; i++)
             {
-                mocks[i] = new MockObject("m" + i);
+                mocks[i] = new MockObject("m" + i.ToString());
                 cache.Put(mocks[i], cacheKey1);
             }
 
             for (int i = 0; i < 10; i++)
             {
-                mocks[i] = new MockObject("m" + i);
-                Assert.NotNull(cache.GetById("m" + i, cacheKey1));
+                mocks[i] = new MockObject("m" + i.ToString());
+                Assert.NotNull(cache.GetById("m" + i.ToString(), cacheKey1));
             }
 
             MockObject newMock = new MockObject("new");
@@ -113,8 +113,8 @@ namespace DotCMISUnitTest
 
             for (int i = 1; i < 10; i++)
             {
-                mocks[i] = new MockObject("m" + i);
-                Assert.NotNull(cache.GetById("m" + i, cacheKey1));
+                mocks[i] = new MockObject("m" + i.ToString());
+                Assert.NotNull(cache.GetById("m" + i.ToString(), cacheKey1));
             }
 
             Assert.Null(cache.GetById("m0", cacheKey1));
@@ -163,7 +163,7 @@ namespace DotCMISUnitTest
             Assert.NotNull(o2);
             Assert.AreEqual(mock1.Id, o2.Id);
 
-            Assert.Null(cache.GetByPath("/some/other/path/", cacheKey1));
+            Assert.Null(cache.GetByPath(System.IO.Path.Combine(path, "other"), cacheKey1));
         }
     }
 
