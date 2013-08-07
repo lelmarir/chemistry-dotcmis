@@ -212,10 +212,17 @@ namespace DotCMISUnitTest
             Assert.AreEqual(properties[PropertyIds.ObjectTypeId], type.Id);
 
             // check versions
-            IList<IDocument> versions = doc.GetAllVersions();
-            Assert.NotNull(versions);
-            Assert.AreEqual(1, versions.Count);
-            //Assert.AreEqual(doc.Id, versions[0].Id);
+            if (doc.AllowableActions.Actions.Contains(Actions.CanGetAllVersions))
+            {
+                IList<IDocument> versions = doc.GetAllVersions();
+                Assert.NotNull(versions);
+                Assert.AreEqual(1, versions.Count);
+                //Assert.AreEqual(doc.Id, versions[0].Id);
+            }
+            else
+            {
+                Console.WriteLine("GetAllVersions not supported!");
+            }
 
             // check content
             IContentStream retrievedContentStream = doc.GetContentStream();
@@ -289,6 +296,12 @@ namespace DotCMISUnitTest
             Assert.NotNull(doc);
             Assert.NotNull(doc.Id);
             Assert.AreEqual(properties[PropertyIds.Name], doc.Name);
+
+            if (!doc.AllowableActions.Actions.Contains(Actions.CanGetAllVersions))
+            {
+                Console.WriteLine("GetAllVersions not supported!");
+                return;
+            }
 
             IList<IDocument> versions = doc.GetAllVersions();
             Assert.NotNull(versions);
