@@ -302,6 +302,20 @@ namespace DotCMISUnitTest
         [Test]
         public void SmokeTestVersioning()
         {
+            if (Session.RepositoryInfo.Capabilities.IsAllVersionsSearchableSupported != null)
+            {
+                if (Session.RepositoryInfo.Capabilities.IsAllVersionsSearchableSupported == false)
+                {
+                    Console.WriteLine("IsAllVersionsSearchableSupported not supported!");
+                    return;
+                }
+            }
+            else
+            {
+                Console.WriteLine("IsAllVersionsSearchableSupported not set!");
+                return;
+            }
+
             IDictionary<string, object> properties = new Dictionary<string, object>();
             properties[PropertyIds.Name] = "test-version-smoke.txt";
             properties[PropertyIds.ObjectTypeId] = DefaultDocumentType;
