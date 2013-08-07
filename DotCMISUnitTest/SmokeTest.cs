@@ -163,6 +163,20 @@ namespace DotCMISUnitTest
         [Test]
         public void SmokeTestQuery()
         {
+            if (Session.RepositoryInfo.Capabilities.QueryCapability != null)
+            {
+                if (Session.RepositoryInfo.Capabilities.QueryCapability == CapabilityQuery.None)
+                {
+                    Console.WriteLine("Content changes not supported!");
+                    return;
+                }
+            }
+            else
+            {
+                Console.WriteLine("QueryCapability not set!");
+                return;
+            }
+
             IItemEnumerable<IQueryResult> qr = Session.Query("SELECT * FROM cmis:document", false);
             Assert.NotNull(qr);
 
