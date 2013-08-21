@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -84,19 +84,14 @@
     </Compile>
     <Compile Include="util.cs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="dotcmis.snk" />
-    <None Include="Service References\CMISWebServicesReference\CMIS-Core.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\CMISWebServicesReference\CMIS-Messaging.xsd">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="Service References\CMISWebServicesReference\CMIS-Core.xsd" />
+    <None Include="Service References\CMISWebServicesReference\CMIS-Messaging.xsd" />
     <None Include="Service References\CMISWebServicesReference\CMISWebServices.wsdl" />
     <None Include="Service References\CMISWebServicesReference\DotCMIS.CMISWebServicesReference.cmisACLType.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -108,6 +103,9 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Service References\CMISWebServicesReference\DotCMIS.CMISWebServicesReference.cmisExtensionType.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CMISWebServicesReference\DotCMIS.CMISWebServicesReference.cmisObjectIdAndChangeTokenType.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Service References\CMISWebServicesReference\DotCMIS.CMISWebServicesReference.cmisObjectInFolderContainerType.datasource">

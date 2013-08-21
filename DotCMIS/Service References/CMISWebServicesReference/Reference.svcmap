@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="3d5abe42-7fbf-4694-8527-bfbf3463347e" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="63ef0080-ba64-472d-8729-37118d2d85d9" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
   <ClientOptions>
     <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
     <EnableDataBinding>true</EnableDataBinding>
     <ExcludedTypes />
     <ImportXmlTypes>false</ImportXmlTypes>
-    <GenerateInternalTypes>true</GenerateInternalTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
     <GenerateMessageContracts>false</GenerateMessageContracts>
     <NamespaceMappings />
     <CollectionMappings />
@@ -18,12 +18,12 @@
     <ServiceContractMappings />
   </ClientOptions>
   <MetadataSources>
-    <MetadataSource Address="C:\projects\chemistry\dotcmis\trunk\DotCMIS\wsdl\CMISWS-Service.wsdl" Protocol="file" SourceId="1" />
+    <MetadataSource Address="file:\\D:\OpenDataSpace\chemistry-dotcmis\DotCMIS\wsdl\CMISWS-Service.wsdl" Protocol="file" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="CMIS-Core.xsd" MetadataType="Schema" ID="1ce69293-969b-477e-b7ed-e15f0e0e0599" SourceId="1" SourceUrl="file:///C:/projects/chemistry/dotcmis/trunk/DotCMIS/wsdl/CMIS-Core.xsd" />
-    <MetadataFile FileName="CMISWebServices.wsdl" MetadataType="Wsdl" ID="2cf0a7f6-98fb-46d6-bd81-99177e4e2be7" SourceId="1" SourceUrl="file:///C:/projects/chemistry/dotcmis/trunk/DotCMIS/wsdl/CMISWS-Service.wsdl" />
-    <MetadataFile FileName="CMIS-Messaging.xsd" MetadataType="Schema" ID="d1d8296f-df93-4ac6-8bf7-cf4db4f1e405" SourceId="1" SourceUrl="file:///C:/projects/chemistry/dotcmis/trunk/DotCMIS/wsdl/CMIS-Messaging.xsd" />
+    <MetadataFile FileName="CMIS-Messaging.xsd" MetadataType="Schema" ID="0aad6c5a-c434-4ee2-8ce6-a61a5158e3f1" SourceId="1" SourceUrl="file:///D:/OpenDataSpace/chemistry-dotcmis/DotCMIS/wsdl/CMIS-Messaging.xsd" />
+    <MetadataFile FileName="CMISWebServices.wsdl" MetadataType="Wsdl" ID="0f944229-141f-4360-b853-a82f48389b91" SourceId="1" SourceUrl="file:///D:/OpenDataSpace/chemistry-dotcmis/DotCMIS/wsdl/CMISWS-Service.wsdl" />
+    <MetadataFile FileName="CMIS-Core.xsd" MetadataType="Schema" ID="477dfdff-8caf-445e-ae36-c037dcbb13ee" SourceId="1" SourceUrl="file:///D:/OpenDataSpace/chemistry-dotcmis/DotCMIS/wsdl/CMIS-Core.xsd" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
