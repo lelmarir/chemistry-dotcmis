@@ -281,6 +281,7 @@ namespace DotCMIS
         public const string ParamACL = "includeACL";
         public const string ParamAllowableActions = "includeAllowableActions";
         public const string ParamAllVersions = "allVersions";
+        public const string ParamAppend = "append";
         public const string ParamChangeLogToken = "changeLogToken";
         public const string ParamChangeToken = "changeToken";
         public const string ParamCheckinComment = "checkinComment";
@@ -291,6 +292,7 @@ namespace DotCMIS
         public const string ParamFilter = "filter";
         public const string ParamFolderId = "folderId";
         public const string ParamId = "id";
+        public const string ParamIsLastChunk = "isLastChunk";
         public const string ParamMajor = "major";
         public const string ParamMaxItems = "maxItems";
         public const string ParamObjectId = "objectId";

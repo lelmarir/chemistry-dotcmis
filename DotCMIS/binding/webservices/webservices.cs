@@ -1116,6 +1116,30 @@ namespace DotCMIS.Binding.WebServices
                 throw new CmisRuntimeException("Error: " + e.Message, e);
             }
         }
+
+        public void AppendContentStream(string repositoryId, ref string objectId, bool? isLastChunk, ref string changeToken,
+            IContentStream contentStream, IExtensionsData extension)
+        {
+            ObjectServicePortClient port = Provider.GetObjectService();
+
+            try
+            {
+                cmisExtensionType cmisExtension = Converter.ConvertExtension(extension);
+
+                port.appendContentStream(repositoryId, ref objectId, isLastChunk, ref changeToken,
+                    Converter.Convert(contentStream), ref cmisExtension);
+
+                Converter.ConvertExtension(cmisExtension, extension);
+            }
+            catch (FaultException<cmisFaultType> fe)
+            {
+                throw ConvertException(fe);
+            }
+            catch (Exception e)
+            {
+                throw new CmisRuntimeException("Error: " + e.Message, e);
+            }
+        }
     }
 
     internal class VersioningService : AbstractWebServicesService, IVersioningService

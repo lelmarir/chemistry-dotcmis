@@ -2064,6 +2064,67 @@ namespace DotCMIS.Binding.AtomPub
             changeToken = null;
         }
 
+        public void AppendContentStream(string repositoryId, ref string objectId, bool? isLastChunk, ref string changeToken,
+            IContentStream contentStream, IExtensionsData extension)
+        {
+            if (objectId == null)
+            {
+                throw new CmisInvalidArgumentException("Object ID must be set!");
+            }
+
+            // we need content
+            if (contentStream == null || contentStream.Stream == null || contentStream.MimeType == null)
+            {
+                throw new CmisInvalidArgumentException("Content must be set!");
+            }
+
+            // find the link
+            String link = LoadLink(repositoryId, objectId, AtomPubConstants.RelEditMedia, null);
+
+            if (link == null)
+            {
+                ThrowLinkException(repositoryId, objectId, AtomPubConstants.RelEditMedia, null);
+            }
+
+            UrlBuilder url = new UrlBuilder(link);
+            url.AddParameter(AtomPubConstants.ParamAppend, true);
+            url.AddParameter(AtomPubConstants.ParamIsLastChunk, isLastChunk);
+            url.AddParameter(AtomPubConstants.ParamChangeToken, changeToken);
+
+            HttpUtils.Output output = delegate(Stream stream)
+            {
+                int b;
+                byte[] buffer = new byte[4096];
+                while ((b = contentStream.Stream.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    stream.Write(buffer, 0, b);
+                }
+
+                contentStream.Stream.Close();
+            };
+
+            IDictionary<string, string> headers = null;
+            if (contentStream.FileName != null)
+            {
+                headers = new Dictionary<string, string>();
+                headers.Add(MimeHelper.ContentDisposition,
+                    MimeHelper.EncodeContentDisposition(MimeHelper.DispositionAttachment, contentStream.FileName));
+            }
+
+            // send content
+            HttpUtils.Response resp = HttpUtils.InvokePUT(url, contentStream.MimeType, headers, output, Session);
+            resp.CloseStream();
+
+            // check response code
+            if (resp.StatusCode != HttpStatusCode.OK && resp.StatusCode != HttpStatusCode.Created && resp.StatusCode != HttpStatusCode.NoContent)
+            {
+                throw ConvertStatusCode(resp.StatusCode, resp.Message, resp.ErrorContent, null);
+            }
+
+            objectId = null;
+            changeToken = null;
+        }
+
         // ---- internal ---
 
         private void CheckCreateProperties(IProperties properties)

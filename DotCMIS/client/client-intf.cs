@@ -890,6 +890,29 @@ namespace DotCMIS.Client
         IObjectId SetContentStream(IContentStream contentStream, bool overwrite, bool refresh);
 
         /// <summary>
+        /// Appends a content stream for this document.
+        /// </summary>
+        /// <param name="contentStream">the content stream</param>
+        /// <param name="isLastTrunk">indicates if the current stream should be the last trunk</param>
+        /// <returns>the new document object</returns>
+        /// <remarks>
+        /// Repositories might create a new version if the content is appended.
+        /// </remarks>
+        IDocument AppendContentStream(IContentStream contentStream, bool isLastTrunk);
+
+        /// <summary>
+        /// Appends a content stream for this document.
+        /// </summary>
+        /// <param name="contentStream">the content stream</param>
+        /// <param name="isLastTrunk">indicates if the current stream should be the last trunk</param>
+        /// <param name="refresh">indicates if this object should be refreshed after the new content is set</param>
+        /// <returns>the new document object id</returns>
+        /// <remarks>
+        /// Repositories might create a new version if the content is appended.
+        /// </remarks>
+        IObjectId AppendContentStream(IContentStream contentStream, bool isLastTrunk, bool refresh);
+
+        /// <summary>
         /// Deletes the current content stream for this document.
         /// </summary>
         /// <returns>the new document object</returns>

@@ -288,6 +288,7 @@ namespace DotCMISUnitTest
             contentStream2.Stream = new MemoryStream(content2);
 
             // doc.SetContentStream(contentStream2, true);
+            doc.AppendContentStream(contentStream2, true);
 
             doc2.Delete(true);
 

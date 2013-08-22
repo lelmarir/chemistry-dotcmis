@@ -113,6 +113,9 @@ namespace DotCMIS.Binding.Services
             IContentStream contentStream, IExtensionsData extension);
 
         void DeleteContentStream(string repositoryId, ref string objectId, ref string changeToken, IExtensionsData extension);
+
+        void AppendContentStream(string repositoryId, ref string objectId, bool? isLastChunk, ref string changeToken,
+            IContentStream contentStream, IExtensionsData extension);
     }
 
     public interface IVersioningService

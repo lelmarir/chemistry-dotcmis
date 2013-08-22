@@ -900,6 +900,49 @@ namespace DotCMIS.Client.Impl
             return Session.CreateObjectId(newObjectId);
         }
 
+        public IDocument AppendContentStream(IContentStream contentStream, bool isLastTrunk)
+        {
+            IObjectId objectId = AppendContentStream(contentStream, isLastTrunk, true);
+            if (objectId == null)
+            {
+                return null;
+            }
+
+            if (ObjectId != objectId.Id)
+            {
+                return (IDocument)Session.GetObject(objectId, CreationContext);
+            }
+
+            return this;
+        }
+
+        public IObjectId AppendContentStream(IContentStream contentStream, bool isLastTrunk, bool refresh)
+        {
+            string newObjectId = null;
+
+            lock (objectLock)
+            {
+                string objectId = ObjectId;
+                string changeToken = ChangeToken;
+
+                Binding.GetObjectService().AppendContentStream(RepositoryId, ref objectId, isLastTrunk, ref changeToken, contentStream, null);
+
+                newObjectId = objectId;
+            }
+
+            if (refresh)
+            {
+                Refresh();
+            }
+
+            if (newObjectId == null)
+            {
+                return null;
+            }
+
+            return Session.CreateObjectId(newObjectId);
+        }
+
         public IDocument DeleteContentStream()
         {
             IObjectId objectId = DeleteContentStream(true);
