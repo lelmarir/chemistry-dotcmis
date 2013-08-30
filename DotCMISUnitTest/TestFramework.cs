@@ -119,6 +119,20 @@ namespace DotCMISUnitTest
             Assert.NotNull(TestFolder);
             Assert.NotNull(TestFolder.Id);
 
+            foreach (ICmisObject cmisObject in TestFolder.GetChildren())
+            {
+                IDocument document = cmisObject as IDocument;
+                IFolder folder = cmisObject as IFolder;
+                if (null != document)
+                {
+                    document.DeleteAllVersions();
+                }
+                if (null != folder)
+                {
+                    folder.DeleteTree(true, null, true);
+                }
+            }
+
             return session;
         }
 
