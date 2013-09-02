@@ -100,19 +100,19 @@ namespace DotCMIS.Binding.AtomPub
             collectionLinkCache.Initialize(new string[] {
                 dictionaryLevelName + " " + DictionaryCacheLevel.Capacity + "=" + repCount.ToString(), // repository
                 dictionaryLevelName + " " + DictionaryCacheLevel.Capacity + "=8" // collection
-            });
+        });
 
             templateCache = new Cache("URI Template Cache");
             templateCache.Initialize(new string[] {
                 dictionaryLevelName + " " + DictionaryCacheLevel.Capacity + "=" + repCount.ToString(), // repository
                 dictionaryLevelName + " " + DictionaryCacheLevel.Capacity + "=6" // type
-            });
+        });
 
             repositoryLinkCache = new Cache("Repository Link Cache");
             repositoryLinkCache.Initialize(new string[] {
                 dictionaryLevelName + " " + DictionaryCacheLevel.Capacity + "=" + repCount.ToString(), // repository
                 dictionaryLevelName + " " + DictionaryCacheLevel.Capacity + "=6" // rel
-            });
+        });
         }
 
         // ---- links ---

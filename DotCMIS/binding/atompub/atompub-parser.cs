@@ -80,8 +80,7 @@ namespace DotCMIS.Binding.AtomPub
             settings.IgnoreWhitespace = true;
             settings.IgnoreComments = true;
 
-            try
-            {
+            try {
                 using (XmlReader reader = XmlReader.Create(stream, settings))
                 {
                     while (true)

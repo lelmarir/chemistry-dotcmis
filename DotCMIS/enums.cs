@@ -307,7 +307,8 @@ namespace DotCMIS.Enums
     }
 
     // --- attribute class ---
-    [AttributeUsage (AttributeTargets.Field)]
+
+    [AttributeUsage(AttributeTargets.Field)]
     public class CmisValueAttribute : System.Attribute
     {
         public CmisValueAttribute(string value)
