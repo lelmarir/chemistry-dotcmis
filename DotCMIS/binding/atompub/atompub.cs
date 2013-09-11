@@ -2628,6 +2628,11 @@ namespace DotCMIS.Binding.AtomPub
                     if (IsNextLink(element))
                     {
                         result.HasMoreItems = true;
+                        string token = new UrlParser(((AtomLink)element.Object).Href).GetQueryValue(AtomPubConstants.ParamChangeLogToken);
+                        if (token != null)
+                        {
+                            changeLogToken = token;
+                        }
                     }
                 }
                 else if (IsInt(NameNumItems, element))

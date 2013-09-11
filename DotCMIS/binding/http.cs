@@ -23,7 +23,6 @@ using System.IO;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
-using System.Web;
 using DotCMIS.Enums;
 using DotCMIS.Exceptions;
 using DotCMIS.Util;
@@ -355,6 +354,50 @@ namespace DotCMIS.Binding.Impl
         public override string ToString()
         {
             return Url.ToString();
+        }
+    }
+
+    internal class UrlParser
+    {
+        private Uri uri;
+
+        public UrlParser(string url)
+        {
+            if (url == null)
+            {
+                throw new ArgumentNullException("url");
+            }
+
+            uri = new Uri(url);
+        }
+
+        public string GetQueryValue(string name)
+        {
+            string query = uri.Query;
+            if (!query.Contains("?"))
+            {
+                return null;
+            }
+            query = query.Substring(query.IndexOf('?') + 1);
+
+            foreach (string segment in query.Split('&'))
+            {
+                string[] parts = segment.Split('=');
+                if(parts[0] != name)
+                {
+                    continue;
+                }
+                if (parts.Length == 1)
+                {
+                    return string.Empty;
+                }
+                if (parts.Length == 2)
+                {
+                    return Uri.UnescapeDataString(parts[1]);
+                }
+                return null;
+            }
+            return null;
         }
     }
 
