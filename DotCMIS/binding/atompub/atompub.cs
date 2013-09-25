@@ -720,6 +720,10 @@ namespace DotCMIS.Binding.AtomPub
             parameters[AtomPubConstants.ParamId] = objectIdOrPath;
             parameters[AtomPubConstants.ParamPath] = objectIdOrPath;
             parameters[AtomPubConstants.ParamReturnVersion] = returnVersion;
+            if (filter == null)
+            {
+                filter = "*";
+            }
             parameters[AtomPubConstants.ParamFilter] = filter;
             parameters[AtomPubConstants.ParamAllowableActions] = includeAllowableActions;
             parameters[AtomPubConstants.ParamACL] = includeAcl;
