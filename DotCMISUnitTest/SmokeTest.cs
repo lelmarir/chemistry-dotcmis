@@ -477,7 +477,8 @@ namespace DotCMISUnitTest
             {
                 if (Session.RepositoryInfo.Capabilities.ChangesCapability != CapabilityChanges.None)
                 {
-                    IChangeEvents changeEvents = Session.GetContentChanges(null, true, 1000);
+                    bool requestProperties = Session.RepositoryInfo.Capabilities.ChangesCapability != CapabilityChanges.ObjectIdsOnly;
+                    IChangeEvents changeEvents = Session.GetContentChanges(null, requestProperties, 1000);
                     Assert.NotNull(changeEvents);
                 }
                 else
