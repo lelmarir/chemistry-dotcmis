@@ -204,7 +204,7 @@ namespace DotCMIS.Binding.Impl
                         }
                         retry++;
                         Thread.Sleep(50);
-                        Trace.WriteLine(we.Message + " retry No " + retry);
+                        Trace.WriteLine(we.Message + " retry No " + retry.ToString());
                     }
                 }
             }
