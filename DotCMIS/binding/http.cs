@@ -23,6 +23,8 @@ using System.IO;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
+
 using DotCMIS.Enums;
 using DotCMIS.Exceptions;
 using DotCMIS.Util;
@@ -69,132 +71,141 @@ namespace DotCMIS.Binding.Impl
                 {
                     Trace.WriteLine(method + " " + url);
                 }
+                //Handles infrequent networking conditions
+                int retry = 0;
+                for(;;){
 
-                // create connection           
-                HttpWebRequest conn = (HttpWebRequest)WebRequest.Create(url.Url);
-                conn.Method = method;
-                conn.UserAgent = "Apache Chemistry DotCMIS";
+                    // create connection           
+                    HttpWebRequest conn = (HttpWebRequest)WebRequest.Create(url.Url);
+                    conn.Method = method;
+                    conn.UserAgent = "Apache Chemistry DotCMIS";
 
-                // timeouts
-                int connectTimeout = session.GetValue(SessionParameter.ConnectTimeout, -2);
-                if (connectTimeout >= -1)
-                {
-                    conn.Timeout = connectTimeout;
-                }
-
-                int readTimeout = session.GetValue(SessionParameter.ReadTimeout, -2);
-                if (readTimeout >= -1)
-                {
-                    conn.ReadWriteTimeout = readTimeout;
-                }
-
-                // set content type
-                if (contentType != null)
-                {
-                    conn.ContentType = contentType;
-                }
-
-                // set additional headers
-                if (headers != null)
-                {
-                    foreach (KeyValuePair<string, string> header in headers)
+                    // timeouts
+                    int connectTimeout = session.GetValue(SessionParameter.ConnectTimeout, -2);
+                    if (connectTimeout >= -1)
                     {
-                        conn.Headers.Add(header.Key, header.Value);
+                        conn.Timeout = connectTimeout;
                     }
-                }
 
-                // authenticate
-                IAuthenticationProvider authProvider = session.GetAuthenticationProvider();
-                if (authProvider != null)
-                {
-                    conn.PreAuthenticate = true;
-                    authProvider.Authenticate(conn);
-                }
-
-                // range
-                if (offset != null && length != null)
-                {
-                    if (offset < Int32.MaxValue && offset + length - 1 < Int32.MaxValue)
+                    int readTimeout = session.GetValue(SessionParameter.ReadTimeout, -2);
+                    if (readTimeout >= -1)
                     {
-                        conn.AddRange((int)offset, (int)offset + (int)length - 1);
+                        conn.ReadWriteTimeout = readTimeout;
                     }
-                    else
+
+                    // set content type
+                    if (contentType != null)
                     {
-                        try
+                        conn.ContentType = contentType;
+                    }
+
+                    // set additional headers
+                    if (headers != null)
+                    {
+                        foreach (KeyValuePair<string, string> header in headers)
                         {
-                            MethodInfo mi = conn.GetType().GetMethod("AddRange", new Type[] { typeof(Int64), typeof(Int64) });
-                            mi.Invoke(conn, new object[] { offset, offset + length - 1 });
-                        }
-                        catch (Exception e)
-                        {
-                            throw new CmisInvalidArgumentException("Offset or length too big!", e);
+                            conn.Headers.Add(header.Key, header.Value);
                         }
                     }
-                }
-                else if (offset != null)
-                {
-                    if (offset < Int32.MaxValue)
-                    {
-                        conn.AddRange((int)offset);
-                    }
-                    else
-                    {
-                        try
-                        {
-                            MethodInfo mi = conn.GetType().GetMethod("AddRange", new Type[] { typeof(Int64) });
-                            mi.Invoke(conn, new object[] { offset });
-                        }
-                        catch (Exception e)
-                        {
-                            throw new CmisInvalidArgumentException("Offset too big!", e);
-                        }
-                    }
-                }
 
-                // compression
-                string compressionFlag = session.GetValue(SessionParameter.Compression) as string;
-                if (compressionFlag != null && compressionFlag.ToLower().Equals("true"))
-                {
-                    conn.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-                }
-
-                // send data
-                if (writer != null)
-                {
-                    conn.SendChunked = true;
-                    Stream requestStream = conn.GetRequestStream();
-                    writer(requestStream);
-                    requestStream.Close();
-                }
-                else
-                {
-#if __MonoCS__
-                    //around for MONO HTTP DELETE issue
-                    //http://stackoverflow.com/questions/11785597/monotouch-iphone-call-to-httpwebrequest-getrequeststream-connects-to-server
-                    if (method == "DELETE")
-                    {
-                        conn.ContentLength = 0;
-                        Stream requestStream = conn.GetRequestStream();
-                        requestStream.Close();
-                    }
-#endif
-                }
-
-                // connect
-                try
-                {
-                    HttpWebResponse response = (HttpWebResponse)conn.GetResponse();
-
+                    // authenticate
+                    IAuthenticationProvider authProvider = session.GetAuthenticationProvider();
                     if (authProvider != null)
                     {
-                        authProvider.HandleResponse(response);
+                        conn.PreAuthenticate = true;
+                        authProvider.Authenticate(conn);
                     }
 
-                    return new Response(response);
-                }
-                catch (WebException we)
-                {
-                    return new Response(we);
+                    // range
+                    if (offset != null && length != null)
+                    {
+                        if (offset < Int32.MaxValue && offset + length - 1 < Int32.MaxValue)
+                        {
+                            conn.AddRange((int)offset, (int)offset + (int)length - 1);
+                        }
+                        else
+                        {
+                            try
+                            {
+                                MethodInfo mi = conn.GetType().GetMethod("AddRange", new Type[] { typeof(Int64), typeof(Int64) });
+                                mi.Invoke(conn, new object[] { offset, offset + length - 1 });
+                            }
+                            catch (Exception e)
+                            {
+                                throw new CmisInvalidArgumentException("Offset or length too big!", e);
+                            }
+                        }
+                    }
+                    else if (offset != null)
+                    {
+                        if (offset < Int32.MaxValue)
+                        {
+                            conn.AddRange((int)offset);
+                        }
+                        else
+                        {
+                            try
+                            {
+                                MethodInfo mi = conn.GetType().GetMethod("AddRange", new Type[] { typeof(Int64) });
+                                mi.Invoke(conn, new object[] { offset });
+                            }
+                            catch (Exception e)
+                            {
+                                throw new CmisInvalidArgumentException("Offset too big!", e);
+                            }
+                        }
+                    }
+
+                    // compression
+                    string compressionFlag = session.GetValue(SessionParameter.Compression) as string;
+                    if (compressionFlag != null && compressionFlag.ToLower().Equals("true"))
+                    {
+                        conn.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+                    }
+
+                    // send data
+                    if (writer != null)
+                    {
+                        conn.SendChunked = true;
+                        Stream requestStream = conn.GetRequestStream();
+                        writer(requestStream);
+                        requestStream.Close();
+                    }
+                    else
+                    {
+#if __MonoCS__
+                        //around for MONO HTTP DELETE issue
+                        //http://stackoverflow.com/questions/11785597/monotouch-iphone-call-to-httpwebrequest-getrequeststream-connects-to-server
+                        if (method == "DELETE")
+                        {
+                            conn.ContentLength = 0;
+                            Stream requestStream = conn.GetRequestStream();
+                            requestStream.Close();
+                        }
+#endif
+                    }
+
+                    // connect
+                    try
+                    {
+                        HttpWebResponse response = (HttpWebResponse)conn.GetResponse();
+
+                        if (authProvider != null)
+                        {
+                            authProvider.HandleResponse(response);
+                        }
+
+                        return new Response(response);
+                    }
+                    catch (WebException we)
+                    {
+                        if(5 == retry){
+                            return new Response(we);
+                        }
+                        retry++;
+                        Thread.Sleep(50);
+                        Trace.WriteLine(we.Message + " retry No " + retry);
+                    }
                 }
             }
             catch (Exception e)
