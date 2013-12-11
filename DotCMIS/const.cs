@@ -72,6 +72,9 @@ namespace DotCMIS
         // message size
         public const string MessageSize = "org.apache.chemistry.dotcmis.binding.message.size";
 
+        // device management
+        public const string DeviceIdentifier = "org.apache.chemistry.dotcmis.devicemanagement.identifier";
+
         // session parameter
         public const string ObjectFactoryClass = "org.apache.chemistry.dotcmis.objectfactory.classname";
         public const string CacheClass = "org.apache.chemistry.dotcmis.cache.classname";

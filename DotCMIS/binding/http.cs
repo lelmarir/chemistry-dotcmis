@@ -78,7 +78,9 @@ namespace DotCMIS.Binding.Impl
                     // create connection           
                     HttpWebRequest conn = (HttpWebRequest)WebRequest.Create(url.Url);
                     conn.Method = method;
-                    conn.UserAgent = "Apache Chemistry DotCMIS";
+
+                    string deviceIdentifier = session.GetValue(SessionParameter.DeviceIdentifier) as String;
+                    conn.UserAgent = deviceIdentifier == null ? "Apache Chemistry DotCMIS" : deviceIdentifier;
 
                     // timeouts
                     int connectTimeout = session.GetValue(SessionParameter.ConnectTimeout, -2);
