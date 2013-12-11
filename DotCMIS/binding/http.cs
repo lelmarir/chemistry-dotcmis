@@ -75,12 +75,20 @@ namespace DotCMIS.Binding.Impl
                 int retry = 0;
                 for(;;){
 
-                    // create connection           
+                    // create connection
                     HttpWebRequest conn = (HttpWebRequest)WebRequest.Create(url.Url);
                     conn.Method = method;
 
+                    // device management
                     string deviceIdentifier = session.GetValue(SessionParameter.DeviceIdentifier) as String;
-                    conn.UserAgent = deviceIdentifier == null ? "Apache Chemistry DotCMIS" : deviceIdentifier;
+                    if(deviceIdentifier != null)
+                    {
+                        conn.Headers.Add("Device-ID", deviceIdentifier);
+                    }
+
+                    // user agent
+                    string userAgent = session.GetValue(SessionParameter.UserAgent) as String;
+                    conn.UserAgent = userAgent == null ? "Apache Chemistry DotCMIS" : userAgent;
 
                     // timeouts
                     int connectTimeout = session.GetValue(SessionParameter.ConnectTimeout, -2);
