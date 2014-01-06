@@ -113,7 +113,7 @@ namespace DotCMIS.Binding
             {
                 if (request.Headers.GetValues("Authorization") == null)
                 {
-                    request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes((user ?? "") + ":" + (password ?? ""))));
+                    request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(System.Text.Encoding.GetEncoding(28591).GetBytes((user ?? "") + ":" + (password ?? ""))));
                 }
             }
         }

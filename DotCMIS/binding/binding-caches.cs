@@ -72,18 +72,17 @@ namespace DotCMIS.Binding
 
         public void Initialize(string[] cacheLevelConfig)
         {
-            if (cacheLevels != null)
-            {
-                throw new ApplicationException("Cache already initialize!");
-            }
-
-            if ((cacheLevelConfig == null) || (cacheLevelConfig.Length == 0))
-            {
-                throw new ArgumentException("Cache config must not be empty!");
-            }
-
             lock (cacheLock)
             {
+                if (cacheLevels != null)
+                {
+                    throw new ApplicationException("Cache already initialize!");
+                }
+
+                if ((cacheLevelConfig == null) || (cacheLevelConfig.Length == 0))
+                {
+                    throw new ArgumentException("Cache config must not be empty!");
+                }
                 cacheLevels = new List<Type>();
                 cacheLevelParameters = new List<IDictionary<string, string>>();
 
