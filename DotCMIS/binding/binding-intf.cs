@@ -65,7 +65,7 @@ namespace DotCMIS.Binding
 
         public abstract void Authenticate(object connection);
 
-        public void HandleResponse(object connection)
+        public virtual void HandleResponse(object connection)
         {
         }
 
