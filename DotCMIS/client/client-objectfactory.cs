@@ -126,6 +126,8 @@ namespace DotCMIS.Client.Impl
                     return new RelationshipType(session, (IRelationshipTypeDefinition)typeDefinition);
                 case BaseTypeId.CmisPolicy:
                     return new PolicyType(session, (IPolicyTypeDefinition)typeDefinition);
+                case BaseTypeId.CmisSecondary:
+                    return new SecondaryType(session, (ISecondaryTypeDefinition)typeDefinition);
                 default:
                     throw new CmisRuntimeException("Unknown base type!");
             }

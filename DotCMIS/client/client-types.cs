@@ -125,6 +125,28 @@ namespace DotCMIS.Client.Impl
         public bool IsBaseType { get { return helper.IsBaseType; } }
     }
 
+    public class SecondaryType : SecondaryTypeDefinition, ISecondaryType
+    {
+        private ObjectTypeHelper helper;
+
+        public SecondaryType(ISession session, ISecondaryTypeDefinition typeDefinition)
+        {
+            Initialize(typeDefinition);
+            helper = new ObjectTypeHelper(session, this);
+        }
+
+        public IObjectType GetBaseType() { return helper.GetBaseType(); }
+
+        public IItemEnumerable<IObjectType> GetChildren() { return helper.GetChildren(); }
+
+        public IList<ITree<IObjectType>> GetDescendants(int depth) { return helper.GetDescendants(depth); }
+
+        public IObjectType GetParentType() { return helper.GetParentType(); }
+
+        public bool IsBaseType { get { return helper.IsBaseType; } }
+
+    }
+
     /// <summary>
     /// Relationship type implementation.
     /// </summary>

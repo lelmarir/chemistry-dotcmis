@@ -113,6 +113,10 @@ namespace DotCMIS.Data
     {
     }
 
+	public interface ISecondaryTypeDefinition : ITypeDefinition
+	{
+	}
+
     public interface IPolicyTypeDefinition : ITypeDefinition
     {
     }

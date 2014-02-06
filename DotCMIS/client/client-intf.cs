@@ -430,6 +430,10 @@ namespace DotCMIS.Client
     {
     }
 
+    public interface ISecondaryType : IObjectType
+    {
+    }
+
     /// <summary>
     /// Relationship type interface.
     /// </summary>
