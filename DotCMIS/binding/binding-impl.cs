@@ -41,7 +41,7 @@ namespace DotCMIS.Binding.Impl
         {
         }
 
-        public CmisBinding(IDictionary<string, string> sessionParameters, AbstractAuthenticationProvider authenticationProvider)
+        public CmisBinding(IDictionary<string, string> sessionParameters, IAuthenticationProvider authenticationProvider)
         {
             if (sessionParameters == null)
             {

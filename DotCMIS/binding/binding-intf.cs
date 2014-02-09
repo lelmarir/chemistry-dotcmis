@@ -56,6 +56,9 @@ namespace DotCMIS.Binding
         void Authenticate(object connection);
 
         void HandleResponse(object connection);
+
+        IBindingSession Session { get; set; }
+
     }
 
     public abstract class AbstractAuthenticationProvider : IAuthenticationProvider
@@ -301,7 +304,7 @@ namespace DotCMIS.Binding
             }
         }
 
-        public ICmisBinding CreateCmisBinding(IDictionary<string, string> sessionParameters, AbstractAuthenticationProvider authenticationProvider)
+        public ICmisBinding CreateCmisBinding(IDictionary<string, string> sessionParameters, IAuthenticationProvider authenticationProvider)
         {
             CheckSessionParameters(sessionParameters, true);
             AddDefaultParameters(sessionParameters);
@@ -309,7 +312,7 @@ namespace DotCMIS.Binding
             return new CmisBinding(sessionParameters, authenticationProvider);
         }
 
-        public ICmisBinding CreateCmisAtomPubBinding(IDictionary<string, string> sessionParameters, AbstractAuthenticationProvider authenticationProvider)
+        public ICmisBinding CreateCmisAtomPubBinding(IDictionary<string, string> sessionParameters, IAuthenticationProvider authenticationProvider)
         {
             CheckSessionParameters(sessionParameters, false);
             sessionParameters[SessionParameter.BindingSpiClass] = BindingSpiAtomPub;
@@ -328,7 +331,7 @@ namespace DotCMIS.Binding
             return new CmisBinding(sessionParameters, authenticationProvider);
         }
 
-        public ICmisBinding CreateCmisWebServicesBinding(IDictionary<string, string> sessionParameters, AbstractAuthenticationProvider authenticationProvider)
+        public ICmisBinding CreateCmisWebServicesBinding(IDictionary<string, string> sessionParameters, IAuthenticationProvider authenticationProvider)
         {
             CheckSessionParameters(sessionParameters, false);
             sessionParameters[SessionParameter.BindingSpiClass] = BindingSpiWebServices;

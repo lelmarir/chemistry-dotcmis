@@ -48,7 +48,7 @@ namespace DotCMIS.Client.Impl
             return CreateSession(parameters, null, null, null);
         }
 
-        public ISession CreateSession(IDictionary<string, string> parameters, IObjectFactory objectFactory, AbstractAuthenticationProvider authenticationProvider, ICache cache)
+        public ISession CreateSession(IDictionary<string, string> parameters, IObjectFactory objectFactory, IAuthenticationProvider authenticationProvider, ICache cache)
         {
             Session session = new Session(parameters, objectFactory, authenticationProvider, cache);
             session.Connect();
@@ -61,7 +61,7 @@ namespace DotCMIS.Client.Impl
             return GetRepositories(parameters, null, null, null);
         }
 
-        public IList<IRepository> GetRepositories(IDictionary<string, string> parameters, IObjectFactory objectFactory, AbstractAuthenticationProvider authenticationProvider, ICache cache)
+        public IList<IRepository> GetRepositories(IDictionary<string, string> parameters, IObjectFactory objectFactory, IAuthenticationProvider authenticationProvider, ICache cache)
         {
             ICmisBinding binding = CmisBindingHelper.CreateBinding(parameters);
 
@@ -87,7 +87,7 @@ namespace DotCMIS.Client.Impl
             return CreateBinding(parameters, null);
         }
 
-        public static ICmisBinding CreateBinding(IDictionary<string, string> parameters, AbstractAuthenticationProvider authenticationProvider)
+        public static ICmisBinding CreateBinding(IDictionary<string, string> parameters, IAuthenticationProvider authenticationProvider)
         {
             if (parameters == null)
             {
@@ -113,7 +113,7 @@ namespace DotCMIS.Client.Impl
             }
         }
 
-        private static ICmisBinding CreateCustomBinding(IDictionary<string, string> parameters, AbstractAuthenticationProvider authenticationProvider)
+        private static ICmisBinding CreateCustomBinding(IDictionary<string, string> parameters, IAuthenticationProvider authenticationProvider)
         {
             CmisBindingFactory factory = CmisBindingFactory.NewInstance();
             ICmisBinding binding = factory.CreateCmisBinding(parameters, authenticationProvider);
@@ -121,7 +121,7 @@ namespace DotCMIS.Client.Impl
             return binding;
         }
 
-        private static ICmisBinding CreateWebServiceBinding(IDictionary<string, string> parameters, AbstractAuthenticationProvider authenticationProvider)
+        private static ICmisBinding CreateWebServiceBinding(IDictionary<string, string> parameters, IAuthenticationProvider authenticationProvider)
         {
             CmisBindingFactory factory = CmisBindingFactory.NewInstance();
             ICmisBinding binding = factory.CreateCmisWebServicesBinding(parameters, authenticationProvider);
@@ -129,7 +129,7 @@ namespace DotCMIS.Client.Impl
             return binding;
         }
 
-        private static ICmisBinding CreateAtomPubBinding(IDictionary<string, string> parameters, AbstractAuthenticationProvider authenticationProvider)
+        private static ICmisBinding CreateAtomPubBinding(IDictionary<string, string> parameters, IAuthenticationProvider authenticationProvider)
         {
             CmisBindingFactory factory = CmisBindingFactory.NewInstance();
             ICmisBinding binding = factory.CreateCmisAtomPubBinding(parameters, authenticationProvider);
@@ -146,10 +146,10 @@ namespace DotCMIS.Client.Impl
         private IDictionary<string, string> parameters;
         private SessionFactory sessionFactory;
         private IObjectFactory objectFactory;
-        private AbstractAuthenticationProvider authenticationProvider;
+        private IAuthenticationProvider authenticationProvider;
         private ICache cache;
 
-        public Repository(IRepositoryInfo info, IDictionary<string, string> parameters, SessionFactory sessionFactory, IObjectFactory objectFactory, AbstractAuthenticationProvider authenticationProvider, ICache cache)
+        public Repository(IRepositoryInfo info, IDictionary<string, string> parameters, SessionFactory sessionFactory, IObjectFactory objectFactory, IAuthenticationProvider authenticationProvider, ICache cache)
             : base(info)
         {
             this.parameters = new Dictionary<string, string>(parameters);
@@ -193,7 +193,7 @@ namespace DotCMIS.Client.Impl
         public string RepositoryId { get { return RepositoryInfo.Id; } }
 
         public IObjectFactory ObjectFactory { get; protected set; }
-        protected AbstractAuthenticationProvider AuthenticationProvider { get; set; }
+        protected IAuthenticationProvider AuthenticationProvider { get; set; }
         protected ICache Cache { get; set; }
         protected bool cachePathOmit;
 
@@ -216,7 +216,7 @@ namespace DotCMIS.Client.Impl
             }
         }
 
-        public Session(IDictionary<string, string> parameters, IObjectFactory objectFactory, AbstractAuthenticationProvider authenticationProvider, ICache cache)
+        public Session(IDictionary<string, string> parameters, IObjectFactory objectFactory, IAuthenticationProvider authenticationProvider, ICache cache)
         {
             if (parameters == null)
             {
