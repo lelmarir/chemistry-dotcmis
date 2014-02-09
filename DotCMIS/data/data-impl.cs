@@ -203,6 +203,10 @@ namespace DotCMIS.Data.Impl
     {
     }
 
+	public class SecondaryTypeDefinition : AbstractTypeDefinition, ISecondaryTypeDefinition
+	{
+	}
+
     public class RelationshipTypeDefinition : AbstractTypeDefinition, IRelationshipTypeDefinition
     {
         public IList<string> AllowedSourceTypeIds { get; set; }

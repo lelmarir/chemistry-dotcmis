@@ -339,6 +339,10 @@ namespace DotCMIS.Binding
 
                 result = relType;
             }
+            else if (typeDef is cmisTypeSecondaryDefinitionType)
+            {
+                result = new SecondaryTypeDefinition();
+            }
 
             result.Id = typeDef.id;
             result.LocalName = typeDef.localName;
