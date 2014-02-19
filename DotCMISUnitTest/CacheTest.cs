@@ -204,5 +204,6 @@ namespace DotCMISUnitTest
         public DateTime RefreshTimestamp { get { return DateTime.Now; } }
         public void Refresh() { }
         public void RefreshIfOld(long durationInMillis) { }
+        public IList<ISecondaryType> SecondaryTypes { get{ return null; } }
     }
 }
