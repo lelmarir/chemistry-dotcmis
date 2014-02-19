@@ -653,7 +653,7 @@ namespace DotCMIS.Client.Impl
                 throw new ArgumentException("Properties must not be empty!");
             }
 
-            string newId = Binding.GetObjectService().CreateDocument(RepositoryId, ObjectFactory.ConvertProperties(properties, null,
+            string newId = Binding.GetObjectService().CreateDocument(RepositoryId, ObjectFactory.ConvertProperties(properties, null, null,
                 (versioningState == VersioningState.CheckedOut ? CreateAndCheckoutUpdatability : CreateUpdatability)),
                 (folderId == null ? null : folderId.Id), contentStream, versioningState, ObjectFactory.ConvertPolicies(policies),
                 ObjectFactory.ConvertAces(addAces), ObjectFactory.ConvertAces(removeAces), null);
@@ -677,14 +677,17 @@ namespace DotCMIS.Client.Impl
 
             // get the type of the source document
             IObjectType type = null;
+            IList<ISecondaryType> secondaryTypes = null;
             if (source is ICmisObject)
             {
                 type = ((ICmisObject)source).ObjectType;
+                secondaryTypes = ((ICmisObject) source).SecondaryTypes;
             }
             else
             {
                 ICmisObject sourceObj = GetObject(source);
                 type = sourceObj.ObjectType;
+                secondaryTypes = sourceObj.SecondaryTypes;
             }
 
             if (type.BaseTypeId != BaseTypeId.CmisDocument)
@@ -693,7 +696,7 @@ namespace DotCMIS.Client.Impl
             }
 
             string newId = Binding.GetObjectService().CreateDocumentFromSource(RepositoryId, source.Id,
-                ObjectFactory.ConvertProperties(properties, type,
+                ObjectFactory.ConvertProperties(properties, type, secondaryTypes,
                 (versioningState == VersioningState.CheckedOut ? CreateAndCheckoutUpdatability : CreateUpdatability)),
                 (folderId == null ? null : folderId.Id),
                 versioningState, ObjectFactory.ConvertPolicies(policies), ObjectFactory.ConvertAces(addAces),
@@ -720,7 +723,7 @@ namespace DotCMIS.Client.Impl
                 throw new ArgumentException("Properties must not be empty!");
             }
 
-            string newId = Binding.GetObjectService().CreateFolder(RepositoryId, ObjectFactory.ConvertProperties(properties, null, CreateUpdatability),
+            string newId = Binding.GetObjectService().CreateFolder(RepositoryId, ObjectFactory.ConvertProperties(properties, null, null, CreateUpdatability),
                 (folderId == null ? null : folderId.Id), ObjectFactory.ConvertPolicies(policies), ObjectFactory.ConvertAces(addAces),
                 ObjectFactory.ConvertAces(removeAces), null);
 
@@ -740,7 +743,7 @@ namespace DotCMIS.Client.Impl
                 throw new ArgumentException("Properties must not be empty!");
             }
 
-            string newId = Binding.GetObjectService().CreatePolicy(RepositoryId, ObjectFactory.ConvertProperties(properties, null, CreateUpdatability),
+            string newId = Binding.GetObjectService().CreatePolicy(RepositoryId, ObjectFactory.ConvertProperties(properties, null, null, CreateUpdatability),
                 (folderId == null ? null : folderId.Id), ObjectFactory.ConvertPolicies(policies), ObjectFactory.ConvertAces(addAces),
                 ObjectFactory.ConvertAces(removeAces), null);
 
@@ -760,7 +763,7 @@ namespace DotCMIS.Client.Impl
                 throw new ArgumentException("Properties must not be empty!");
             }
 
-            string newId = Binding.GetObjectService().CreateRelationship(RepositoryId, ObjectFactory.ConvertProperties(properties, null, CreateUpdatability),
+            string newId = Binding.GetObjectService().CreateRelationship(RepositoryId, ObjectFactory.ConvertProperties(properties, null, null, CreateUpdatability),
                 ObjectFactory.ConvertPolicies(policies), ObjectFactory.ConvertAces(addAces), ObjectFactory.ConvertAces(removeAces), null);
 
             return newId == null ? null : CreateObjectId(newId);

@@ -161,19 +161,38 @@ namespace DotCMIS.Client.Impl
             return new Property(type, (IList<object>)values);
         }
 
-        protected IProperty ConvertProperty(IObjectType objectType, IPropertyData pd)
+        protected IProperty ConvertProperty(IObjectType objectType, IList<ISecondaryType> secondaryTypes, IPropertyData pd)
         {
             IPropertyDefinition definition = objectType[pd.Id];
             if (definition == null)
             {
+                // search secondary types
+                if (secondaryTypes != null)
+                {
+                    foreach (ISecondaryType secondaryType in secondaryTypes)
+                    {
+                        if (secondaryType.PropertyDefinitions != null)
+                        {
+                            foreach(IPropertyDefinition propertyDefinition in secondaryType.PropertyDefinitions)
+                            {
+                                if(propertyDefinition.Id == pd.Id)
+                                {
+                                    definition = propertyDefinition;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
                 // property without definition
-                throw new CmisRuntimeException("Property '" + pd.Id + "' doesn't exist!");
+                if(definition == null)
+                    throw new CmisRuntimeException("Property '" + pd.Id + "' doesn't exist!");
             }
 
             return CreateProperty(definition, pd.Values);
         }
 
-        public IDictionary<string, IProperty> ConvertProperties(IObjectType objectType, IProperties properties)
+        public IDictionary<string, IProperty> ConvertProperties(IObjectType objectType, IList<ISecondaryType> secondaryTypes, IProperties properties)
         {
             if (objectType == null)
             {
@@ -195,14 +214,14 @@ namespace DotCMIS.Client.Impl
             foreach (IPropertyData property in properties.PropertyList)
             {
                 // find property definition
-                IProperty apiProperty = ConvertProperty(objectType, property);
+                IProperty apiProperty = ConvertProperty(objectType, secondaryTypes, property);
                 result[property.Id] = apiProperty;
             }
 
             return result;
         }
 
-        public IProperties ConvertProperties(IDictionary<string, object> properties, IObjectType type, HashSet<Updatability> updatabilityFilter)
+        public IProperties ConvertProperties(IDictionary<string, object> properties, IObjectType type, IList<ISecondaryType> secondaryTypes, HashSet<Updatability> updatabilityFilter)
         {
             // check input
             if (properties == null)
@@ -228,6 +247,35 @@ namespace DotCMIS.Client.Impl
                 type = session.GetTypeDefinition(typeId);
             }
 
+            // get secondary types
+            IList<ISecondaryType> allSecondaryTypes = null;
+            object secondaryTypeIds;
+            properties.TryGetValue(PropertyIds.SecondaryObjectTypeIds, out secondaryTypeIds);
+            if (secondaryTypeIds is IList<string>)
+            {
+                allSecondaryTypes = new List<ISecondaryType>();
+
+                foreach (string secondaryTypeId in (secondaryTypeIds as IList<string>))
+                {
+                    if (!(secondaryTypeId is string)) {
+                        throw new ArgumentException("Secondary types property contains an invalid entry: "
+                                                    + secondaryTypeId);
+                    }
+
+                    IObjectType secondaryType = session.GetTypeDefinition(secondaryTypeId.ToString());
+                    if (!(secondaryType is ISecondaryType)) {
+                        throw new ArgumentException(
+                            "Secondary types property contains a type that is not a secondary type: " + secondaryTypeId);
+                    }
+
+                    allSecondaryTypes.Add((ISecondaryType) secondaryType);
+                }
+            }
+
+            if (secondaryTypes != null && allSecondaryTypes == null) {
+                allSecondaryTypes = secondaryTypes;
+            }
+
             Properties result = new Properties();
 
             // the big loop
@@ -248,9 +296,27 @@ namespace DotCMIS.Client.Impl
 
                 // get the property definition
                 IPropertyDefinition definition = type[id];
-                if (definition == null)
+                if (definition == null && allSecondaryTypes != null)
                 {
-                    throw new ArgumentException("Property +'" + id + "' is not valid for this type!");
+                    foreach (ISecondaryType secondaryType in allSecondaryTypes)
+                    {
+                        if (secondaryType.PropertyDefinitions != null)
+                        {
+                            foreach(IPropertyDefinition propertyDefinition in secondaryType.PropertyDefinitions)
+                            {
+                                if(propertyDefinition.Id == id)
+                                {
+                                    definition = propertyDefinition;
+                                    break;
+                                }
+                            }
+                            if (definition != null) {
+                                break;
+                            }
+                        }
+                    }
+                    if (definition == null)
+                        throw new ArgumentException("Property +'" + id + "' is not valid for this type!");
                 }
 
                 // check updatability

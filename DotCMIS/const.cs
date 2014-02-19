@@ -109,6 +109,7 @@ namespace DotCMIS
         public const string LastModifiedBy = "cmis:lastModifiedBy";
         public const string LastModificationDate = "cmis:lastModificationDate";
         public const string ChangeToken = "cmis:changeToken";
+        public const string SecondaryObjectTypeIds = "cmis:secondaryObjectTypeIds";
 
         // ---- document ----
         public const string IsImmutable = "cmis:isImmutable";

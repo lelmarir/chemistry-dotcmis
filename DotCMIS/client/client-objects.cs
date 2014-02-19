@@ -51,6 +51,17 @@ namespace DotCMIS.Client.Impl
             }
         }
 
+        public IList<ISecondaryType> SecondaryTypes
+        {
+            get
+            {
+                lock(objectLock)
+                {
+                    return secondaryTypes;
+                }
+            }
+        }
+
         protected string ObjectId
         {
             get
@@ -74,7 +85,7 @@ namespace DotCMIS.Client.Impl
         private IList<IPolicy> policies;
         private IList<IRelationship> relationships;
         private IDictionary<ExtensionLevel, IList<ICmisExtensionElement>> extensions;
-
+        private IList<ISecondaryType> secondaryTypes;
         protected object objectLock = new object();
 
         protected void Initialize(ISession session, IObjectType objectType, IObjectData objectData, IOperationContext context)
@@ -108,7 +119,26 @@ namespace DotCMIS.Client.Impl
                 // handle properties
                 if (objectData.Properties != null)
                 {
-                    properties = of.ConvertProperties(objectType, objectData.Properties);
+                    // search secondaryObjectTypes
+                    foreach(IPropertyData property in objectData.Properties.PropertyList)
+                    {
+                        if(property.Id == PropertyIds.SecondaryObjectTypeIds)
+                        {
+                            IList<object> stids = property.Values as IList<object>;
+                            if(stids != null && stids.Count > 0)
+                            {
+                                secondaryTypes = new List<ISecondaryType>();
+                                foreach(object stid in stids) {
+                                    IObjectType type = Session.GetTypeDefinition(stid.ToString());
+                                    if( type is ISecondaryType)
+                                        secondaryTypes.Add(type as ISecondaryType);
+                                }
+                            }
+                            break;
+                        }
+                    }
+
+                    properties = of.ConvertProperties(objectType, secondaryTypes, objectData.Properties);
                     extensions[ExtensionLevel.Properties] = objectData.Properties.Extensions;
                 }
 
@@ -235,7 +265,7 @@ namespace DotCMIS.Client.Impl
 
                 // it's time to update
                 Binding.GetObjectService().UpdateProperties(RepositoryId, ref objectId, ref changeToken,
-                        Session.ObjectFactory.ConvertProperties(properties, this.objectType, updatebility), null);
+                        Session.ObjectFactory.ConvertProperties(properties, this.objectType, this.secondaryTypes, updatebility), null);
 
                 newObjectId = objectId;
             }
@@ -725,7 +755,7 @@ namespace DotCMIS.Client.Impl
                 updatebility.Add(Updatability.ReadWrite);
                 updatebility.Add(Updatability.WhenCheckedOut);
 
-                Binding.GetVersioningService().CheckIn(RepositoryId, ref objectId, major, of.ConvertProperties(properties, ObjectType, updatebility),
+                Binding.GetVersioningService().CheckIn(RepositoryId, ref objectId, major, of.ConvertProperties(properties, ObjectType, SecondaryTypes ,updatebility),
                     contentStream, checkinComment, of.ConvertPolicies(policies), of.ConvertAces(addAces), of.ConvertAces(removeAces), null);
 
                 newObjectId = objectId;

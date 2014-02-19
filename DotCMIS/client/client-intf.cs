@@ -298,8 +298,8 @@ namespace DotCMIS.Client
 
         // properties
         IProperty CreateProperty<T>(IPropertyDefinition type, IList<T> values);
-        IDictionary<string, IProperty> ConvertProperties(IObjectType objectType, IProperties properties);
-        IProperties ConvertProperties(IDictionary<string, object> properties, IObjectType type, HashSet<Updatability> updatabilityFilter);
+        IDictionary<string, IProperty> ConvertProperties(IObjectType objectType, IList<ISecondaryType> secondaryTypes, IProperties properties);
+        IProperties ConvertProperties(IDictionary<string, object> properties, IObjectType type, IList<ISecondaryType> secondaryTypes, HashSet<Updatability> updatabilityFilter);
         IList<IPropertyData> ConvertQueryProperties(IProperties properties);
 
         // objects
@@ -616,6 +616,14 @@ namespace DotCMIS.Client
         /// Gets the change token (CMIS property <c>cmis:changeToken</c>).
         /// </summary>
         string ChangeToken { get; }
+
+        /// <summary>
+        /// Gets the secondary object types.
+        /// </summary>
+        /// <value>
+        /// The secondary types.
+        /// </value>
+        IList<ISecondaryType> SecondaryTypes { get; }
     }
 
     public enum ExtensionLevel
