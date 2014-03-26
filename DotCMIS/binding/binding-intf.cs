@@ -85,6 +85,9 @@ namespace DotCMIS.Binding
 
     public class StandardAuthenticationProvider : AbstractAuthenticationProvider
     {
+
+        private readonly System.Text.Encoding BasicAuthEncoding = System.Text.Encoding.GetEncoding("utf-8");
+
         public StandardAuthenticationProvider()
         {
             Cookies = new CookieContainer();
@@ -116,7 +119,7 @@ namespace DotCMIS.Binding
             {
                 if (request.Headers.GetValues("Authorization") == null)
                 {
-                    request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(System.Text.Encoding.GetEncoding(28591).GetBytes((user ?? "") + ":" + (password ?? ""))));
+                    request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(BasicAuthEncoding.GetBytes((user ?? "") + ":" + (password ?? ""))));
                 }
             }
         }
