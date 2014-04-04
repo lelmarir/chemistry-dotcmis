@@ -65,7 +65,7 @@ namespace DotCMISUnitTest
             for (int i = 0; i < numOfDocuments; i++)
             {
                 Dictionary<string, object> docProps = new Dictionary<string, object>();
-                docProps[PropertyIds.Name] = "doc" + i;
+                docProps[PropertyIds.Name] = "doc" + i.ToString();
                 docProps[PropertyIds.ObjectTypeId] = "cmis:document";
 
                 folder.CreateDocument(docProps, null, null);
