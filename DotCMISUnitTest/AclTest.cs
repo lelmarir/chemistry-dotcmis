@@ -19,6 +19,12 @@ namespace DotCMISUnitTest
             //IAcl acl = Session.GetAcl(id, false);
             //Assert.NotNull(acl);
 
+            if(Session.RepositoryInfo.Capabilities.AclCapability == null ||
+                Session.RepositoryInfo.Capabilities.AclCapability == CapabilityAcl.None)
+            {
+                System.Console.WriteLine("ACLs are not supported. Test Skipped!");
+                return;
+            }
             string principalId = "admin";
             string permission = "cmis:write";
             Properties properties = new Properties();
