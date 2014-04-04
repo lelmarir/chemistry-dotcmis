@@ -27,7 +27,7 @@ namespace DotCMISUnitTest
             }
             string principalId = "admin";
             string permission = "cmis:write";
-            Properties properties = new Properties();
+
             IDictionary<string, object> dictionaryProperties = new Dictionary<string, object>();
             dictionaryProperties.Add("cmis:objectTypeId", "cmis:folder");
             dictionaryProperties.Add("cmis:name", "ft2");

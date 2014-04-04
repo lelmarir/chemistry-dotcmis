@@ -510,7 +510,7 @@ namespace DotCMISUnitTest
         {
             IFolder rootFolder = Session.GetRootFolder();
             IEnumerable<ICmisObject> children = rootFolder.GetChildren();
-            List<ICmisObject> childrenList = children.ToList();
+            children.ToList();
         }
     }
 }

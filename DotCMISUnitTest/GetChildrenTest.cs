@@ -10,33 +10,18 @@ using DotCMIS.Client;
 namespace DotCMISUnitTest
 {
     [TestFixture]
-    class GetChildrenTest
+    class GetChildrenTest : TestFramework
     {
         private static int numOfDocuments = 250;
 
         [Test]
         public void TestPaging()
         {
-            Dictionary<string, string> parameters = new Dictionary<string, string>();
 
-            string baseUrlAtom = "http://localhost:8080/inmemory/atom";
-            //string baseUrlAtom = "http://cmis.alfresco.com/cmisatom";
-           
-            string baseUrlWS = "http://localhost:8080/inmemory/services";
-
-            parameters[SessionParameter.BindingType] = BindingType.AtomPub;
-            parameters[SessionParameter.AtomPubUrl] = baseUrlAtom;
-            parameters[SessionParameter.User] = "admin";
-            parameters[SessionParameter.Password] = "admin";
-
-            SessionFactory factory = SessionFactory.NewInstance();
-            ISession session = factory.GetRepositories(parameters)[0].CreateSession();
-
-            IOperationContext oc = session.CreateOperationContext();
+            IOperationContext oc = Session.CreateOperationContext();
             oc.MaxItemsPerPage = 100;
 
-            IFolder folder = createData(session);
-            //IFolder folder = session.GetObjectByPath(@"/childrenTestFolder") as IFolder;
+            IFolder folder = createData(Session);
 
             int counter = 0;
             foreach (ICmisObject child in folder.GetChildren(oc))
