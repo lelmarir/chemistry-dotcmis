@@ -478,6 +478,37 @@ namespace DotCMIS.Binding.AtomPub
 
         // ---- common methods ----
 
+        protected cmisObjectType CreateObject(IProperties properties, string changeToken, IList<string> policies)
+        {
+            cmisObjectType cmisObject = new cmisObjectType();
+            IProperties newProps = properties;
+
+            if (changeToken != null)
+            {
+                newProps = new Properties();
+                if (properties != null)
+                {
+                    foreach (IPropertyData prop in properties.PropertyList)
+                    {
+                        ((Properties)newProps).AddProperty(prop);
+                    }
+                }
+
+                if (newProps[PropertyIds.ChangeToken] == null)
+                {
+                    PropertyData changeTokenProperty = new PropertyData(PropertyType.String);
+                    changeTokenProperty.Id = PropertyIds.ChangeToken;
+                    changeTokenProperty.AddValue(changeToken);
+                    ((Properties)newProps).AddProperty(changeTokenProperty);
+                }
+            }
+
+            cmisObject.properties = Converter.Convert(newProps);
+            cmisObject.policyIds = Converter.ConvertPolicies(policies);
+
+            return cmisObject;
+        }
+
         protected cmisObjectType CreateIdObject(string objectId)
         {
             cmisObjectType cmisObject = new cmisObjectType();
@@ -1488,9 +1519,7 @@ namespace DotCMIS.Binding.AtomPub
             url.AddParameter(AtomPubConstants.ParamVersioningState, versioningState);
 
             // set up object and writer
-            cmisObjectType cmisObject = new cmisObjectType();
-            cmisObject.properties = Converter.Convert(properties);
-            cmisObject.policyIds = Converter.ConvertPolicies(policies);
+            cmisObjectType cmisObject = CreateObject(properties, null, policies);
 
             string mediaType = null;
             Stream stream = null;
@@ -1540,9 +1569,7 @@ namespace DotCMIS.Binding.AtomPub
 
 
             // set up object and writer
-            cmisObjectType cmisObject = new cmisObjectType();
-            cmisObject.properties = Converter.Convert(properties);
-            cmisObject.policyIds = Converter.ConvertPolicies(policies);
+            cmisObjectType cmisObject = CreateObject(properties, null, policies);
 
             AtomEntryWriter entryWriter = new AtomEntryWriter(cmisObject);
 
@@ -1587,9 +1614,7 @@ namespace DotCMIS.Binding.AtomPub
             UrlBuilder url = new UrlBuilder(link);
 
             // set up object and writer
-            cmisObjectType cmisObject = new cmisObjectType();
-            cmisObject.properties = Converter.Convert(properties);
-            cmisObject.policyIds = Converter.ConvertPolicies(policies);
+            cmisObjectType cmisObject = CreateObject(properties, null, policies);
 
             AtomEntryWriter entryWriter = new AtomEntryWriter(cmisObject);
 
@@ -1636,9 +1661,7 @@ namespace DotCMIS.Binding.AtomPub
 
 
             // set up object and writer
-            cmisObjectType cmisObject = new cmisObjectType();
-            cmisObject.properties = Converter.Convert(properties);
-            cmisObject.policyIds = Converter.ConvertPolicies(policies);
+            cmisObjectType cmisObject = CreateObject(properties, null, policies);
 
             AtomEntryWriter entryWriter = new AtomEntryWriter(cmisObject);
 
@@ -1774,9 +1797,7 @@ namespace DotCMIS.Binding.AtomPub
             url.AddParameter(AtomPubConstants.ParamChangeToken, changeToken);
 
             // set up object and writer
-            cmisObjectType cmisObject = new cmisObjectType();
-            cmisObject.properties = Converter.Convert(properties);
-
+            cmisObjectType cmisObject = CreateObject(properties, changeToken, null);
             AtomEntryWriter entryWriter = new AtomEntryWriter(cmisObject);
 
             // update
@@ -2276,9 +2297,7 @@ namespace DotCMIS.Binding.AtomPub
             url.AddParameter(AtomPubConstants.ParamCheckIn, "true");
 
             // set up object and writer
-            cmisObjectType cmisObject = new cmisObjectType();
-            cmisObject.properties = Converter.Convert(properties);
-            cmisObject.policyIds = Converter.ConvertPolicies(policies);
+            cmisObjectType cmisObject = CreateObject(properties, null, policies);
 
             if (cmisObject.properties == null)
             {
