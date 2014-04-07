@@ -23,9 +23,10 @@ using System.Linq;
 
 namespace DotCMIS.Util
 {
-    internal class DotCMISDebug
+    public static class DotCMISDebug
     {
-        public static TraceSwitch DotCMISSwitch = new TraceSwitch("DotCMIS", "DotCMIS");
+        internal static TraceSwitch DotCMISSwitch = new TraceSwitch("DotCMIS", "DotCMIS");
+        public static TraceLevel DotCMISTraceLevel { get { return DotCMISSwitch.Level; } set {DotCMISSwitch.Level = value; } }
     }
 
     /// <summary>
