@@ -23,6 +23,7 @@ using DotCMIS.Binding;
 using DotCMIS.Data;
 using DotCMIS.Data.Extensions;
 using DotCMIS.Enums;
+using DotCMIS.Client.Impl.Cache;
 
 namespace DotCMIS.Client
 {
@@ -77,6 +78,16 @@ namespace DotCMIS.Client
         /// </example>
         /// <seealso cref="DotCMIS.SessionParameter"/>
         ISession CreateSession(IDictionary<string, string> parameters);
+
+        /// <summary>
+        /// Creates the session.
+        /// </summary>
+        /// <returns>The session.</returns>
+        /// <param name="parameters">Parameters.</param>
+        /// <param name="objectFactory">Object factory.</param>
+        /// <param name="authenticationProvider">Authentication provider.</param>
+        /// <param name="cache">Client object cache.</param>
+        ISession CreateSession(IDictionary<string, string> parameters, IObjectFactory objectFactory, IAuthenticationProvider authenticationProvider, ICache cache);
 
         /// <summary>
         /// Gets all repository available at the specified endpoint.
