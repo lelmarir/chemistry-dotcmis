@@ -310,22 +310,23 @@ namespace DotCMIS.Client.Impl
             if (!cacheEnabled)
             {
                 cacheKey = null;
+            } else {
+
+                StringBuilder sb = new StringBuilder();
+
+                sb.Append(includeAcls ? "1" : "0");
+                sb.Append(includeAllowableActions ? "1" : "0");
+                sb.Append(includePolicies ? "1" : "0");
+                sb.Append("|");
+                sb.Append(filter == null ? "" : FilterString);
+                sb.Append("|");
+                sb.Append(includeRelationships == null ? "" : includeRelationships.GetCmisValue());
+
+                sb.Append("|");
+                sb.Append(renditionFilter == null ? "" : RenditionFilterString);
+
+                cacheKey = sb.ToString();
             }
-
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append(includeAcls ? "1" : "0");
-            sb.Append(includeAllowableActions ? "1" : "0");
-            sb.Append(includePolicies ? "1" : "0");
-            sb.Append("|");
-            sb.Append(filter == null ? "" : FilterString);
-            sb.Append("|");
-            sb.Append(includeRelationships == null ? "" : includeRelationships.GetCmisValue());
-
-            sb.Append("|");
-            sb.Append(renditionFilter == null ? "" : RenditionFilterString);
-
-            cacheKey = sb.ToString();
         }
     }
 
