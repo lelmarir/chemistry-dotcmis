@@ -209,9 +209,14 @@ namespace DotCMIS.Binding.Impl
                     }
                     catch (WebException we)
                     {
-                        if(5 == retry){
+                        if (we.Response is HttpWebResponse && (we.Response as HttpWebResponse).StatusCode == HttpStatusCode.NotFound) {
                             return new Response(we);
                         }
+
+                        if (5 == retry) {
+                            return new Response(we);
+                        }
+
                         retry++;
                         Thread.Sleep(50);
                         Trace.WriteLine(we.Message + " retry No " + retry.ToString());
