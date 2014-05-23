@@ -273,6 +273,9 @@ namespace DotCMIS.Client
         IObjectId CreatePolicy(IDictionary<string, object> properties, IObjectId folderId, IList<IPolicy> policies, IList<IAce> addAces,
                 IList<IAce> removeAces);
         IObjectId CreatePolicy(IDictionary<string, object> properties, IObjectId folderId);
+        IObjectId CreateItem(IDictionary<string, object> properties, IObjectId folderId, IList<IPolicy> policies, IList<IAce> addAces,
+                IList<IAce> removeAces);
+        IObjectId CreateItem(IDictionary<string, object> properties, IObjectId folderId);
         IObjectId CreateRelationship(IDictionary<string, object> properties, IList<IPolicy> policies, IList<IAce> addAces,
                 IList<IAce> removeAces);
         IObjectId CreateRelationship(IDictionary<string, object> properties);

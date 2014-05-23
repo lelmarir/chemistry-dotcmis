@@ -80,6 +80,9 @@ namespace DotCMIS.Binding.Services
         string CreatePolicy(string repositoryId, IProperties properties, string folderId, IList<string> policies,
             IAcl addAces, IAcl removeAces, IExtensionsData extension);
 
+        string CreateItem(string repositoryId, IProperties properties, string folderId, IList<string> policies,
+            IAcl addAces, IAcl removeAces, IExtensionsData extension);
+
         IAllowableActions GetAllowableActions(string repositoryId, string objectId, IExtensionsData extension);
 
         IProperties GetProperties(string repositoryId, string objectId, string filter, IExtensionsData extension);
