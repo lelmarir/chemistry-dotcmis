@@ -203,7 +203,11 @@ namespace DotCMIS.Data.Impl
     {
     }
 
-	public class SecondaryTypeDefinition : AbstractTypeDefinition, ISecondaryTypeDefinition
+    public class ItemTypeDefinition : AbstractTypeDefinition, IItemTypeDefinition
+    {
+    }
+
+    public class SecondaryTypeDefinition : AbstractTypeDefinition, ISecondaryTypeDefinition
 	{
 	}
 

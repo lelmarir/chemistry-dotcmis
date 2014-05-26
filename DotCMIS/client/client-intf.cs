@@ -474,6 +474,13 @@ namespace DotCMIS.Client
     {
     }
 
+    /// <summary>
+    /// Item type interface.
+    /// </summary>
+    public interface IItemType : IObjectType
+    {
+    }
+
     public interface IItemEnumerable<T> : IEnumerable<T>
     {
         IItemEnumerable<T> SkipTo(long position);

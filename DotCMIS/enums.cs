@@ -38,6 +38,9 @@ namespace DotCMIS.Enums
         [CmisValue("cmis:policy")]
         CmisPolicy,
 
+        [CmisValue("cmis:item")]
+        CmisItem,
+
         [CmisValue("cmis:secondary")]
         CmisSecondary
     }
