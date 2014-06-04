@@ -122,7 +122,8 @@ namespace DotCMIS.Binding.Impl
                     IAuthenticationProvider authProvider = session.GetAuthenticationProvider();
                     if (authProvider != null)
                     {
-                        conn.PreAuthenticate = true;
+                        // Bugfix/Workaround for Mono HttpWebRequest bug on using http proxy
+                        // conn.PreAuthenticate = true;
                         authProvider.Authenticate(conn);
                     }
 
