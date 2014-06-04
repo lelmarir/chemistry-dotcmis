@@ -849,6 +849,32 @@ namespace DotCMIS.Binding.WebServices
             }
         }
 
+        public string CreateItem(string repositoryId, IProperties properties, string folderId, IList<string> policies,
+            IAcl addAces, IAcl removeAces, IExtensionsData extension)
+        {
+            ObjectServicePortClient port = Provider.GetObjectService();
+
+            try
+            {
+                cmisExtensionType cmisExtension = Converter.ConvertExtension(extension);
+
+                string objectId = port.createItem(repositoryId, Converter.Convert(properties), folderId,
+                    Converter.Convert(addAces), Converter.Convert(removeAces), ref cmisExtension);
+
+                Converter.ConvertExtension(cmisExtension, extension);
+
+                return objectId;
+            }
+            catch (FaultException<cmisFaultType> fe)
+            {
+                throw ConvertException(fe);
+            }
+            catch (Exception e)
+            {
+                throw new CmisRuntimeException("Error: " + e.Message, e);
+            }
+        }
+
         public IAllowableActions GetAllowableActions(string repositoryId, string objectId, IExtensionsData extension)
         {
             ObjectServicePortClient port = Provider.GetObjectService();

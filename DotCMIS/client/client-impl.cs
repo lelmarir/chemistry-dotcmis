@@ -872,6 +872,26 @@ namespace DotCMIS.Client.Impl
             return CreatePolicy(properties, folderId, null, null, null);
         }
 
+        public IObjectId CreateItem(IDictionary<string, object> properties, IObjectId folderId, IList<IPolicy> policies, IList<IAce> addAces,
+                IList<IAce> removeAces)
+        {
+            if (properties == null || properties.Count == 0)
+            {
+                throw new ArgumentException("Properties must not be empty!");
+            }
+
+            string newId = Binding.GetObjectService().CreateItem(RepositoryId, ObjectFactory.ConvertProperties(properties, null, null, CreateUpdatability),
+                (folderId == null ? null : folderId.Id), ObjectFactory.ConvertPolicies(policies), ObjectFactory.ConvertAces(addAces),
+                ObjectFactory.ConvertAces(removeAces), null);
+
+            return newId == null ? null : CreateObjectId(newId);
+        }
+
+        public IObjectId CreateItem(IDictionary<string, object> properties, IObjectId folderId)
+        {
+            return CreateItem(properties, folderId, null, null, null);
+        }
+
         public IObjectId CreateRelationship(IDictionary<string, object> properties, IList<IPolicy> policies, IList<IAce> addAces,
                 IList<IAce> removeAces)
         {

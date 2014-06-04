@@ -1677,6 +1677,53 @@ namespace DotCMIS.Binding.AtomPub
             return entry.Id;
         }
 
+        public string CreateItem(string repositoryId, IProperties properties, string folderId, IList<string> policies,
+            IAcl addAces, IAcl removeAces, IExtensionsData extension)
+        {
+            CheckCreateProperties(properties);
+
+            // find the link
+            string link = null;
+
+            if (folderId == null)
+            {
+                link = LoadCollection(repositoryId, AtomPubConstants.CollectionUnfiled);
+
+                if (link == null)
+                {
+                    throw new CmisObjectNotFoundException("Unknown respository or unfiling not supported!");
+                }
+            }
+            else
+            {
+                link = LoadLink(repositoryId, folderId, AtomPubConstants.RelDown, AtomPubConstants.MediatypeChildren);
+
+                if (link == null)
+                {
+                    ThrowLinkException(repositoryId, folderId, AtomPubConstants.RelDown, AtomPubConstants.MediatypeChildren);
+                }
+            }
+
+            UrlBuilder url = new UrlBuilder(link);
+
+
+            // set up object and writer
+            cmisObjectType cmisObject = CreateObject(properties, null, policies);
+
+            AtomEntryWriter entryWriter = new AtomEntryWriter(cmisObject);
+
+            // post the new folder object
+            HttpUtils.Response resp = Post(url, AtomPubConstants.MediatypeEntry, new HttpUtils.Output(entryWriter.Write));
+
+            // parse the response
+            AtomEntry entry = Parse<AtomEntry>(resp.Stream);
+
+            // handle ACL modifications
+            HandleAclModifications(repositoryId, entry, addAces, removeAces);
+
+            return entry.Id;
+        }
+
         public IAllowableActions GetAllowableActions(string repositoryId, string objectId, IExtensionsData extension)
         {
             // find the link

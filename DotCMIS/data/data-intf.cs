@@ -121,6 +121,10 @@ namespace DotCMIS.Data
     {
     }
 
+    public interface IItemTypeDefinition : ITypeDefinition
+    {
+    }
+
     public interface IRelationshipTypeDefinition : ITypeDefinition
     {
         IList<string> AllowedSourceTypeIds { get; }

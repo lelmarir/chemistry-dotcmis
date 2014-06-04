@@ -294,6 +294,10 @@ namespace DotCMIS.Binding
             {
                 result = new PolicyTypeDefinition();
             }
+            else if (typeDef is cmisTypeItemDefinitionType)
+            {
+                result = new ItemTypeDefinition();
+            }
             else if (typeDef is cmisTypeRelationshipDefinitionType)
             {
                 RelationshipTypeDefinition relType = new RelationshipTypeDefinition();
