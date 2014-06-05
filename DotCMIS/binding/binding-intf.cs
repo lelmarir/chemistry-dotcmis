@@ -86,9 +86,6 @@ namespace DotCMIS.Binding
 
     public class StandardAuthenticationProvider : AbstractAuthenticationProvider
     {
-
-        private readonly System.Text.Encoding BasicAuthEncoding = System.Text.Encoding.GetEncoding("utf-8");
-
         public StandardAuthenticationProvider()
         {
             Cookies = new CookieContainer();
@@ -118,10 +115,7 @@ namespace DotCMIS.Binding
             request.CookieContainer = Cookies;
             if (user != null || password != null)
             {
-                if (request.Credentials == null)
-                {
-                    request.Credentials = new NetworkCredential(user ?? string.Empty, password ?? string.Empty);
-                }
+                request.Credentials = new NetworkCredential(user ?? string.Empty, password ?? string.Empty);
             }
         }
 
@@ -215,11 +209,6 @@ namespace DotCMIS.Binding
 
     public class NtlmAuthenticationProvider : StandardAuthenticationProvider
     {
-        public NtlmAuthenticationProvider()
-        {
-            Cookies = new CookieContainer();
-        }
-
         protected override void HttpAuthenticate(HttpWebRequest request)
         {
             if (request != null)
@@ -235,8 +224,8 @@ namespace DotCMIS.Binding
                 {
                     request.Credentials = new NetworkCredential(user, password);
                 }
-                
-                request.CookieContainer = Cookies;
+
+                request.CookieContainer = this.Cookies;
                 request.AllowWriteStreamBuffering = true;
             }
         }
