@@ -1388,6 +1388,17 @@ namespace DotCMIS.Client.Impl
     }
 
     /// <summary>
+    /// Item implemetation.
+    /// </summary>
+    public class Item : AbstractFileableCmisObject
+    {
+        public Item(ISession session, IObjectType objectType, IObjectData objectData, IOperationContext context)
+        {
+            Initialize(session, objectType, objectData, context);
+        }
+    }
+
+    /// <summary>
     /// Relationship implemetation.
     /// </summary>
     public class Relationship : AbstractCmisObject, IRelationship

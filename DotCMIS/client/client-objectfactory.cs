@@ -402,6 +402,8 @@ namespace DotCMIS.Client.Impl
                     return new Folder(session, type, objectData, context);
                 case BaseTypeId.CmisPolicy:
                     return new Policy(session, type, objectData, context);
+                case BaseTypeId.CmisItem:
+                    return new Item(session, type, objectData, context);
                 case BaseTypeId.CmisRelationship:
                     return new Relationship(session, type, objectData, context);
                 default:
