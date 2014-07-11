@@ -221,13 +221,13 @@ namespace DotCMIS.Binding.Impl
                     {
                         if (we.Response is HttpWebResponse && (we.Response as HttpWebResponse).StatusCode == HttpStatusCode.NotFound) {
                             watch.Stop();
-                            Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceVerbose, string.Format("[{0}] received response {1} after {2} milisec", tag.ToString(), request));
+                            Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceVerbose, string.Format("[{0}] received response {1} after {2} milisec", tag.ToString(), request, watch.ElapsedMilliseconds.ToString()));
                             return new Response(we);
                         }
 
                         if (5 == retry) {
                             watch.Stop();
-                            Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceVerbose, string.Format("[{0}] received response {1} after {2} milisec", tag.ToString(), request));
+                            Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceVerbose, string.Format("[{0}] received response {1} after {2} milisec", tag.ToString(), request, watch.ElapsedMilliseconds.ToString()));
                             return new Response(we);
                         }
 
@@ -235,7 +235,7 @@ namespace DotCMIS.Binding.Impl
                         watch.Stop();
                         Thread.Sleep(50);
                         watch.Start();
-                        Trace.WriteLine(we.Message + " retry No " + retry.ToString() + DotCMISDebug.DotCMISSwitch.TraceVerbose ? " " + tag.ToString() : string.Empty);
+                        Trace.WriteLine(we.Message + " retry No " + retry.ToString() + (DotCMISDebug.DotCMISSwitch.TraceVerbose ? " " + tag.ToString() : string.Empty));
                     }
                 }
             }
