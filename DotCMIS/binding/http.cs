@@ -71,14 +71,8 @@ namespace DotCMIS.Binding.Impl
             try
             {
                 // log before connect
-                if (DotCMISDebug.DotCMISSwitch.TraceInfo)
-                {
-                    if (DotCMISDebug.DotCMISSwitch.TraceVerbose) {
-                        Trace.WriteLine(string.Format("[{0}] starting {1}", tag.ToString(), request));
-                    } else {
-                        Trace.WriteLine(request);
-                    }
-                }
+                Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] starting {1}", tag.ToString(), request));
+
                 //Handles infrequent networking conditions
                 int retry = 0;
                 for(;;){
@@ -213,7 +207,7 @@ namespace DotCMIS.Binding.Impl
                             authProvider.HandleResponse(response);
                         }
                         watch.Stop();
-                        Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceVerbose, string.Format("[{0}] received response {1} after {2} milisec", tag.ToString(), request, watch.ElapsedMilliseconds.ToString()));
+                        Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] received response {1} after {2} milisec", tag.ToString(), request, watch.ElapsedMilliseconds.ToString()));
 
                         return new Response(response);
                     }
@@ -221,13 +215,13 @@ namespace DotCMIS.Binding.Impl
                     {
                         if (we.Response is HttpWebResponse && (we.Response as HttpWebResponse).StatusCode == HttpStatusCode.NotFound) {
                             watch.Stop();
-                            Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceVerbose, string.Format("[{0}] received response {1} after {2} milisec", tag.ToString(), request, watch.ElapsedMilliseconds.ToString()));
+                            Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] received response {1} after {2} milisec", tag.ToString(), request, watch.ElapsedMilliseconds.ToString()));
                             return new Response(we);
                         }
 
                         if (5 == retry) {
                             watch.Stop();
-                            Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceVerbose, string.Format("[{0}] received response {1} after {2} milisec", tag.ToString(), request, watch.ElapsedMilliseconds.ToString()));
+                            Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] received response {1} after {2} milisec", tag.ToString(), request, watch.ElapsedMilliseconds.ToString()));
                             return new Response(we);
                         }
 
@@ -235,14 +229,14 @@ namespace DotCMIS.Binding.Impl
                         watch.Stop();
                         Thread.Sleep(50);
                         watch.Start();
-                        Trace.WriteLine(we.Message + " retry No " + retry.ToString() + (DotCMISDebug.DotCMISSwitch.TraceVerbose ? " " + tag.ToString() : string.Empty));
+                        Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] {1} retry No {2}", tag.ToString(), we.Message, retry.ToString()));
                     }
                 }
             }
             catch (Exception e)
             {
                 watch.Stop();
-                Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceVerbose, string.Format("[{0}] Cannot access {1}: {2} after {3} milisec", tag.ToString(), request, e.Message, watch.ElapsedMilliseconds));
+                Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] Cannot access {1}: {2} after {3} milisec", tag.ToString(), request, e.Message, watch.ElapsedMilliseconds));
                 throw new CmisConnectionException("Cannot access " + url + ": " + e.Message, e);
             }
         }
