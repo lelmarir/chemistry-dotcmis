@@ -5,3 +5,6 @@ DotCMISUnitTest/obj/
 DotCMIS/DotCMIS.pidb
 DotCMIS/StyleCop.Cach
 *.swp
+*.userprefs
+DotCMIS/test-results/
+DotCMISUnitTest/test-results/
