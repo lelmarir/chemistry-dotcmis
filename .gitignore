@@ -2,3 +2,6 @@ DotCMIS/bin/
 DotCMIS/obj/
 DotCMISUnitTest/bin/
 DotCMISUnitTest/obj/
+DotCMIS/DotCMIS.pidb
+DotCMIS/StyleCop.Cach
+*.swp
