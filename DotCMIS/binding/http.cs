@@ -32,7 +32,7 @@ using System.Reflection;
 
 namespace DotCMIS.Binding.Impl
 {
-    internal static class HttpUtils
+    static class HttpUtils
     {
         public delegate void Output(Stream stream);
 
@@ -213,7 +213,7 @@ namespace DotCMIS.Binding.Impl
                     }
                     catch (WebException we)
                     {
-                        if (we.Response is HttpWebResponse && (we.Response as HttpWebResponse).StatusCode == HttpStatusCode.NotFound) {
+                        if (CanExceptionBeFixedByRetry(we)) {
                             watch.Stop();
                             Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] received response {1} after {2} ms", tag.ToString(), request, watch.ElapsedMilliseconds.ToString()));
                             return new Response(we);
@@ -239,6 +239,11 @@ namespace DotCMIS.Binding.Impl
                 Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] Cannot access {1}: {2} after {3} ms", tag.ToString(), request, e.Message, watch.ElapsedMilliseconds));
                 throw new CmisConnectionException("Cannot access " + url + ": " + e.Message, e);
             }
+        }
+
+        public static bool CanExceptionBeFixedByRetry(WebException we)
+        {
+            return we.Response is HttpWebResponse && (we.Response as HttpWebResponse).StatusCode == HttpStatusCode.NotFound;
         }
 
         internal class Response
