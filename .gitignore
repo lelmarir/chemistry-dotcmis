@@ -8,3 +8,4 @@ DotCMIS/StyleCop.Cach
 *.userprefs
 DotCMIS/test-results/
 DotCMISUnitTest/test-results/
+test-results/
