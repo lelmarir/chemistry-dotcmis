@@ -32,7 +32,7 @@ using System.Reflection;
 
 namespace DotCMIS.Binding.Impl
 {
-    static class HttpUtils
+    internal static class HttpUtils
     {
         public delegate void Output(Stream stream);
 
@@ -213,13 +213,7 @@ namespace DotCMIS.Binding.Impl
                     }
                     catch (WebException we)
                     {
-                        if (CanExceptionBeFixedByRetry(we)) {
-                            watch.Stop();
-                            Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] received response {1} after {2} ms", tag.ToString(), request, watch.ElapsedMilliseconds.ToString()));
-                            return new Response(we);
-                        }
-
-                        if (5 == retry) {
+                        if (ExceptionFixabilityDecider.CanExceptionBeFixedByRetry(we) == false || retry == 5) {
                             watch.Stop();
                             Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] received response {1} after {2} ms", tag.ToString(), request, watch.ElapsedMilliseconds.ToString()));
                             return new Response(we);
@@ -239,11 +233,6 @@ namespace DotCMIS.Binding.Impl
                 Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] Cannot access {1}: {2} after {3} ms", tag.ToString(), request, e.Message, watch.ElapsedMilliseconds));
                 throw new CmisConnectionException("Cannot access " + url + ": " + e.Message, e);
             }
-        }
-
-        public static bool CanExceptionBeFixedByRetry(WebException we)
-        {
-            return we.Response is HttpWebResponse && (we.Response as HttpWebResponse).StatusCode == HttpStatusCode.NotFound;
         }
 
         internal class Response
@@ -333,6 +322,24 @@ namespace DotCMIS.Binding.Impl
                     Stream.Close();
                 }
             }
+        }
+    }
+
+    public static class ExceptionFixabilityDecider {
+        public static bool CanExceptionBeFixedByRetry(WebException we)
+        {
+            if(!(we.Response is HttpWebResponse)){
+                return true;
+            }
+            return CanExceptionStatusCodeBeFixedByRetry((we.Response as HttpWebResponse).StatusCode);
+        }
+
+        public static bool CanExceptionStatusCodeBeFixedByRetry(HttpStatusCode code)
+        {
+            if(code == HttpStatusCode.NotFound || code == HttpStatusCode.Forbidden) {
+                return false;
+            }
+            return true;
         }
     }
 
