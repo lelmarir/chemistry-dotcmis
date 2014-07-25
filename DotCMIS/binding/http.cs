@@ -207,7 +207,7 @@ namespace DotCMIS.Binding.Impl
                             authProvider.HandleResponse(response);
                         }
                         watch.Stop();
-                        Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] received response after {2} ms", tag.ToString(), watch.ElapsedMilliseconds.ToString()));
+                        Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] received response after {1} ms", tag.ToString(), watch.ElapsedMilliseconds.ToString()));
 
                         return new Response(response);
                     }
@@ -215,7 +215,7 @@ namespace DotCMIS.Binding.Impl
                     {
                         if (ExceptionFixabilityDecider.CanExceptionBeFixedByRetry(we) == false || retry == 5) {
                             watch.Stop();
-                            Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] received response after {2} ms", tag.ToString(), watch.ElapsedMilliseconds.ToString()));
+                            Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] received response after {1} ms", tag.ToString(), watch.ElapsedMilliseconds.ToString()));
                             return new Response(we);
                         }
 
