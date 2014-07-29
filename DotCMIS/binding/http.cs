@@ -200,16 +200,19 @@ namespace DotCMIS.Binding.Impl
                     // connect
                     try
                     {
-                        HttpWebResponse response = (HttpWebResponse)conn.GetResponse();
-
-                        if (authProvider != null)
+                        using (HttpWebResponse response = (HttpWebResponse)conn.GetResponse())
                         {
-                            authProvider.HandleResponse(response);
-                        }
-                        watch.Stop();
-                        Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] received response after {1} ms", tag.ToString(), watch.ElapsedMilliseconds.ToString()));
+                            if (authProvider != null) {
+                                authProvider.HandleResponse(response);
+                            }
 
-                        return new Response(response);
+                            watch.Stop();
+                            Trace.WriteLineIf(
+                                DotCMISDebug.DotCMISSwitch.TraceInfo,
+                                string.Format("[{0}] received response after {1} ms", tag.ToString(), watch.ElapsedMilliseconds.ToString()));
+
+                            return new Response(response);
+                        }
                     }
                     catch (WebException we)
                     {
