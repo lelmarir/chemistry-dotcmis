@@ -48,8 +48,41 @@ namespace DotCMIS.Binding.Browser
 
         internal static IRepositoryCapabilities ConvertRepositoryCapabilities(JToken json)
         {
-            //  TODO ConvertRepositoryCapabilities
-            return null;
+            if (json == null)
+            {
+                return null;
+            }
+
+            RepositoryCapabilities result = new RepositoryCapabilities();
+
+            //  TODO
+            result.ContentStreamUpdatesCapability = CmisValue.GetCmisEnum<CapabilityContentStreamUpdates>((string)json[BrowserConstants.CapContentStreamUpdatability]);
+            result.ChangesCapability = CmisValue.GetCmisEnum<CapabilityChanges>((string)json[BrowserConstants.CapChanges]);
+            result.RenditionsCapability = CmisValue.GetCmisEnum<CapabilityRenditions>((string)json[BrowserConstants.CapRenditions]);
+            result.AclCapability = CmisValue.GetCmisEnum<CapabilityAcl>((string)json[BrowserConstants.CapAcl]);
+            result.QueryCapability = CmisValue.GetCmisEnum<CapabilityQuery>((string)json[BrowserConstants.CapQuery]);
+            result.JoinCapability = CmisValue.GetCmisEnum<CapabilityJoin>((string)json[BrowserConstants.CapJoin]);
+            result.IsGetDescendantsSupported = (bool?)json[BrowserConstants.CapGetDescendants];
+            result.IsGetFolderTreeSupported = (bool?)json[BrowserConstants.CapGetFolderTree];
+            result.IsGetDescendantsSupported = (bool?)json[BrowserConstants.CapGetDescendants];
+            result.IsAllVersionsSearchableSupported = (bool?)json[BrowserConstants.CapAllVersionsSearchable];
+            result.IsMultifilingSupported = (bool?)json[BrowserConstants.CapMultifiling];
+            result.IsUnfilingSupported = (bool?)json[BrowserConstants.CapMultifiling];
+
+            JArray canCreateJson = json[BrowserConstants.ObjectInFolderListObjects] as JArray;
+
+            if (canCreateJson != null)
+            {
+                //TODO
+            }
+
+            JArray newTypeSettableAttributesJson = json[BrowserConstants.CapNewTypeSettableAttributes] as JArray;
+            if (newTypeSettableAttributesJson != null)
+            {
+                //TODO
+            }
+
+            return result;
         }
 
         internal static IAclCapabilities ConvertAclCapabilities(JToken json)

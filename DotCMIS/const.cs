@@ -566,6 +566,47 @@ namespace DotCMIS
             ObjectParentsRelavivePathSegment
         };
 
+
+        public const string CapContentStreamUpdatability = "capabilityContentStreamUpdatability";
+        public const string CapChanges = "capabilityChanges";
+        public const string CapRenditions = "capabilityRenditions";
+        public const string CapGetDescendants = "capabilityGetDescendants";
+        public const string CapGetFolderTree = "capabilityGetFolderTree";
+        public const string CapMultifiling = "capabilityMultifiling";
+        public const string CapUnfiling = "capabilityUnfiling";
+        public const string CapVersionSpecificFiling = "capabilityVersionSpecificFiling";
+        public const string CapPwcSearchable = "capabilityPWCSearchable";
+        public const string CapPwcUpdateble = "capabilityPWCUpdatable";
+        public const string CapAllVersionsSearchable = "capabilityAllVersionsSearchable";
+        public const string CapOderBy = "capabilityOrderBy";
+        public const string CapQuery = "capabilityQuery";
+        public const string CapJoin = "capabilityJoin";
+        public const string CapAcl = "capabilityACL";
+        public const string CapCreablePropertyTypes = "capabilityCreatablePropertyTypes";
+        public const string CapNewTypeSettableAttributes = "capabilityNewTypeSettableAttributes";
+
+
+        public static readonly HashSet<string> CapKeys = new HashSet<string>()
+        {
+            CapContentStreamUpdatability,
+            CapChanges,
+            CapRenditions,
+            CapGetDescendants,
+            CapGetFolderTree,
+            CapMultifiling,
+            CapUnfiling,
+            CapVersionSpecificFiling,
+            CapPwcSearchable,
+            CapPwcUpdateble,
+            CapAllVersionsSearchable,
+            CapOderBy,
+            CapQuery,
+            CapJoin,
+            CapAcl,
+            CapCreablePropertyTypes,
+            CapNewTypeSettableAttributes
+        };
+
         //  property type
         public const string PropertyTypeId = "id";
         public const string PropertyTypeLocalName = "localName";
