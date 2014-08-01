@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -41,6 +41,9 @@
     <AssemblyOriginatorKeyFile>dotcmis.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
@@ -58,6 +61,9 @@
     <Compile Include="binding\binding-caches.cs" />
     <Compile Include="binding\binding-impl.cs" />
     <Compile Include="binding\binding-intf.cs" />
+    <Compile Include="binding\browser\browser-converter.cs" />
+    <Compile Include="binding\browser\browser-writer.cs" />
+    <Compile Include="binding\browser\browser.cs" />
     <Compile Include="binding\http.cs" />
     <Compile Include="binding\services.cs" />
     <Compile Include="binding\converter.cs" />
@@ -162,6 +168,7 @@
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

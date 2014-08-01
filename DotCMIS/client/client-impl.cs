@@ -106,6 +106,8 @@ namespace DotCMIS.Client.Impl
                     return CreateAtomPubBinding(parameters, authenticationProvider);
                 case BindingType.WebServices:
                     return CreateWebServiceBinding(parameters, authenticationProvider);
+                case BindingType.Browser:
+                    return CreateBrowserBinding(parameters, authenticationProvider);
                 case BindingType.Custom:
                     return CreateCustomBinding(parameters, authenticationProvider);
                 default:
@@ -133,6 +135,14 @@ namespace DotCMIS.Client.Impl
         {
             CmisBindingFactory factory = CmisBindingFactory.NewInstance();
             ICmisBinding binding = factory.CreateCmisAtomPubBinding(parameters, authenticationProvider);
+
+            return binding;
+        }
+
+        private static ICmisBinding CreateBrowserBinding(IDictionary<string, string> parameters, IAuthenticationProvider authenticationProvider)
+        {
+            CmisBindingFactory factory = CmisBindingFactory.NewInstance();
+            ICmisBinding binding = factory.CreateCmisBrowserBinding(parameters, authenticationProvider);
 
             return binding;
         }

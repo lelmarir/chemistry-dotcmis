@@ -17,6 +17,9 @@
  * under the License.
  */
 
+using System.Collections.Generic;
+
+
 namespace DotCMIS
 {
     public static class SessionParameter
@@ -53,6 +56,12 @@ namespace DotCMIS
         public const string WebServicesReceiveTimeout = "org.apache.chemistry.dotcmis.binding.webservices.receivetimeout";
 
         public const string WebServicesEnableUnsecuredResponse = "org.apache.chemistry.dotcmis.binding.webservices.enableUnsecuredResponse"; // requires hotfix 971493 or the .NET framework 4 
+
+        // URL of the Browser service
+        public const string BrowserUrl = "org.apache.chemistry.dotcmis.binding.browser.url";
+
+        // succinct flag for Browser service
+        public const string BrowserSuccinct = "org.apache.chemistry.dotcmis.binding.browser.succinct";
 
         // authentication provider
         public const string AuthenticationProviderClass = "org.apache.chemistry.dotcmis.binding.auth.classname";
@@ -94,6 +103,7 @@ namespace DotCMIS
     {
         public const string AtomPub = "atompub";
         public const string WebServices = "webservices";
+        public const string Browser = "browser";
         public const string Custom = "custom";
     }
 
@@ -218,6 +228,57 @@ namespace DotCMIS
         public const string CanApplyAcl = "canApplyACL";
     }
 
+    internal static class Parameters
+    {
+        // parameter
+        public const string ParamACL = "includeACL";
+        public const string ParamAllowableActions = "includeAllowableActions";
+        public const string ParamAllVersions = "allVersions";
+        public const string ParamAppend = "append";
+        public const string ParamChangeLogToken = "changeLogToken";
+        public const string ParamChangeToken = "changeToken";
+        public const string ParamCheckinComment = "checkinComment";
+        public const string ParamCheckIn = "checkin";
+        public const string ParamChildTypes = "childTypes";
+        public const string ParamContinueOnFailure = "continueOnFailure";
+        public const string ParamDepth = "depth";
+        public const string ParamFilter = "filter";
+        public const string ParamSuccinct = "succinct";
+        public const string ParamFolderId = "folderId";
+        public const string ParamId = "id";
+        public const string ParamIsLastChunk = "isLastChunk";
+        public const string ParamMajor = "major";
+        public const string ParamMaxItems = "maxItems";
+        public const string ParamObjectId = "objectId";
+        public const string ParamOnlyBasicPermissions = "onlyBasicPermissions";
+        public const string ParamOrderBy = "orderBy";
+        public const string ParamOverwriteFlag = "overwriteFlag";
+        public const string ParamPath = "path";
+        public const string ParamPathSegment = "includePathSegment";
+        public const string ParamPolicyId = "policyId";
+        public const string ParamPolicyIds = "includePolicyIds";
+        public const string ParamProperties = "includeProperties";
+        public const string ParamPropertyDefinitions = "includePropertyDefinitions";
+        public const string ParamRelationships = "includeRelationships";
+        public const string ParamRelationshipDirection = "relationshipDirection";
+        public const string ParamRelativePathSegment = "includeRelativePathSegment";
+        public const string ParamRemoveFrom = "removeFrom";
+        public const string ParamRenditionFilter = "renditionFilter";
+        public const string ParamRepositoryId = "repositoryId";
+        public const string ParamReturnVersion = "returnVersion";
+        public const string ParamSkipCount = "skipCount";
+        public const string ParamSourceFolderId = "sourceFolderId";
+        public const string ParamStreamId = "streamId";
+        public const string ParamSubRelationshipTypes = "includeSubRelationshipTypes";
+        public const string ParamTypeId = "typeId";
+        public const string ParamUnfildeObjects = "unfileObjects";
+        public const string ParamVersioningState = "versioningState";
+        public const string ParamQ = "q";
+        public const string ParamSearchAllVersions = "searchAllVersions";
+        public const string ParamACLPropagation = "ACLPropagation";
+        public const string ParamSelector = "cmisselector";
+    }
+
     internal static class AtomPubConstants
     {
         // namespaces
@@ -284,52 +345,6 @@ namespace DotCMIS
         public const string RepRelRootDesc = "http://docs.oasis-open.org/ns/cmis/link/200908/rootdescendants";
         public const string RepRelChanges = "http://docs.oasis-open.org/ns/cmis/link/200908/changes";
 
-        // parameter
-        public const string ParamACL = "includeACL";
-        public const string ParamAllowableActions = "includeAllowableActions";
-        public const string ParamAllVersions = "allVersions";
-        public const string ParamAppend = "append";
-        public const string ParamChangeLogToken = "changeLogToken";
-        public const string ParamChangeToken = "changeToken";
-        public const string ParamCheckinComment = "checkinComment";
-        public const string ParamCheckIn = "checkin";
-        public const string ParamChildTypes = "childTypes";
-        public const string ParamContinueOnFailure = "continueOnFailure";
-        public const string ParamDepth = "depth";
-        public const string ParamFilter = "filter";
-        public const string ParamFolderId = "folderId";
-        public const string ParamId = "id";
-        public const string ParamIsLastChunk = "isLastChunk";
-        public const string ParamMajor = "major";
-        public const string ParamMaxItems = "maxItems";
-        public const string ParamObjectId = "objectId";
-        public const string ParamOnlyBasicPermissions = "onlyBasicPermissions";
-        public const string ParamOrderBy = "orderBy";
-        public const string ParamOverwriteFlag = "overwriteFlag";
-        public const string ParamPath = "path";
-        public const string ParamPathSegment = "includePathSegment";
-        public const string ParamPolicyId = "policyId";
-        public const string ParamPolicyIds = "includePolicyIds";
-        public const string ParamProperties = "includeProperties";
-        public const string ParamPropertyDefinitions = "includePropertyDefinitions";
-        public const string ParamRelationships = "includeRelationships";
-        public const string ParamRelationshipDirection = "relationshipDirection";
-        public const string ParamRelativePathSegment = "includeRelativePathSegment";
-        public const string ParamRemoveFrom = "removeFrom";
-        public const string ParamRenditionFilter = "renditionFilter";
-        public const string ParamRepositoryId = "repositoryId";
-        public const string ParamReturnVersion = "returnVersion";
-        public const string ParamSkipCount = "skipCount";
-        public const string ParamSourceFolderId = "sourceFolderId";
-        public const string ParamStreamId = "streamId";
-        public const string ParamSubRelationshipTypes = "includeSubRelationshipTypes";
-        public const string ParamTypeId = "typeId";
-        public const string ParamUnfildeObjects = "unfileObjects";
-        public const string ParamVersioningState = "versioningState";
-        public const string ParamQ = "q";
-        public const string ParamSearchAllVersions = "searchAllVersions";
-        public const string ParamACLPropagation = "ACLPropagation";
-
         // rendition filter
         public const string RenditionNone = "cmis:none";
 
@@ -387,5 +402,251 @@ namespace DotCMIS
         public const string LinkType = "type";
         public const string ContentSrc = "src";
         public const string LinkRelContent = "@@content@@";
+    }
+
+    internal static class BrowserConstants
+    {
+        //  repository info
+        public const string RepoInfoId = "repositoryId";
+        public const string RepoInfoName = "repositoryName";
+        public const string RepoInfoDescription = "repositoryDescription";
+        public const string RepoInfoVendor = "vendorName";
+        public const string RepoInfoProduct = "productName";
+        public const string RepoInfoProductVersion = "productVersion";
+        public const string RepoInfoRootFolderId = "rootFolderId";
+        public const string RepoInfoCapabilities = "capabilities";
+        public const string RepoInfoAclCapabilities = "aclCapabilities";
+        public const string RepoInfoChangeLogToken = "latestChangeLogToken";
+        public const string RepoInfoCmisVersionSupported = "cmisVersionSupported";
+        public const string RepoInfoThinClientUri = "thinClientURI";
+        public const string RepoInfoChangesIncomplete = "changesIncomplete";
+        public const string RepoInfoChangesOnType = "changesOnType";
+        public const string RepoInfoPrincipalIdAnonymous = "principalIdAnonymous";
+        public const string RepoInfoPrincipalIdAnyone = "principalIdAnyone";
+        public const string RepoInfoExtendedFeatures = "extendedFeatures";
+        public const string RepoInfoRepositoryUrl = "repositoryUrl";
+        public const string RepoInfoRootFolderUrl = "rootFolderUrl";
+
+        //  selectors
+        public const string SelectorLastResult = "lastResult";
+        public const string SelectorRepositoryInfo = "repositoryInfo";
+        public const string SelectorTypeChildren = "typeChildren";
+        public const string SelectorTypeDescendants = "typeDescendants";
+        public const string SelectorTypeDefinition = "typeDefinition";
+        public const string SelectorContent = "content";
+        public const string SelectorObject = "object";
+        public const string SelectorProperties = "properties";
+        public const string SelectorAllowableActions = "allowableActions";
+        public const string SelectorRenditions = "renditions";
+        public const string SelectorChildren = "children";
+        public const string SelectorDescendants = "descendants";
+        public const string SelectorParents = "parents";
+        public const string SelectorParent = "parent";
+        public const string SelectorFolderTree = "folder";
+        public const string SelectorQuery = "query";
+        public const string SelectorVersions = "versions";
+        public const string SelectorRelationships = "relationships";
+        public const string SelectorCheckout = "checkedout";
+        public const string SelectorPolicies = "policies";
+        public const string SelectorAcl = "acl";
+        public const string SelectorContentChanges = "contentChanges";
+
+        //  type
+        public const string TypeId = "id";
+        public const string TypeBaseId = "baseId";
+        public const string TypeDescription = "description";
+        public const string TypeDisplayName = "displayName";
+        public const string TypeControllableAcl = "controllableACL";
+        public const string TypeControllablePolicy = "controllablePolicy";
+        public const string TypeCreatable = "creatable";
+        public const string TypeFileable = "fileable";
+        public const string TypeFulltextIndexed = "fulltextIndexed";
+        public const string TypeIncludeInSupertypeQuery = "includedInSupertypeQuery";
+        public const string TypeQueryable = "queryable";
+        public const string TypeLocalName = "localName";
+        public const string TypeLocalNamespace = "localNamespace";
+        public const string TypeParentId = "parentId";
+        public const string TypeQueryName = "queryName";
+        public const string TypePropertyDefinitions = "propertyDefinitions";
+        public const string TypeVersionable = "versionable";    //  document
+        public const string TypeContentStreamAllowed = "contentStreamAllowed";  //  document
+        public const string TypeAllowedSourceTypes = "allowedSourceTypes";  //  relationship
+        public const string TypeAllowedTargetTypes = "allowedTargetTypes";  //  relationship
+
+        public static readonly HashSet<string> TypeKeys = new HashSet<string>()
+        {
+            TypeId,
+            TypeBaseId,
+            TypeDescription,
+            TypeDisplayName,
+            TypeControllableAcl,
+            TypeControllablePolicy,
+            TypeCreatable,
+            TypeFileable,
+            TypeFulltextIndexed,
+            TypeIncludeInSupertypeQuery,
+            TypeQueryable,
+            TypeLocalName,
+            TypeLocalNamespace,
+            TypeParentId,
+            TypeQueryName,
+            TypePropertyDefinitions,
+            TypeVersionable,
+            TypeContentStreamAllowed,
+            TypeAllowedSourceTypes,
+            TypeAllowedTargetTypes,
+        };
+
+        //  object
+        public const string ObjectProperties = "properties";
+        public const string ObjectSuccinctProperties = "succinctProperties";
+        public const string ObjectPropertiesExtension = "propertiesExtension";
+        public const string ObjectAllowableActions = "allowableActions";
+        public const string ObjectRelationships = "relationships";
+        public const string ObjectChangeEventInfo = "changeEventInfo";
+        public const string ObjectAcl = "acl";
+        public const string ObjectExactAcl = "exactACL";
+        public const string ObjectPolicyIds = "policyIds";
+        public const string ObjectPolicyIdsIds = "ids";
+        public const string ObjectRenditions = "renditions";
+
+        public static readonly HashSet<string> ObjectKeys = new HashSet<string>()
+        {
+            ObjectProperties,
+            ObjectSuccinctProperties,
+            ObjectPropertiesExtension,
+            ObjectAllowableActions,
+            ObjectRelationships,
+            ObjectChangeEventInfo,
+            ObjectAcl,
+            ObjectExactAcl,
+            ObjectPolicyIds,
+            ObjectRenditions
+        };
+
+        //  object in folder list
+        public const string ObjectInFolderListObjects = "objects";
+        public const string ObjectInFolderListHasMoreItems = "hasMoreItems";
+        public const string ObjectInFolderListNumItems = "numItems";
+
+        public static readonly HashSet<string> ObjectInFolderListKeys = new HashSet<string>()
+        {
+            ObjectInFolderListObjects,
+            ObjectInFolderListHasMoreItems,
+            ObjectInFolderListNumItems
+        };
+
+        //  object in folder
+        public const string ObjectInFolderObject = "object";
+        public const string ObjectInFolderPathSegment = "pathSegment";
+
+        public static readonly HashSet<string> ObjectInFolderKeys = new HashSet<string>()
+        {
+            ObjectInFolderObject,
+            ObjectInFolderPathSegment
+        };
+
+        //  object in folder container
+        public const string ObjectInFolderContainer = "object";
+        public const string ObjectInFolderContainerChildren = "children";
+
+        public static readonly HashSet<string> ObjectInFolderContainerKeys = new HashSet<string>()
+        {
+            ObjectInFolderContainer,
+            ObjectInFolderContainerChildren
+        };
+
+        // parent object
+        public const string ObjectParentsObject = "object";
+        public const string ObjectParentsRelavivePathSegment = "pathSegment";
+
+        public static readonly HashSet<string> ObjectParentsKeys = new HashSet<string>()
+        {
+            ObjectParentsObject,
+            ObjectParentsRelavivePathSegment
+        };
+
+        //  property type
+        public const string PropertyTypeId = "id";
+        public const string PropertyTypeLocalName = "localName";
+        public const string PropertyTypeLocalNamespace = "localNamespace";
+        public const string PropertyTypeDisplayName = "displayName";
+        public const string PropertyTypeQueryName = "queryName";
+        public const string PropertyTypeDescription = "description";
+        public const string PropertyTypePropertyType = "propertyType";
+        public const string PropertyTypeCardinality = "cardinality";
+        public const string PropertyTypeUpdatability = "updatability";
+        public const string PropertyTypeInherited = "inherited";
+        public const string PropertyTypeRequired = "required";
+        public const string PropertyTypeQueryable = "queryable";
+        public const string PropertyTypeOrderable = "orderable";
+        public const string PropertyTypeOpenChoice = "openChoice";
+
+        public const string PropertyTypeDefaultValue = "defaultValue";
+
+        public const string PropertyTypeMaxLength = "maxLength";
+        public const string PropertyTypeMinValue = "minValue";
+        public const string PropertyTypeMaxValue = "maxValue";
+        public const string PropertyTypePrecision = "precision";
+        public const string PropertyTypeResolution = "resolution";
+
+        public const string PropertyTypeChoice = "choice";
+        public const string PropertyTypeChoiceDisplayName = "displayName";
+        public const string PropertyTypeChoiceValue = "value";
+        public const string PropertyTypeChoiceChoice = "choice";
+
+         //  control
+        public const string ControlCmisAction = "cmisaction";
+        public const string ControlSuccinct = "succinct";
+        public const string ControlPropertyId = "propertyId";
+        public const string ControlPropertyValue = "propertyValue";
+        public const string ControlIsLastChunk = "isLastChunk";
+
+        //  action
+        public const string ActionCreateDocument = "createDocument";
+        public const string ActionSetContent = "setContent";
+        public const string ActionUpdateProperties = "update";
+        public const string ActionDeleteContent = "deleteContent";
+        public const string ActionAppendContent = "appendContent";
+        public const string ActionDelete = "delete";
+        public const string ActionDeleteTree = "deleteTree";
+        public const string ActionCreateFolder = "createFolder";
+        public const string ActionApplyACL = "applyACL";
+
+        //  acl
+        public const string AclAces = "aces";
+        public const string AclIsExact = "isExact";
+
+        public static readonly HashSet<string> AclKeys = new HashSet<string>()
+        {
+            AclAces,
+            AclIsExact
+        };
+
+        //  ace
+        public const string AcePrincipal = "principal";
+        public const string AcePrincipalId = "principalId";
+        public const string AcePermissions = "permissions";
+        public const string AceIsDirect = "isDirect";
+
+        public static readonly HashSet<string> AceKeys = new HashSet<string>()
+        {
+            AcePrincipal,
+            AcePrincipalId,
+            AcePermissions,
+            AceIsDirect
+        };
+
+        public static readonly HashSet<string> AcePrincipalKeys = new HashSet<string>()
+        {
+            AcePrincipalId
+        };
+
+        public const string FailedToDeleteId = "ids";
+
+        public static readonly HashSet<string> FailedToDeleteKeys = new HashSet<string>()
+        {
+            FailedToDeleteId
+        };
     }
 }

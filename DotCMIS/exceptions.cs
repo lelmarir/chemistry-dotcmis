@@ -79,7 +79,7 @@ namespace DotCMIS.Exceptions
     {
         public CmisConstraintException() : base() { }
         public CmisConstraintException(string message) : base(message) { }
-        public CmisConstraintException(string message, Exception inner) : base(message, inner) { }
+        public CmisConstraintException(string message, Exception inner) : base(message,inner) { }
         protected CmisConstraintException(
           System.Runtime.Serialization.SerializationInfo info,
           System.Runtime.Serialization.StreamingContext context)
