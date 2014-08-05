@@ -538,14 +538,29 @@ namespace DotCMIS.Binding.Browser
         public IList<ITypeDefinitionContainer> GetTypeDescendants(string repositoryId, string typeId, long? depth,
             bool? includePropertyDefinitions, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("GetTypeDescendants");
+            UrlBuilder url = GetRepositoryUrl(repositoryId, BrowserConstants.SelectorTypeDescendants);
+            url.AddParameter(Parameters.ParamTypeId, typeId);
+            url.AddParameter(Parameters.ParamDepth,depth);
+            url.AddParameter(Parameters.ParamPropertyDefinitions, includePropertyDefinitions);
+
+            HttpUtils.Response resp = Read(url);
+            JArray json = ParseArray(resp.Stream);
+            return BrowserConverter.ConvertTypeDescendants(json);
         }
 
 
         public ITypeDefinitionList GetTypeChildren(string repositoryId, string typeId, bool? includePropertyDefinitions,
             long? maxItems, long? skipCount, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("GetTypeChildren");
+            UrlBuilder url = GetRepositoryUrl(repositoryId, BrowserConstants.SelectorTypeChildren);
+            url.AddParameter(Parameters.ParamTypeId, typeId);
+            url.AddParameter(Parameters.ParamPropertyDefinitions, includePropertyDefinitions);
+            url.AddParameter(Parameters.ParamMaxItems, maxItems);
+            url.AddParameter(Parameters.ParamSkipCount, skipCount);
+
+            HttpUtils.Response resp = Read(url);
+            JObject json = ParseObject(resp.Stream);
+            return BrowserConverter.ConvertTypeChildren(json);
         }
     }
 
@@ -637,12 +652,32 @@ namespace DotCMIS.Binding.Browser
             bool? includeAllowableActions, IncludeRelationshipsFlag? includeRelationships, string renditionFilter,
             long? maxItems, long? skipCount, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("GetCheckedOutDocs");
+            UrlBuilder url = (folderId == null) ? GetRepositoryUrl(repositoryId) : GetObjectUrl(repositoryId, folderId);
+            url.AddParameter(Parameters.ParamFilter, filter);
+            url.AddParameter(Parameters.ParamOrderBy, orderBy);
+            url.AddParameter(Parameters.ParamAllowableActions, includeAllowableActions);
+            url.AddParameter(Parameters.ParamRelationships, includeRelationships);
+            url.AddParameter(Parameters.ParamRenditionFilter, renditionFilter);
+            url.AddParameter(Parameters.ParamMaxItems, maxItems);
+            url.AddParameter(Parameters.ParamSkipCount, skipCount);
+            url.AddParameter(Parameters.ParamSuccinct, GetSuccinctParameter());
+
+            HttpUtils.Response resp = Read(url);
+            JObject json = ParseObject(resp.Stream);
+            ClientTypeCache typeCache = new ClientTypeCache(repositoryId, this);
+            return BrowserConverter.ConvertObjectList(json, typeCache, false);
         }
 
         public IObjectData GetFolderParent(string repositoryId, string folderId, string filter, ExtensionsData extension)
         {
-            throw new CmisNotSupportedException("GetFolderParent");
+            UrlBuilder url = GetObjectUrl(repositoryId, folderId, BrowserConstants.SelectorParent);
+            url.AddParameter(Parameters.ParamFilter, filter);
+            url.AddParameter(Parameters.ParamSuccinct, GetSuccinctParameter());
+
+            HttpUtils.Response resp = Read(url);
+            JObject json = ParseObject(resp.Stream);
+            ClientTypeCache typeCache = new ClientTypeCache(repositoryId, this);
+            return BrowserConverter.ConvertObjectData(json, typeCache);
         }
     }
 
@@ -682,7 +717,28 @@ namespace DotCMIS.Binding.Browser
         public string CreateDocumentFromSource(string repositoryId, string sourceId, IProperties properties, string folderId,
             VersioningState? versioningState, IList<string> policies, IAcl addAces, IAcl removeAces, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("CreateDocumentFromSource");
+            UrlBuilder url = (folderId == null) ? GetRepositoryUrl(repositoryId) : GetObjectUrl(repositoryId, folderId);
+
+            FormDataWriter formData = new FormDataWriter(BrowserConstants.ActionCreateDocumentFromSource);
+            formData.AddParameter(Parameters.ParamSourceFolderId, sourceId);
+            formData.AddPropertiesParameters(properties);
+            formData.AddParameter(Parameters.ParamVersioningState, versioningState);
+            formData.AddPoliciesParameters(policies);
+            formData.AddAddAcesParameters(addAces);
+            formData.AddRemoveAcesParameters(removeAces);
+            formData.AddSuccinctFlag(Succinct);
+
+            HttpUtils.Response resp = Post(
+                url,
+                formData.GetContentType(),
+                (Stream stream) =>
+                {
+                    formData.Write(stream);
+                });
+            JObject json = ParseObject(resp.Stream);
+            ClientTypeCache typeCache = new ClientTypeCache(repositoryId, this);
+            IObjectData data = BrowserConverter.ConvertObjectData(json, typeCache);
+            return (data == null ? null : data.Id);
         }
 
         public string CreateFolder(string repositoryId, IProperties properties, string folderId, IList<string> policies,
@@ -713,35 +769,117 @@ namespace DotCMIS.Binding.Browser
         public string CreateRelationship(string repositoryId, IProperties properties, IList<string> policies, IAcl addAces,
             IAcl removeAces, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("CreateRelationship");
+            UrlBuilder url = GetRepositoryUrl(repositoryId);
+
+            FormDataWriter formData = new FormDataWriter(BrowserConstants.ActionCreateRelationship);
+            formData.AddPropertiesParameters(properties);
+            formData.AddPoliciesParameters(policies);
+            formData.AddAddAcesParameters(addAces);
+            formData.AddRemoveAcesParameters(removeAces);
+            formData.AddSuccinctFlag(Succinct);
+
+            HttpUtils.Response resp = Post(
+                url,
+                formData.GetContentType(),
+                (Stream stream) =>
+                {
+                    formData.Write(stream);
+                });
+            JObject json = ParseObject(resp.Stream);
+            ClientTypeCache typeCache = new ClientTypeCache(repositoryId, this);
+            IObjectData data = BrowserConverter.ConvertObjectData(json, typeCache);
+            return (data == null) ? null : data.Id;
         }
 
         public string CreatePolicy(string repositoryId, IProperties properties, string folderId, IList<string> policies,
             IAcl addAces, IAcl removeAces, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("CreatePolicy");
+            UrlBuilder url = string.IsNullOrEmpty(folderId) ? GetRepositoryUrl(repositoryId) : GetObjectUrl(repositoryId, folderId);
+
+            FormDataWriter formData = new FormDataWriter(repositoryId);
+            formData.AddPropertiesParameters(properties);
+            formData.AddPoliciesParameters(policies);
+            formData.AddAddAcesParameters(addAces);
+            formData.AddRemoveAcesParameters(removeAces);
+            formData.AddSuccinctFlag(Succinct);
+
+            HttpUtils.Response resp = Post(
+                url,
+                formData.GetContentType(),
+                (Stream stream) =>
+                {
+                    formData.Write(stream);
+                });
+            JObject json = ParseObject(resp.Stream);
+            ClientTypeCache typeCache = new ClientTypeCache(repositoryId, this);
+            IObjectData data = BrowserConverter.ConvertObjectData(json, typeCache);
+            return (data == null) ? null : data.Id;
         }
 
         public string CreateItem(string repositoryId, IProperties properties, string folderId, IList<string> policies,
             IAcl addAces, IAcl removeAces, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("CreateItem");
+            UrlBuilder url = string.IsNullOrEmpty(folderId) ? GetRepositoryUrl(repositoryId) : GetObjectUrl(repositoryId, folderId);
+
+            FormDataWriter formData = new FormDataWriter(repositoryId);
+            formData.AddPropertiesParameters(properties);
+            formData.AddPoliciesParameters(policies);
+            formData.AddAddAcesParameters(addAces);
+            formData.AddRemoveAcesParameters(removeAces);
+            formData.AddSuccinctFlag(Succinct);
+
+            HttpUtils.Response resp = Post(
+                url,
+                formData.GetContentType(),
+                (Stream stream) =>
+                {
+                    formData.Write(stream);
+                });
+            JObject json = ParseObject(resp.Stream);
+            ClientTypeCache typeCache = new ClientTypeCache(repositoryId, this);
+            IObjectData data = BrowserConverter.ConvertObjectData(json, typeCache);
+            return (data == null) ? null : data.Id;
         }
 
         public IAllowableActions GetAllowableActions(string repositoryId, string objectId, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("GetAllowableActions");
+            UrlBuilder url = GetObjectUrl(repositoryId, objectId, BrowserConstants.SelectorAllowableActions);
+
+            HttpUtils.Response resp = Read(url);
+            JObject json = ParseObject(resp.Stream);
+            return BrowserConverter.ConvertAllowableActions(json);
         }
 
         public IProperties GetProperties(string repositoryId, string objectId, string filter, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("GetProperties");
+            UrlBuilder url = GetObjectUrl(repositoryId, objectId, BrowserConstants.SelectorProperties);
+            url.AddParameter(Parameters.ParamFilter, filter);
+            url.AddParameter(Parameters.ParamSuccinct, GetSuccinctParameter());
+
+            HttpUtils.Response resp = Read(url);
+            JObject json = ParseObject(resp.Stream);
+            ClientTypeCache typeCache = new ClientTypeCache(repositoryId, this);
+            if (Succinct)
+            {
+                return BrowserConverter.ConvertSuccinctProperties(json, null, typeCache);
+            }
+            else
+            {
+                return BrowserConverter.ConvertProperties(json, null, typeCache);
+            }
         }
 
         public IList<IRenditionData> GetRenditions(string repositoryId, string objectId, string renditionFilter,
             long? maxItems, long? skipCount, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("GetRenditions");
+            UrlBuilder url = GetObjectUrl(repositoryId, objectId, BrowserConstants.SelectorRenditions);
+            url.AddParameter(Parameters.ParamRenditionFilter, renditionFilter);
+            url.AddParameter(Parameters.ParamMaxItems, maxItems);
+            url.AddParameter(Parameters.ParamSkipCount, skipCount);
+
+            HttpUtils.Response resp = Read(url);
+            JArray json = ParseArray(resp.Stream);
+            return BrowserConverter.ConvertRenditions(json);
         }
 
         public IObjectData GetObject(string repositoryId, string objectId, string filter, bool? includeAllowableActions,
@@ -815,7 +953,7 @@ namespace DotCMIS.Binding.Browser
         public void SetContentStream(string repositoryId, ref string objectId, bool? overwriteFlag, ref string changeToken,
             IContentStream contentStream, IExtensionsData extension)
         {
-            if ((objectId == null) || (objectId.Length == 0))
+            if (string.IsNullOrEmpty(objectId))
             {
                 throw new CmisInvalidArgumentException("Object id must be set!");
             }
@@ -848,7 +986,7 @@ namespace DotCMIS.Binding.Browser
 
         public void DeleteContentStream(string repositoryId, ref string objectId, ref string changeToken, IExtensionsData extension)
         {
-            if ((objectId == null) || (objectId.Length == 0))
+            if (string.IsNullOrEmpty(objectId))
             {
                 throw new CmisInvalidArgumentException("Object id must be set!");
             }
@@ -881,7 +1019,7 @@ namespace DotCMIS.Binding.Browser
         public void AppendContentStream(string repositoryId, ref string objectId, bool? isLastChunk, ref string changeToken,
             IContentStream contentStream, IExtensionsData extension)
         {
-            if ((objectId == null) || (objectId.Length == 0))
+            if (string.IsNullOrEmpty(objectId))
             {
                 throw new CmisInvalidArgumentException("Object id must be set!");
             }
@@ -915,7 +1053,7 @@ namespace DotCMIS.Binding.Browser
         public void UpdateProperties(string repositoryId, ref string objectId, ref string changeToken, IProperties properties,
             IExtensionsData extension)
         {
-            if ((objectId == null) || (objectId.Length == 0))
+            if (string.IsNullOrEmpty(objectId))
             {
                 throw new CmisInvalidArgumentException("Object id must be set!");
             }
@@ -948,7 +1086,29 @@ namespace DotCMIS.Binding.Browser
         public void MoveObject(string repositoryId, ref string objectId, string targetFolderId, string sourceFolderId,
             IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("MoveObject");
+            if (string.IsNullOrEmpty(objectId))
+            {
+                throw new CmisInvalidArgumentException("Object id must be set!");
+            }
+
+            UrlBuilder url = GetObjectUrl(repositoryId, objectId);
+
+            FormDataWriter formData = new FormDataWriter(BrowserConstants.ActionMove);
+            formData.AddParameter(Parameters.ParamTargetFolderId, targetFolderId);
+            formData.AddParameter(Parameters.ParamSourceFolderId, sourceFolderId);
+            formData.AddParameter(Parameters.ParamSuccinct, GetSuccinctParameter());
+
+            HttpUtils.Response resp = Post(
+                url,
+                formData.GetContentType(),
+                (Stream stream) =>
+                {
+                    formData.Write(stream);
+                });
+            JToken json = ParseObject(resp.Stream);
+            ClientTypeCache typeCache = new ClientTypeCache(repositoryId, this);
+            IObjectData data = BrowserConverter.ConvertObjectData(json, typeCache);
+            objectId = (data == null) ? null : data.Id;
         }
 
         public void DeleteObject(string repositoryId, string objectId, bool? allVersions, IExtensionsData extension)
@@ -1014,38 +1174,130 @@ namespace DotCMIS.Binding.Browser
 
         public void CheckOut(string repositoryId, ref string objectId, IExtensionsData extension, out bool? contentCopied)
         {
-            throw new CmisNotSupportedException("CheckOut");
+            if (string.IsNullOrEmpty(objectId))
+            {
+                throw new CmisInvalidArgumentException("Object id must be set!");
+            }
+
+            UrlBuilder url = GetObjectUrl(repositoryId, objectId);
+            FormDataWriter formData = new FormDataWriter(BrowserConstants.ActionCheckOut);
+            formData.AddSuccinctFlag(Succinct);
+
+            HttpUtils.Response resp = Post(
+                url,
+                formData.GetContentType(),
+                (Stream stream) =>
+                {
+                    formData.Write(stream);
+                });
+            JObject json = ParseObject(resp.Stream);
+            ClientTypeCache typeCache = new ClientTypeCache(repositoryId, this);
+            IObjectData data = BrowserConverter.ConvertObjectData(json, typeCache);
+            objectId = (data == null) ? null : data.Id;
+            contentCopied = null;
         }
 
         public void CancelCheckOut(string repositoryId, string objectId, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("CancelCheckOut");
+            UrlBuilder url = GetObjectUrl(repositoryId, objectId);
+
+            FormDataWriter formData = new FormDataWriter(BrowserConstants.ActionCancelCheckOut);
+
+            PostAndConsume(
+                url,
+                formData.GetContentType(),
+                (Stream stream) =>
+                {
+                    formData.Write(stream);
+                });
         }
 
         public void CheckIn(string repositoryId, ref string objectId, bool? major, IProperties properties,
             IContentStream contentStream, string checkinComment, IList<string> policies, IAcl addAces, IAcl removeAces,
             IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("CheckIn");
+            if (string.IsNullOrEmpty(objectId))
+            {
+                throw new CmisInvalidArgumentException("Object id must be set!");
+            }
+
+            UrlBuilder url = GetObjectUrl(repositoryId, objectId);
+
+            FormDataWriter formData = new FormDataWriter(BrowserConstants.ActionCheckIn, contentStream);
+            formData.AddParameter(Parameters.ParamMajor, major);
+            formData.AddPropertiesParameters(properties);
+            formData.AddParameter(Parameters.ParamCheckinComment, checkinComment);
+            formData.AddPoliciesParameters(policies);
+            formData.AddAddAcesParameters(addAces);
+            formData.AddRemoveAcesParameters(removeAces);
+            formData.AddSuccinctFlag(Succinct);
+
+            HttpUtils.Response resp = Post(
+                url,
+                formData.GetContentType(),
+                (Stream stream) =>
+                {
+                    formData.Write(stream);
+                });
+            JObject json = ParseObject(resp.Stream);
+            ClientTypeCache typeCache = new ClientTypeCache(repositoryId, this);
+            IObjectData data = BrowserConverter.ConvertObjectData(json, typeCache);
+            objectId = (data == null) ? null : data.Id;
         }
 
         public IObjectData GetObjectOfLatestVersion(string repositoryId, string objectId, string versionSeriesId, bool major,
             string filter, bool? includeAllowableActions, IncludeRelationshipsFlag? includeRelationships,
             string renditionFilter, bool? includePolicyIds, bool? includeAcl, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("GetObjectOfLatestVersion");
+            UrlBuilder url = GetObjectUrl(repositoryId, objectId, BrowserConstants.SelectorObject);
+            url.AddParameter(Parameters.ParamFilter, filter);
+            url.AddParameter(Parameters.ParamAllowableActions, includeAllowableActions);
+            url.AddParameter(Parameters.ParamRelationships, includeRelationships);
+            url.AddParameter(Parameters.ParamRenditionFilter, renditionFilter);
+            url.AddParameter(Parameters.ParamPolicyIds, includePolicyIds);
+            url.AddParameter(Parameters.ParamACL, includeAcl);
+            url.AddParameter(Parameters.ParamReturnVersion, major ? ReturnVersion.LatestMajor : ReturnVersion.Latest);
+            url.AddParameter(Parameters.ParamSuccinct, GetSuccinctParameter());
+
+            HttpUtils.Response resp = Read(url);
+            JObject json = ParseObject(resp.Stream);
+            ClientTypeCache typeCache = new ClientTypeCache(repositoryId, this);
+            return BrowserConverter.ConvertObjectData(json, typeCache);
         }
 
         public IProperties GetPropertiesOfLatestVersion(string repositoryId, string objectId, string versionSeriesId, bool major,
             string filter, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("GetPropertiesOfLatestVersion");
+            UrlBuilder url = GetObjectUrl(repositoryId, objectId, BrowserConstants.SelectorProperties);
+            url.AddParameter(Parameters.ParamFilter, filter);
+            url.AddParameter(Parameters.ParamReturnVersion, major ? ReturnVersion.LatestMajor : ReturnVersion.Latest);
+            url.AddParameter(Parameters.ParamSuccinct, GetSuccinctParameter());
+
+            HttpUtils.Response resp = Read(url);
+            JObject json = ParseObject(resp.Stream);
+            ClientTypeCache typeCache = new ClientTypeCache(repositoryId, this);
+            if (Succinct)
+            {
+                return BrowserConverter.ConvertSuccinctProperties(json, null, typeCache);
+            }
+            else
+            {
+                return BrowserConverter.ConvertProperties(json, null, typeCache);
+            }
         }
 
         public IList<IObjectData> GetAllVersions(string repositoryId, string objectId, string versionSeriesId, string filter,
             bool? includeAllowableActions, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("GetAllVersions");
+            UrlBuilder url = GetObjectUrl(repositoryId, objectId, BrowserConstants.SelectorVersions);
+            url.AddParameter(Parameters.ParamFilter, filter);
+            url.AddParameter(Parameters.ParamAllowableActions, includeAllowableActions);
+            url.AddParameter(Parameters.ParamSuccinct, GetSuccinctParameter());
+
+            HttpUtils.Response resp = Read(url);
+            JArray json = ParseArray(resp.Stream);
+            ClientTypeCache typeCache = new ClientTypeCache(repositoryId, this);
+            return BrowserConverter.ConvertObjects(json, typeCache);
         }
     }
 
@@ -1060,7 +1312,20 @@ namespace DotCMIS.Binding.Browser
             RelationshipDirection? relationshipDirection, string typeId, string filter, bool? includeAllowableActions,
             long? maxItems, long? skipCount, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("GetObjectRelationships");
+            UrlBuilder url = GetObjectUrl(repositoryId, objectId, BrowserConstants.SelectorRelationships);
+            url.AddParameter(Parameters.ParamSubRelationshipTypes, includeSubRelationshipTypes);
+            url.AddParameter(Parameters.ParamRelationshipDirection, relationshipDirection);
+            url.AddParameter(Parameters.ParamTypeId, typeId);
+            url.AddParameter(Parameters.ParamFilter, filter);
+            url.AddParameter(Parameters.ParamAllowableActions, includeAllowableActions);
+            url.AddParameter(Parameters.ParamMaxItems, maxItems);
+            url.AddParameter(Parameters.ParamSkipCount, skipCount);
+            url.AddParameter(Parameters.ParamSuccinct, GetSuccinctParameter());
+
+            HttpUtils.Response resp = Read(url);
+            JObject json = ParseObject(resp.Stream);
+            ClientTypeCache typeCache = new ClientTypeCache(repositoryId, this);
+            return BrowserConverter.ConvertObjectList(json, typeCache, false);
         }
     }
 
@@ -1075,13 +1340,49 @@ namespace DotCMIS.Binding.Browser
             bool? includeAllowableActions, IncludeRelationshipsFlag? includeRelationships, string renditionFilter,
             long? maxItems, long? skipCount, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("Query");
+            UrlBuilder url = GetRepositoryUrl(repositoryId);
+
+            FormDataWriter formData = new FormDataWriter(BrowserConstants.ActionQuery);
+            formData.AddParameter(Parameters.ParamStatement, statement);
+            formData.AddParameter(Parameters.ParamSearchAllVersions, searchAllVersions);
+            formData.AddParameter(Parameters.ParamAllowableActions, includeAllowableActions);
+            formData.AddParameter(Parameters.ParamRelationships, includeRelationships);
+            formData.AddParameter(Parameters.ParamRenditionFilter, renditionFilter);
+            formData.AddParameter(Parameters.ParamMaxItems, maxItems);
+            formData.AddParameter(Parameters.ParamSkipCount, skipCount);
+
+            HttpUtils.Response resp = Post(
+                url,
+                formData.GetContentType(),
+                (Stream stream) =>
+                {
+                    formData.Write(stream);
+                });
+            JObject json = ParseObject(resp.Stream);
+            ClientTypeCache typeCache = new ClientTypeCache(repositoryId, this);
+            return BrowserConverter.ConvertObjectList(json, typeCache, true);
         }
 
         public IObjectList GetContentChanges(string repositoryId, ref string changeLogToken, bool? includeProperties,
            string filter, bool? includePolicyIds, bool? includeAcl, long? maxItems, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("GetContentChanges");
+            UrlBuilder url = GetRepositoryUrl(repositoryId, BrowserConstants.SelectorContentChanges);
+            url.AddParameter(Parameters.ParamChangeLogToken, changeLogToken == null ? null : changeLogToken);
+            url.AddParameter(Parameters.ParamProperties, includeProperties);
+            url.AddParameter(Parameters.ParamFilter, filter);
+            url.AddParameter(Parameters.ParamPolicyIds, includePolicyIds);
+            url.AddParameter(Parameters.ParamACL, includeAcl);
+            url.AddParameter(Parameters.ParamMaxItems, maxItems);
+            url.AddParameter(Parameters.ParamSuccinct, GetSuccinctParameter());
+
+            HttpUtils.Response resp = Read(url);
+            JObject json = ParseObject(resp.Stream);
+            if (changeLogToken != null)
+            {
+                changeLogToken = (string)json[BrowserConstants.ObjectListChangeLogToken];
+            }
+            ClientTypeCache typeCache = new ClientTypeCache(repositoryId, this);
+            return BrowserConverter.ConvertObjectList(json, typeCache, false);
         }
     }
 
@@ -1094,12 +1395,35 @@ namespace DotCMIS.Binding.Browser
 
         public void AddObjectToFolder(string repositoryId, string objectId, string folderId, bool? allVersions, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("AddObjectToFolder");
+            UrlBuilder url = GetObjectUrl(repositoryId, objectId);
+
+            FormDataWriter formData = new FormDataWriter(BrowserConstants.ActionAddObjectToFolder);
+            formData.AddParameter(Parameters.ParamFolderId, folderId);
+            formData.AddParameter(Parameters.ParamAllVersions, allVersions);
+
+            PostAndConsume(
+                url,
+                formData.GetContentType(),
+                (Stream stream) =>
+                {
+                    formData.Write(stream);
+                });
         }
 
         public void RemoveObjectFromFolder(string repositoryId, string objectId, string folderId, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("RemoveObjectFromFolder");
+            UrlBuilder url = GetObjectUrl(repositoryId, objectId);
+
+            FormDataWriter formData = new FormDataWriter(BrowserConstants.ActionRemoveObjectToFolder);
+            formData.AddParameter(Parameters.ParamFolderId, folderId);
+
+            PostAndConsume(
+                url,
+                formData.GetContentType(),
+                (Stream stream) =>
+                {
+                    formData.Write(stream);
+                });
         }
     }
 
@@ -1150,17 +1474,48 @@ namespace DotCMIS.Binding.Browser
 
         public void ApplyPolicy(string repositoryId, string policyId, string objectId, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("ApplyPolicy");
+            UrlBuilder url = GetObjectUrl(repositoryId, objectId);
+
+            FormDataWriter formData = new FormDataWriter(BrowserConstants.ActionApplyPolicy);
+            List<string> policies = new List<string>() { policyId };
+            formData.AddPoliciesParameters(policies);
+
+            PostAndConsume(
+                url,
+                formData.GetContentType(),
+                (Stream stream) =>
+                {
+                    formData.Write(stream);
+                });
         }
 
         public void RemovePolicy(string repositoryId, string policyId, string objectId, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("RemovePolicy");
+            UrlBuilder url = GetObjectUrl(repositoryId, objectId);
+
+            FormDataWriter formData = new FormDataWriter(BrowserConstants.ActionRemovePolicy);
+            List<string> policies = new List<string>() { policyId };
+            formData.AddPoliciesParameters(policies);
+
+            PostAndConsume(
+                url,
+                formData.GetContentType(),
+                (Stream stream) =>
+                {
+                    formData.Write(stream);
+                });
         }
 
         public IList<IObjectData> GetAppliedPolicies(string repositoryId, string objectId, string filter, IExtensionsData extension)
         {
-            throw new CmisNotSupportedException("GetAppliedPolicies");
+            UrlBuilder url = GetObjectUrl(repositoryId, objectId, BrowserConstants.SelectorPolicies);
+            url.AddParameter(Parameters.ParamFilter, filter);
+            url.AddParameter(Parameters.ParamSuccinct, GetSuccinctParameter());
+
+            HttpUtils.Response resp = Read(url);
+            JArray json = ParseArray(resp.Stream);
+            ClientTypeCache typeCache = new ClientTypeCache(repositoryId, this);
+            return BrowserConverter.ConvertObjects(json, typeCache);
         }
     }
 }

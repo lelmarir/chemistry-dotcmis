@@ -96,28 +96,64 @@ namespace DotCMIS.Binding.Browser
 
                 index++;
             }
-
-
-            //  TODO AddPropertiesParameters
-            return;
         }
 
         public void AddPoliciesParameters(IList<string> policies)
         {
-            //  TODO AddPoliciesParameters
-            return;
+            if (policies == null)
+            {
+                return;
+            }
+
+            int idx = 0;
+            foreach(object policy in policies)
+            {
+                if (policy != null)
+                {
+                    string idxStr = "[" + idx + "]";
+                    AddParameter(BrowserConstants.ControlPolicy + idxStr, policy);
+                }
+            }
         }
 
         public void AddAddAcesParameters(IAcl acl)
         {
-            //  TODO AddPoliciesParameters
-            return;
+
+            AddAcesParameters(acl,BrowserConstants.ControlAddAcePrincipal,BrowserConstants.ControlAddAcePermission);
         }
 
         public void AddRemoveAcesParameters(IAcl acl)
         {
-            //  TODO AddPoliciesParameters
-            return;
+            AddAcesParameters(acl,BrowserConstants.ControlRemoveAcePrincipal,BrowserConstants.ControlRemoveAcePermission);
+        }
+
+        public void AddAcesParameters(IAcl acl,String principalControl,String permissionControl)
+        {
+            if (acl == null || acl.Aces == null)
+            {
+                return;
+            }
+            int idx = 0;
+            foreach (Ace ace in acl.Aces)
+            {
+                if (ace.PrincipalId != null && ace.Permissions != null)
+                {
+                    string idxStr = "[" + idx + "]";
+                    AddParameter(principalControl + idxStr,ace.PrincipalId);
+
+                    int permIdx = 0;
+                    foreach (string perm in ace.Permissions)
+                    {
+                        if (perm != null)
+                        {
+                            string perIdxStr = "[" + permIdx + "]";
+                            AddParameter(principalControl + idxStr + perIdxStr,perm);
+                            permIdx++;
+                        }
+                        idx++;
+                    }
+                }
+            }
         }
 
         public void AddSuccinctFlag(bool succinct)

@@ -295,26 +295,26 @@ namespace DotCMIS.Binding.Browser
                 case PropertyType.String:
                     result = new PropertyStringDefinition();
                     ((PropertyStringDefinition)result).MaxLength = (long?)json[BrowserConstants.PropertyTypeMaxLength];
-                    ((PropertyStringDefinition)result).Choices = ConvertChoicesString(json[BrowserConstants.PropertyTypeChoice]);
+                    ((PropertyStringDefinition)result).Choices = ConvertChoices<string>(json[BrowserConstants.PropertyTypeChoice]);
                     break;
                 case PropertyType.Id:
                     result = new PropertyIdDefinition();
-                    ((PropertyIdDefinition)result).Choices = ConvertChoicesString(json[BrowserConstants.PropertyTypeChoice]);
+                    ((PropertyIdDefinition)result).Choices = ConvertChoices<string>(json[BrowserConstants.PropertyTypeChoice]);
                     break;
                 case PropertyType.Boolean:
                     result = new PropertyBooleanDefinition();
-                    ((PropertyBooleanDefinition)result).Choices = ConvertChoicesBoolean(json[BrowserConstants.PropertyTypeChoice]);
+                    ((PropertyBooleanDefinition)result).Choices = ConvertChoices<bool>(json[BrowserConstants.PropertyTypeChoice]);
                     break;
                 case PropertyType.Integer:
                     result = new PropertyIntegerDefinition();
                     ((PropertyIntegerDefinition)result).MaxValue = (long?)json[BrowserConstants.PropertyTypeMaxValue];
                     ((PropertyIntegerDefinition)result).MinValue = (long?)json[BrowserConstants.PropertyTypeMaxValue];
-                    ((PropertyIntegerDefinition)result).Choices = ConvertChoicesLong(json[BrowserConstants.PropertyTypeChoice]);
+                    ((PropertyIntegerDefinition)result).Choices = ConvertChoices<long>(json[BrowserConstants.PropertyTypeChoice]);
                     break;
                 case PropertyType.DateTime:
                     result = new PropertyDateTimeDefinition();
                     ((PropertyDateTimeDefinition)result).DateTimeResolution = CmisValue.GetCmisEnum<DateTimeResolution>((string)json[BrowserConstants.PropertyTypeResolution]);
-                    ((PropertyDateTimeDefinition)result).Choices = ConvertChoicesDateTime(json[BrowserConstants.PropertyTypeChoice]);
+                    ((PropertyDateTimeDefinition)result).Choices = ConvertChoices<DateTime>(json[BrowserConstants.PropertyTypeChoice], (JToken token) => { return ConvertDateTime(token.Value<long>()); });
                     break;
                 case PropertyType.Decimal:
                     result = new PropertyDecimalDefinition();
@@ -322,15 +322,15 @@ namespace DotCMIS.Binding.Browser
                     ((PropertyDecimalDefinition)result).MinValue = (decimal?)json[BrowserConstants.PropertyTypeMaxValue];
                     //  TODO Precision
                     //((PropertyDecimalDefinition)result).Precision = (DecimalPrecision?)json[BrowserConstants.PropertyTypePrecision];
-                    ((PropertyDecimalDefinition)result).Choices = ConvertChoicesDecimal(json[BrowserConstants.PropertyTypeChoice]);
+                    ((PropertyDecimalDefinition)result).Choices = ConvertChoices<decimal>(json[BrowserConstants.PropertyTypeChoice]);
                     break;
                 case PropertyType.Html:
                     result = new PropertyHtmlDefinition();
-                    ((PropertyHtmlDefinition)result).Choices = ConvertChoicesString(json[BrowserConstants.PropertyTypeChoice]);
+                    ((PropertyHtmlDefinition)result).Choices = ConvertChoices<string>(json[BrowserConstants.PropertyTypeChoice]);
                     break;
                 case PropertyType.Uri:
                     result = new PropertyUriDefinition();
-                    ((PropertyUriDefinition)result).Choices = ConvertChoicesString(json[BrowserConstants.PropertyTypeChoice]);
+                    ((PropertyUriDefinition)result).Choices = ConvertChoices<string>(json[BrowserConstants.PropertyTypeChoice]);
                     break;
                 default:
                     throw new CmisRuntimeException("Property type '" + id + "' does not match a data type!");
@@ -431,6 +431,59 @@ namespace DotCMIS.Binding.Browser
             return result;
         }
 
+        internal static IList<ITypeDefinitionContainer> ConvertTypeDescendants(JToken json)
+        {
+            if (json == null)
+            {
+                return null;
+            }
+
+            IList<ITypeDefinitionContainer> result = new List<ITypeDefinitionContainer>();
+
+            foreach (JToken jsonChild in json.Children())
+            {
+                TypeDefinitionContainer container = new TypeDefinitionContainer();
+                container.TypeDefinition = ConvertTypeDefinition(jsonChild[BrowserConstants.TypesContainerType]);
+                JArray children = jsonChild[BrowserConstants.TypesContainerChildren] as JArray;
+                if (children != null)
+                {
+                    container.Children = ConvertTypeDescendants(children);
+                }
+                ConvertExtensionData(jsonChild, container, BrowserConstants.TypesContainerKeys);
+                result.Add(container);
+            }
+
+            return result;
+        }
+
+        internal static ITypeDefinitionList ConvertTypeChildren(JToken json)
+        {
+            if (json == null)
+            {
+                return null;
+            }
+
+            TypeDefinitionList result = new TypeDefinitionList();
+
+            IList<ITypeDefinition> types = new List<ITypeDefinition>();
+            JArray jsonTypes = json[BrowserConstants.TypesListTypes] as JArray;
+            if (jsonTypes != null)
+            {
+                foreach (JToken jsonChild in jsonTypes.Children())
+                {
+                    types.Add(ConvertTypeDefinition(jsonChild));
+                }
+            }
+            result.List = types;
+
+            result.HasMoreItems = (bool?)json[BrowserConstants.TypesListHasMoreItems];
+            result.NumItems = (long?)json[BrowserConstants.TypesListNumItems];
+
+            ConvertExtensionData(json,result,BrowserConstants.TypesListKeys);
+
+            return result;
+        }
+
         internal static IList<IObjectParentData> ConvertObjectParents(JToken json, ClientTypeCache typeCache)
         {
             if (json == null)
@@ -465,8 +518,73 @@ namespace DotCMIS.Binding.Browser
             return result;
         }
 
+        internal static IList<IObjectData> ConvertObjects(JToken json, ClientTypeCache typeCache)
+        {
+            if (json == null)
+            {
+                return null;
+            }
+
+            IList<IObjectData> result = new List<IObjectData>();
+            foreach (JToken jsonChild in json.Children())
+            {
+                result.Add(ConvertObjectData(jsonChild, typeCache));
+            }
+            return result;
+        }
+
+        internal static IObjectList ConvertObjectList(JToken json, ClientTypeCache typeCache, Boolean isQueryResult)
+        {
+            if (json == null)
+            {
+                return null;
+            }
+
+            ObjectList result = new ObjectList();
+
+            JArray jsonChildren;
+            if (isQueryResult)
+            {
+                jsonChildren = json[BrowserConstants.QueryResultListResults] as JArray;
+            }
+            else
+            {
+                jsonChildren = json[BrowserConstants.ObjectListObjects] as JArray;
+            }
+            IList<IObjectData> objects = new List<IObjectData>();
+            if (jsonChildren != null)
+            {
+                foreach (JToken jsonChild in jsonChildren.Children())
+                {
+                    objects.Add(ConvertObjectData(jsonChild, typeCache));
+                }
+            }
+            result.Objects = objects;
+
+            if (isQueryResult)
+            {
+               result.HasMoreItems = (bool?)json[BrowserConstants.QueryResultListHasMoreItems];
+               result.NumItems = (long?)json[BrowserConstants.QueryResultListNumItems];
+               ConvertExtensionData(json,result,BrowserConstants.QueryResultListKeys);
+            }
+            else
+            {
+                result.HasMoreItems = (bool?)json[BrowserConstants.ObjectListHasMoreItems];
+                result.NumItems = (long?)json[BrowserConstants.ObjectListNumItems];
+                ConvertExtensionData(json,result,BrowserConstants.ObjectListKeys);
+            }
+
+            return result;
+
+        }
+
         internal static IObjectData ConvertObjectData(JToken json, ClientTypeCache typeCache)
         {
+            if (json == null)
+            {
+                return null;
+            }
+
             ObjectData result = new ObjectData();
 
             result.Acl = ConvertAcl(json[BrowserConstants.ObjectAcl]);
@@ -479,8 +597,7 @@ namespace DotCMIS.Binding.Browser
             result.PolicyIds = null;
             //  TODO Relationships
             result.Relationships = null;
-            //  TODO Renditions
-            result.Renditions = null;
+            result.Renditions = ConvertRenditions(json[BrowserConstants.ObjectRenditions]);
 
             //  TODO Properties
             JToken jsonProperties = json[BrowserConstants.ObjectSuccinctProperties];
@@ -494,8 +611,10 @@ namespace DotCMIS.Binding.Browser
             else
             {
                 jsonProperties = json[BrowserConstants.ObjectProperties];
-                //  TODO Properties
-                result.Properties = null;
+                result.Properties = ConvertProperties(
+                    jsonProperties,
+                    json[BrowserConstants.ObjectPropertiesExtension],
+                    typeCache);
             }
 
             ConvertExtensionData(json, result, BrowserConstants.ObjectKeys);
@@ -503,9 +622,90 @@ namespace DotCMIS.Binding.Browser
             return result;
         }
 
-        private static IProperties ConvertSuccinctProperties(JToken json, JToken jsonExtension, ClientTypeCache typeCache)
+        public static IProperties ConvertProperties(JToken json, JToken jsonExtension, ClientTypeCache typeCache)
         {
-            if (json == null)
+            if (!(json is JObject))
+            {
+                return null;
+            }
+
+            Properties result = new Properties();
+            foreach (JToken jsonProperty in json.Values())
+            {
+                string id = (string)jsonProperty[BrowserConstants.PropertyId];
+                if (id == null)
+                {
+                    throw new CmisRuntimeException("Invalid property!");
+                }
+
+                PropertyType propertyType = CmisValue.GetCmisEnum<PropertyType>((string)jsonProperty[BrowserConstants.PropertyDataType]);
+
+                JToken jsonValue = jsonProperty[BrowserConstants.PropertyValue];
+                List<object> values = new List<object>();
+                if (jsonValue is JArray)
+                {
+                    foreach (JToken jsonValueChild in jsonValue as JArray)
+                    {
+                        if (jsonValueChild is JValue)
+                        {
+                            values.Add(((JValue)jsonValueChild).Value);
+                        }
+                        else
+                        {
+                            throw new CmisRuntimeException("Invalid JSON value: " + jsonValueChild);
+                        }
+                    }
+                }
+                else
+                {
+                    if (jsonValue is JValue)
+                    {
+                        values.Add(((JValue)jsonValue).Value);
+                    }
+                    else
+                    {
+                        throw new CmisRuntimeException("Invalid JSON value: " + jsonValue);
+                    }
+                }
+
+                PropertyData propertyData = new PropertyData(propertyType);
+                foreach (object value in values)
+                {
+                    if (value == null)
+                    {
+                        continue;
+                    }
+                    object convertedValue = value;
+                    if (propertyData.PropertyType == PropertyType.DateTime && value is long)
+                    {
+                        convertedValue = ConvertDateTime((long)value);
+                    }
+                    try
+                    {
+                        propertyData.CheckValue(convertedValue);
+                    }
+                    catch (Exception)
+                    {
+                        throw new CmisRuntimeException("Invalid property value: " + convertedValue);
+                    }
+                    propertyData.AddValue(convertedValue);
+                }
+                propertyData.Id = id;
+                propertyData.DisplayName = (string)jsonProperty[BrowserConstants.PropertyDisplayName];
+                propertyData.QueryName = (string)jsonProperty[BrowserConstants.PropertyQueryName];
+                propertyData.LocalName = (string)jsonProperty[BrowserConstants.PropertyLocalName];
+
+                ConvertExtensionData(jsonProperty, propertyData, BrowserConstants.PropertyKeys);
+
+                result.AddProperty(propertyData);
+            }
+
+            return result;
+        }
+
+        public static IProperties ConvertSuccinctProperties(JToken json, JToken jsonExtension, ClientTypeCache typeCache)
+        {
+            if (!(json is JObject))
             {
                 return null;
             }
@@ -533,7 +733,7 @@ namespace DotCMIS.Binding.Browser
 
             Properties result = new Properties();
 
-            foreach (JProperty property in ((JObject)json).Properties())
+            foreach (JProperty property in (json as JObject).Properties())
             {
                 string id = property.Name;
                 IPropertyDefinition propertyDefinition = null;
@@ -637,7 +837,7 @@ namespace DotCMIS.Binding.Browser
                     object convertedValue = value;
                     if (propertyData.PropertyType == PropertyType.DateTime && value is long)
                     {
-                        convertedValue = new DateTime((long)value);
+                        convertedValue = ConvertDateTime((long)value);
                     }
                     try
                     {
@@ -760,43 +960,94 @@ namespace DotCMIS.Binding.Browser
             return result;
         }
 
-        internal static IList<IChoice<bool>> ConvertChoicesBoolean(JToken json)
-        {
-            //  TODO ConvertChoicesBoolean
-            return null;
-        }
-
-        internal static IList<IChoice<long>> ConvertChoicesLong(JToken json)
-        {
-            //  TODO ConvertChoicesLong
-            return null;
-        }
-
-        internal static IList<IChoice<decimal>> ConvertChoicesDecimal(JToken json)
-        {
-            //  TODO ConvertChoicesDateTime
-            return null;
-        }
-
-        internal static IList<IChoice<string>> ConvertChoicesString(JToken json)
-        {
-            //  TODO ConvertChoicesString
-            return null;
-        }
-
-        internal static IList<IChoice<DateTime>> ConvertChoicesDateTime(JToken json)
-        {
-            //  TODO ConvertChoicesDateTime
-            return null;
-        }
-
-        internal static int? GetInteger(JValue json)
+        internal static IRenditionData ConvertRendition(JToken json)
         {
             if (json == null)
             {
                 return null;
             }
-            return json.Value<int>();
+
+            RenditionData result = new RenditionData();
+            result.Height = (long?)json[BrowserConstants.RenditionHeight];
+            result.Kind = (string)json[BrowserConstants.RenditionKind];
+            result.Length = (long?)json[BrowserConstants.RenditionLength];
+            result.MimeType = (string)json[BrowserConstants.RenditionMimeType];
+            result.RenditionDocumentId = (string)json[BrowserConstants.RenditionDocumentId];
+            result.StreamId = (string)json[BrowserConstants.RenditionStreamId];
+            result.Title = (string)json[BrowserConstants.RenditionTitle];
+            result.Width = (long?)json[BrowserConstants.RenditionWidth];
+
+            ConvertExtensionData(json, result, BrowserConstants.RenditionKeys);
+
+            return result;
         }
+
+        internal static IList<IRenditionData> ConvertRenditions(JToken json)
+        {
+            if (json == null)
+            {
+                return null;
+            }
+
+            List<IRenditionData> result = new List<IRenditionData>();
+            foreach (JToken jsonChild in json.Children())
+            {
+                IRenditionData rendition = ConvertRendition(jsonChild);
+                result.Add(rendition);
+            }
+
+            return result;
+        }
+
+        internal delegate T ConvertJTokenValue<T>(JToken json);
+
+        internal static IList<IChoice<T>> ConvertChoices<T>(JToken json)
+        {
+            return ConvertChoices<T>(json, (JToken token) => { return token.Value<T>(); });
+        }
+
+        internal static IList<IChoice<T>> ConvertChoices<T>(JToken json, ConvertJTokenValue<T> convertJTokenValue)
+        {
+            if (!(json is JArray))
+            {
+                return null;
+            }
+
+            List<IChoice<T>> result = new List<IChoice<T>>();
+
+            foreach (JToken jsonChild in json.Children())
+            {
+                Choice<T> choice = new Choice<T>();
+
+                choice.DisplayName = (string)jsonChild[BrowserConstants.PropertyTypeChoiceDisplayName];
+
+                List<T> values = new List<T>();
+                JToken jsonValues = jsonChild[BrowserConstants.PropertyTypeChoiceValue];
+                if (jsonValues is JArray)
+                {
+                    foreach (JToken jsonValue in jsonValues.Children())
+                    {
+                        values.Add(convertJTokenValue(jsonValue));
+                    }
+                }
+                else
+                {
+                    values.Add(convertJTokenValue(jsonValues));
+                }
+                choice.Value = values;
+
+                choice.Choices = ConvertChoices<T>(jsonChild[BrowserConstants.PropertyTypeChoiceChoice]);
+
+                result.Add(choice);
+            }
+
+            return result;
+        }
+
+        internal static DateTime ConvertDateTime(long milliseconds)
+        {
+            return new DateTime(1970, 1, 1) + new TimeSpan(milliseconds * 10000);
+        }
+
     }
 }
