@@ -35,13 +35,22 @@ namespace DotCMIS.Binding.Browser
             result.LatestChangeLogToken = (string)json[BrowserConstants.RepoInfoChangeLogToken];
             result.CmisVersionSupported = (string)json[BrowserConstants.RepoInfoCmisVersionSupported];
             result.ThinClientUri = (string)json[BrowserConstants.RepoInfoThinClientUri];
-            //  TODO ChangesIncomplete
-            //result.ChangesIncomplete = (string)json[BrowserConstants.RepoInfoChangesIncomplete];
-            //  TODO ChangesOnType
-            //result.ChangesOnType = (string)json[BrowserConstants.RepoInfoChangesOnType];
+            result.ChangesIncomplete = (bool?)json[BrowserConstants.RepoInfoChangesIncomplete];
+            JArray jsonChangesOnType = json[BrowserConstants.RepoInfoChangesOnType] as JArray;
+            if (jsonChangesOnType != null)
+            {
+                IList<BaseTypeId?> types = new List<BaseTypeId?>();
+                foreach (JToken jsonType in jsonChangesOnType)
+                {
+                    types.Add(CmisValue.GetCmisEnum<BaseTypeId>((string)jsonType));
+                }
+                result.ChangesOnType = types;   
+            }
+
             result.PrincipalIdAnonymous = (string)json[BrowserConstants.RepoInfoPrincipalIdAnonymous];
             result.PrincipalIdAnyone = (string)json[BrowserConstants.RepoInfoPrincipalIdAnyone];
-            result.Extensions = null; //  TODO Extension
+
+            BrowserConverter.ConvertExtensionData(json, result, BrowserConstants.RepoInfoKeys);
 
             return result;
         }
@@ -55,40 +64,86 @@ namespace DotCMIS.Binding.Browser
 
             RepositoryCapabilities result = new RepositoryCapabilities();
 
-            //  TODO
             result.ContentStreamUpdatesCapability = CmisValue.GetCmisEnum<CapabilityContentStreamUpdates>((string)json[BrowserConstants.CapContentStreamUpdatability]);
             result.ChangesCapability = CmisValue.GetCmisEnum<CapabilityChanges>((string)json[BrowserConstants.CapChanges]);
             result.RenditionsCapability = CmisValue.GetCmisEnum<CapabilityRenditions>((string)json[BrowserConstants.CapRenditions]);
-            result.AclCapability = CmisValue.GetCmisEnum<CapabilityAcl>((string)json[BrowserConstants.CapAcl]);
-            result.QueryCapability = CmisValue.GetCmisEnum<CapabilityQuery>((string)json[BrowserConstants.CapQuery]);
-            result.JoinCapability = CmisValue.GetCmisEnum<CapabilityJoin>((string)json[BrowserConstants.CapJoin]);
             result.IsGetDescendantsSupported = (bool?)json[BrowserConstants.CapGetDescendants];
             result.IsGetFolderTreeSupported = (bool?)json[BrowserConstants.CapGetFolderTree];
-            result.IsGetDescendantsSupported = (bool?)json[BrowserConstants.CapGetDescendants];
-            result.IsAllVersionsSearchableSupported = (bool?)json[BrowserConstants.CapAllVersionsSearchable];
             result.IsMultifilingSupported = (bool?)json[BrowserConstants.CapMultifiling];
             result.IsUnfilingSupported = (bool?)json[BrowserConstants.CapMultifiling];
+            result.IsVersionSpecificFilingSupported = (bool?)json[BrowserConstants.CapVersionSpecificFiling];
+            result.IsPwcSearchableSupported = (bool?)json[BrowserConstants.CapPwcSearchable];
+            result.IsPwcUpdatableSupported = (bool?)json[BrowserConstants.CapPwcUpdateble];
+            result.IsAllVersionsSearchableSupported = (bool?)json[BrowserConstants.CapAllVersionsSearchable];
+            result.QueryCapability = CmisValue.GetCmisEnum<CapabilityQuery>((string)json[BrowserConstants.CapQuery]);
+            result.JoinCapability = CmisValue.GetCmisEnum<CapabilityJoin>((string)json[BrowserConstants.CapJoin]);
+            result.AclCapability = CmisValue.GetCmisEnum<CapabilityAcl>((string)json[BrowserConstants.CapAcl]);
 
-            JArray canCreateJson = json[BrowserConstants.ObjectInFolderListObjects] as JArray;
-
-            if (canCreateJson != null)
-            {
-                //TODO
-            }
-
-            JArray newTypeSettableAttributesJson = json[BrowserConstants.CapNewTypeSettableAttributes] as JArray;
-            if (newTypeSettableAttributesJson != null)
-            {
-                //TODO
-            }
+            ConvertExtensionData(json, result, BrowserConstants.CapKeys);
 
             return result;
         }
 
         internal static IAclCapabilities ConvertAclCapabilities(JToken json)
         {
-            //  TODO ConvertAclCapabilities
-            return null;
+            if (json == null)
+            {
+                return null;
+            }
+
+            AclCapabilities result = new AclCapabilities();
+
+            result.SupportedPermissions = CmisValue.GetCmisEnum<SupportedPermissions>((string)json[BrowserConstants.AclCapSupportedPermissions]);
+            result.AclPropagation = CmisValue.GetCmisEnum<AclPropagation>((string)json[BrowserConstants.AclCapAclPropagation]);
+
+            JArray jsonPermissionDefinitions = json[BrowserConstants.AclCapPermissions] as JArray;
+            if (jsonPermissionDefinitions != null)
+            {
+                List<IPermissionDefinition> permissionDefinitionList = new List<IPermissionDefinition>();
+                foreach (JToken jsonPermissionDefinition in jsonPermissionDefinitions)
+                {
+                    PermissionDefinition permissionDefinition = new PermissionDefinition();
+
+                    permissionDefinition.Id = (string)jsonPermissionDefinition[BrowserConstants.AclCapPermissions];
+                    permissionDefinition.Description = (string)jsonPermissionDefinition[BrowserConstants.AclCAPPermissionDescription];
+
+                    BrowserConverter.ConvertExtensionData(jsonPermissionDefinition, permissionDefinition, BrowserConstants.AclCapPermissionKeys);
+
+                    permissionDefinitionList.Add(permissionDefinition);
+                }
+                result.Permissions = permissionDefinitionList;
+            }
+
+            JArray jsonPermissionMapping = json[BrowserConstants.AclCapPermissionMapping] as JArray;
+            if (jsonPermissionMapping != null)
+            {
+                Dictionary<string,IPermissionMapping> permissionMapping = new Dictionary<string,IPermissionMapping>();
+                foreach (JToken jsonPermission in jsonPermissionMapping)
+                {
+                    if (jsonPermission != null)
+                    {
+                        PermissionMapping mapping = new PermissionMapping();
+                        mapping.Key = (string)jsonPermission[BrowserConstants.AclCapMappingKey];
+                        JArray jsonPermissions = jsonPermission[BrowserConstants.AclCapMappingPermission] as JArray;
+                        if (jsonPermissions != null)
+                        {
+                            List<string> permissionList = new List<string>();
+                            foreach (JToken jsonPermissionValue in jsonPermissions)
+                            {
+                                permissionList.Add((string)jsonPermissionValue);
+                            }
+                            mapping.Permissions = permissionList;
+                        }
+                        BrowserConverter.ConvertExtensionData(jsonPermission, mapping, BrowserConstants.AclCapMappingKeys);
+                        permissionMapping[mapping.Key] = mapping;
+                   }
+                }
+                result.PermissionMapping = permissionMapping;
+            }
+
+            BrowserConverter.ConvertExtensionData(json, result, BrowserConstants.AclCapKeys);
+
+            return result;
         }
 
         internal static ITypeDefinition ConvertTypeDefinition(JToken json)
@@ -320,8 +375,7 @@ namespace DotCMIS.Binding.Browser
                     result = new PropertyDecimalDefinition();
                     ((PropertyDecimalDefinition)result).MaxValue = (decimal?)json[BrowserConstants.PropertyTypeMaxValue];
                     ((PropertyDecimalDefinition)result).MinValue = (decimal?)json[BrowserConstants.PropertyTypeMaxValue];
-                    //  TODO Precision
-                    //((PropertyDecimalDefinition)result).Precision = (DecimalPrecision?)json[BrowserConstants.PropertyTypePrecision];
+                    ((PropertyDecimalDefinition)result).Precision = CmisValue.GetCmisEnum<DecimalPrecision>((string)json[BrowserConstants.PropertyTypePrecision]);
                     ((PropertyDecimalDefinition)result).Choices = ConvertChoices<decimal>(json[BrowserConstants.PropertyTypeChoice]);
                     break;
                 case PropertyType.Html:
@@ -336,8 +390,6 @@ namespace DotCMIS.Binding.Browser
                     throw new CmisRuntimeException("Property type '" + id + "' does not match a data type!");
             }
           
-            //  TODO default value
-
             //  generic
             result.Id = id;
             result.PropertyType = propertyType;
@@ -354,7 +406,7 @@ namespace DotCMIS.Binding.Browser
             result.IsRequired = (bool?)json[BrowserConstants.PropertyTypeRequired];
             result.Updatability = CmisValue.GetCmisEnum<Updatability>((string)json[BrowserConstants.PropertyTypeUpdatability]);
 
-            //  TODO extensions
+            ConvertExtensionData(json, result, BrowserConstants.PropertyTypeKeys);
 
             return result;
         }
@@ -589,17 +641,20 @@ namespace DotCMIS.Binding.Browser
 
             result.Acl = ConvertAcl(json[BrowserConstants.ObjectAcl]);
             result.AllowableActions = ConvertAllowableActions(json[BrowserConstants.ObjectAllowableActions]);
-            //  TODO ChangeEventInfo
-            result.ChangeEventInfo = null;
-            //  TODO IsExactAcl
-            result.IsExactAcl = null;
-            //  TODO PolicyIds
-            result.PolicyIds = null;
-            //  TODO Relationships
-            result.Relationships = null;
+            JObject jsonChangeEventInfo = json[BrowserConstants.ObjectChangeEventInfo] as JObject;
+            if (jsonChangeEventInfo != null)
+            {
+                ChangeEventInfo changeEventInfo = new ChangeEventInfo();
+                changeEventInfo.ChangeTime = ConvertDateTime((long)jsonChangeEventInfo[BrowserConstants.ChangeEventTime]);
+                changeEventInfo.ChangeType = CmisValue.GetCmisEnum<ChangeType>((string)jsonChangeEventInfo[BrowserConstants.ChangeEventType]);
+                ConvertExtensionData(jsonChangeEventInfo, changeEventInfo, BrowserConstants.ChangeEventKeys);
+                result.ChangeEventInfo = changeEventInfo;
+            }
+            result.IsExactAcl = (bool?)json[BrowserConstants.ObjectExactAcl];
+            result.PolicyIds = ConvertPolicyIdList(json[BrowserConstants.ObjectPolicyIds]);
+            result.Relationships = ConvertObjects(json[BrowserConstants.ObjectRelationships], typeCache);
             result.Renditions = ConvertRenditions(json[BrowserConstants.ObjectRenditions]);
 
-            //  TODO Properties
             JToken jsonProperties = json[BrowserConstants.ObjectSuccinctProperties];
             if (jsonProperties != null)
             {
@@ -875,6 +930,26 @@ namespace DotCMIS.Binding.Browser
             return result;
         }
 
+        internal static IPolicyIdList ConvertPolicyIdList(JToken json)
+        {
+            if (!(json is JObject))
+            {
+                return null;
+            }
+
+            PolicyIdList result = new PolicyIdList();
+
+            List<string> policyIds = new List<string>();
+            foreach(JToken jsonPolicyId in json[BrowserConstants.ObjectPolicyIdsIds].Children())
+            {
+                policyIds.Add((string)jsonPolicyId);
+            }
+
+            ConvertExtensionData(json, result, BrowserConstants.ObjectKeys);
+
+            return result;
+        }
+
         internal static IAcl ConvertAcl(JToken json)
         {
             if (json == null)
@@ -1047,6 +1122,11 @@ namespace DotCMIS.Binding.Browser
         internal static DateTime ConvertDateTime(long milliseconds)
         {
             return new DateTime(1970, 1, 1) + new TimeSpan(milliseconds * 10000);
+        }
+
+        internal static string ConvertDateTimeString(DateTime date)
+        {
+            return (date - new DateTime(1970, 1, 1)).TotalMilliseconds.ToString();
         }
 
     }

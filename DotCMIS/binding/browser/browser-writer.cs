@@ -79,16 +79,15 @@ namespace DotCMIS.Binding.Browser
                 {
                     if (property.Values.Count == 1)
                     {
-                        //  TODO opencmis implementation
-                        AddParameter(BrowserConstants.ControlPropertyValue + indexString, property.FirstValue);
+                        AddParameter(BrowserConstants.ControlPropertyValue + indexString, ConvertPropertyValue(property.FirstValue));
                     }
                     else
                     {
                         int vIndex = 0;
-                        foreach (object o in property.Values)
+                        foreach (object value in property.Values)
                         {
                             string vIndexString = "[" + vIndex + "]";
-                            AddParameter(BrowserConstants.ControlPropertyValue + indexString + vIndexString,o);
+                            AddParameter(BrowserConstants.ControlPropertyValue + indexString + vIndexString, ConvertPropertyValue(value));
                             vIndex++;
                         }
                     }
@@ -96,6 +95,21 @@ namespace DotCMIS.Binding.Browser
 
                 index++;
             }
+        }
+
+        private string ConvertPropertyValue(object value)
+        {
+            if (value == null)
+            {
+                return null;
+            }
+
+            if (value is DateTime)
+            {
+                return BrowserConverter.ConvertDateTimeString((DateTime)value);
+            }
+
+            return value.ToString();
         }
 
         public void AddPoliciesParameters(IList<string> policies)
@@ -112,6 +126,7 @@ namespace DotCMIS.Binding.Browser
                 {
                     string idxStr = "[" + idx + "]";
                     AddParameter(BrowserConstants.ControlPolicy + idxStr, policy);
+                    idx++;
                 }
             }
         }
@@ -119,12 +134,12 @@ namespace DotCMIS.Binding.Browser
         public void AddAddAcesParameters(IAcl acl)
         {
 
-            AddAcesParameters(acl,BrowserConstants.ControlAddAcePrincipal,BrowserConstants.ControlAddAcePermission);
+            AddAcesParameters(acl, BrowserConstants.ControlAddAcePrincipal, BrowserConstants.ControlAddAcePermission);
         }
 
         public void AddRemoveAcesParameters(IAcl acl)
         {
-            AddAcesParameters(acl,BrowserConstants.ControlRemoveAcePrincipal,BrowserConstants.ControlRemoveAcePermission);
+            AddAcesParameters(acl, BrowserConstants.ControlRemoveAcePrincipal, BrowserConstants.ControlRemoveAcePermission);
         }
 
         public void AddAcesParameters(IAcl acl,String principalControl,String permissionControl)
@@ -133,25 +148,25 @@ namespace DotCMIS.Binding.Browser
             {
                 return;
             }
+
             int idx = 0;
             foreach (Ace ace in acl.Aces)
             {
-                if (ace.PrincipalId != null && ace.Permissions != null)
+                if (ace.PrincipalId != null && ace.Permissions != null && ace.Permissions.Count > 0)
                 {
                     string idxStr = "[" + idx + "]";
-                    AddParameter(principalControl + idxStr,ace.PrincipalId);
-
+                    AddParameter(principalControl + idxStr, ace.PrincipalId);
                     int permIdx = 0;
                     foreach (string perm in ace.Permissions)
                     {
                         if (perm != null)
                         {
-                            string perIdxStr = "[" + permIdx + "]";
-                            AddParameter(principalControl + idxStr + perIdxStr,perm);
+                            string permIdxStr = "[" + permIdx + "]";
+                            AddParameter(permissionControl + idxStr + permIdxStr, perm);
                             permIdx++;
                         }
-                        idx++;
                     }
+                    idx++;
                 }
             }
         }
@@ -211,7 +226,6 @@ namespace DotCMIS.Binding.Browser
                 string mediaType = ContentStream.MimeType;
                 if (string.IsNullOrEmpty(mediaType) || mediaType.IndexOf('/') < 1 || mediaType.IndexOf('\n') > -1 || mediaType.IndexOf('\r') > -1)
                 {
-                    //  TODO opencmis implementation
                     mediaType = AtomPubConstants.MediatypeOctetStream;
                 }
 

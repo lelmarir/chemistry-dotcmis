@@ -268,12 +268,14 @@ namespace DotCMIS
         public const string ParamReturnVersion = "returnVersion";
         public const string ParamSkipCount = "skipCount";
         public const string ParamSourceFolderId = "sourceFolderId";
+        public const string ParamTargetFolderId = "targetFolderId";
         public const string ParamStreamId = "streamId";
         public const string ParamSubRelationshipTypes = "includeSubRelationshipTypes";
         public const string ParamTypeId = "typeId";
         public const string ParamUnfildeObjects = "unfileObjects";
         public const string ParamVersioningState = "versioningState";
         public const string ParamQ = "q";
+        public const string ParamStatement = "statement";
         public const string ParamSearchAllVersions = "searchAllVersions";
         public const string ParamACLPropagation = "ACLPropagation";
         public const string ParamSelector = "cmisselector";
@@ -427,6 +429,30 @@ namespace DotCMIS
         public const string RepoInfoRepositoryUrl = "repositoryUrl";
         public const string RepoInfoRootFolderUrl = "rootFolderUrl";
 
+        public static readonly HashSet<string> RepoInfoKeys = new HashSet<string>()
+        {
+            RepoInfoId,
+            RepoInfoName,
+            RepoInfoDescription,
+            RepoInfoVendor,
+            RepoInfoProduct,
+            RepoInfoProductVersion,
+            RepoInfoRootFolderId,
+            RepoInfoCapabilities,
+            RepoInfoAclCapabilities,
+            RepoInfoChangeLogToken,
+            RepoInfoCmisVersionSupported,
+            RepoInfoThinClientUri,
+            RepoInfoChangesIncomplete,
+            RepoInfoChangesOnType,
+            RepoInfoPrincipalIdAnonymous,
+            RepoInfoPrincipalIdAnyone,
+            RepoInfoExtendedFeatures,
+            RepoInfoRepositoryUrl,
+            RepoInfoRootFolderUrl
+        };
+
+
         //  selectors
         public const string SelectorLastResult = "lastResult";
         public const string SelectorRepositoryInfo = "repositoryInfo";
@@ -566,6 +592,58 @@ namespace DotCMIS
             ObjectParentsRelavivePathSegment
         };
 
+        public const string TypesContainerType = "type";
+        public const string TypesContainerChildren = "children";
+
+        public static readonly HashSet<string> TypesContainerKeys = new HashSet<string>()
+        {
+            TypesContainerType,
+            TypesContainerChildren
+        };
+
+        public const string TypesListTypes = "types";
+        public const string TypesListHasMoreItems = "hasMoreItems";
+        public const string TypesListNumItems = "numItems";
+
+        public static readonly HashSet<string> TypesListKeys = new HashSet<string>()
+        {
+            TypesListTypes,
+            TypesListHasMoreItems,
+            TypesListNumItems
+        };
+
+        public const string QueryResultListResults = "results";
+        public const string QueryResultListHasMoreItems = "hasMoreItems";
+        public const string QueryResultListNumItems = "numItems";
+
+        public static readonly HashSet<string> QueryResultListKeys = new HashSet<string>()
+        {
+            QueryResultListResults,
+            QueryResultListHasMoreItems,
+            QueryResultListNumItems
+        };
+
+        public const string ObjectListObjects = "objects";
+        public const string ObjectListHasMoreItems = "hasMoreItems";
+        public const string ObjectListNumItems = "numItems";
+        public const string ObjectListChangeLogToken = "changeLogToken";
+
+        public static readonly HashSet<string> ObjectListKeys = new HashSet<string>()
+        {
+            ObjectListObjects,
+            ObjectListHasMoreItems,
+            ObjectListNumItems,
+            ObjectListChangeLogToken
+        };
+
+        public const string ChangeEventType = "changeType";
+        public const string ChangeEventTime = "changeTime";
+
+        public static readonly HashSet<string> ChangeEventKeys = new HashSet<string>()
+        {
+            ChangeEventType,
+            ChangeEventTime
+        };
 
         public const string CapContentStreamUpdatability = "capabilityContentStreamUpdatability";
         public const string CapChanges = "capabilityChanges";
@@ -578,12 +656,9 @@ namespace DotCMIS
         public const string CapPwcSearchable = "capabilityPWCSearchable";
         public const string CapPwcUpdateble = "capabilityPWCUpdatable";
         public const string CapAllVersionsSearchable = "capabilityAllVersionsSearchable";
-        public const string CapOderBy = "capabilityOrderBy";
         public const string CapQuery = "capabilityQuery";
         public const string CapJoin = "capabilityJoin";
         public const string CapAcl = "capabilityACL";
-        public const string CapCreablePropertyTypes = "capabilityCreatablePropertyTypes";
-        public const string CapNewTypeSettableAttributes = "capabilityNewTypeSettableAttributes";
 
 
         public static readonly HashSet<string> CapKeys = new HashSet<string>()
@@ -599,12 +674,9 @@ namespace DotCMIS
             CapPwcSearchable,
             CapPwcUpdateble,
             CapAllVersionsSearchable,
-            CapOderBy,
             CapQuery,
             CapJoin,
-            CapAcl,
-            CapCreablePropertyTypes,
-            CapNewTypeSettableAttributes
+            CapAcl
         };
 
         //  property type
@@ -636,12 +708,61 @@ namespace DotCMIS
         public const string PropertyTypeChoiceValue = "value";
         public const string PropertyTypeChoiceChoice = "choice";
 
-         //  control
+        public static readonly HashSet<string> PropertyTypeKeys = new HashSet<string>()
+        {
+            PropertyTypeId,
+            PropertyTypeLocalName,
+            PropertyTypeLocalNamespace,
+            PropertyTypeDisplayName,
+            PropertyTypeQueryName,
+            PropertyTypeDescription,
+            PropertyTypePropertyType,
+            PropertyTypeCardinality,
+            PropertyTypeUpdatability,
+            PropertyTypeInherited,
+            PropertyTypeRequired,
+            PropertyTypeQueryable,
+            PropertyTypeOrderable,
+            PropertyTypeOpenChoice,
+            PropertyTypeDefaultValue,
+            PropertyTypeMaxLength,
+            PropertyTypeMinValue,
+            PropertyTypeMaxValue,
+            PropertyTypePrecision,
+            PropertyTypeResolution,
+            PropertyTypeChoice
+        };
+
+        //  property
+        public const string PropertyId = "id";
+        public const string PropertyLocalName = "localName";
+        public const string PropertyDisplayName = "displayName";
+        public const string PropertyQueryName = "queryName";
+        public const string PropertyValue = "value";
+        public const string PropertyDataType = "type";
+        public const string PropertyCardinality = "cardinality";
+
+        public static readonly HashSet<string> PropertyKeys = new HashSet<string>(){
+            PropertyId,
+            PropertyLocalName,
+            PropertyDisplayName,
+            PropertyQueryName,
+            PropertyValue,
+            PropertyDataType,
+            PropertyCardinality
+        };
+        
+        //  control
         public const string ControlCmisAction = "cmisaction";
         public const string ControlSuccinct = "succinct";
         public const string ControlPropertyId = "propertyId";
         public const string ControlPropertyValue = "propertyValue";
         public const string ControlIsLastChunk = "isLastChunk";
+        public const string ControlPolicy = "policy";
+        public const string ControlAddAcePrincipal = "addACEPrincipal";
+        public const string ControlAddAcePermission = "addACEPermission";
+        public const string ControlRemoveAcePrincipal = "removeACEPrincipal";
+        public const string ControlRemoveAcePermission = "removeACEPermission";
 
         //  action
         public const string ActionCreateDocument = "createDocument";
@@ -652,7 +773,19 @@ namespace DotCMIS
         public const string ActionDelete = "delete";
         public const string ActionDeleteTree = "deleteTree";
         public const string ActionCreateFolder = "createFolder";
+        public const string ActionCreateDocumentFromSource = "createDocumentFromSource";
+        public const string ActionMove = "move";
         public const string ActionApplyACL = "applyACL";
+        public const string ActionCheckOut = "checkOut";
+        public const string ActionCancelCheckOut = "cancelCheckOut";
+        public const string ActionCheckIn = "checkIn";
+        public const string ActionCreateRelationship = "createRelationship";
+        public const string ActionQuery = "query";
+        public const string ActionApplyPolicy = "applyPolicy";
+        public const string ActionRemovePolicy = "removePolicy";
+        public const string ActionAddObjectToFolder = "addObjectToFolder";
+        public const string ActionRemoveObjectToFolder = "removeObjectToFolder";
+
 
         //  acl
         public const string AclAces = "aces";
@@ -662,6 +795,37 @@ namespace DotCMIS
         {
             AclAces,
             AclIsExact
+        };
+
+        public const string AclCapSupportedPermissions = "supportedPermissions";
+        public const string AclCapAclPropagation = "propagation";
+        public const string AclCapPermissions = "permissions";
+        public const string AclCapPermissionMapping = "permissionMapping";
+
+        public static readonly HashSet<string> AclCapKeys = new HashSet<string>()
+        {
+            AclCapSupportedPermissions,
+            AclCapAclPropagation,
+            AclCapPermissions,
+            AclCapPermissionMapping
+        };
+
+        public const string AclCapPermissionPermission = "permission";
+        public const string AclCAPPermissionDescription = "description";
+
+        public static readonly HashSet<string> AclCapPermissionKeys = new HashSet<string>()
+        {
+            AclCapPermissionPermission,
+            AclCAPPermissionDescription
+        };
+
+        public const string AclCapMappingKey = "key";
+        public const string AclCapMappingPermission = "permission";
+
+        public static readonly HashSet<string> AclCapMappingKeys = new HashSet<string>()
+        {
+            AclCapMappingKey,
+            AclCapMappingPermission
         };
 
         //  ace
@@ -683,11 +847,34 @@ namespace DotCMIS
             AcePrincipalId
         };
 
+        //  failed to delete
         public const string FailedToDeleteId = "ids";
 
         public static readonly HashSet<string> FailedToDeleteKeys = new HashSet<string>()
         {
             FailedToDeleteId
+        };
+
+        //  rendition
+        public const string RenditionStreamId = "streamId";
+        public const string RenditionMimeType = "mimeType";
+        public const string RenditionLength = "length";
+        public const string RenditionKind = "kind";
+        public const string RenditionTitle = "title";
+        public const string RenditionHeight = "height";
+        public const string RenditionWidth = "width";
+        public const string RenditionDocumentId = "renditionDocumentId";
+
+        public static readonly HashSet<string> RenditionKeys = new HashSet<string>()
+        {
+            RenditionStreamId,
+            RenditionMimeType,
+            RenditionLength,
+            RenditionKind,
+            RenditionTitle,
+            RenditionHeight,
+            RenditionWidth,
+            RenditionDocumentId
         };
     }
 }
