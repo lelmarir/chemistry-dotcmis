@@ -373,20 +373,38 @@ namespace DotCMIS.Binding.Browser
 
         protected JObject ParseObject(Stream stream)
         {
-            object o = JToken.ReadFrom(new JsonTextReader(new StreamReader(stream)));
-            if (o is JObject)
+            JToken json;
+            try
             {
-                return o as JObject;
+                json = JToken.ReadFrom(new JsonTextReader(new StreamReader(stream)));
+            }
+            finally
+            {
+                stream.Close();
+            }
+
+            if (json is JObject)
+            {
+                return json as JObject;
             }
             throw new CmisConnectionException("Unexpected object!");
         }
 
         protected JArray ParseArray(Stream stream)
         {
-            object o = JToken.ReadFrom(new JsonTextReader(new StreamReader(stream)));
-            if (o is JArray)
+            JToken json;
+            try
             {
-                return o as JArray;
+                json = JToken.ReadFrom(new JsonTextReader(new StreamReader(stream)));
+            }
+            finally
+            {
+                stream.Close();
+            }
+
+            if (json is JArray)
+            {
+                return json as JArray;
             }
             throw new CmisConnectionException("Unexpected object!");
         }
