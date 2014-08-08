@@ -457,7 +457,9 @@ namespace DotCMIS.Binding.Impl
         private const string MIMESpecials = "()<>@,;:\\\"/[]?=" + "\t ";
         private const string RFC2231Specials = "*'%" + MIMESpecials;
         private static char[] HexDigits = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-
+        private static byte[] HexDecode = new byte[0x80];
+   
+              
         public static string EncodeContentDisposition(string disposition, string filename)
         {
             if (disposition == null)
@@ -516,12 +518,62 @@ namespace DotCMIS.Binding.Impl
 
         protected static string DecodeRFC2231value(string value)
         {
-            Debug.Assert(false,"TODO");
-            //  TODO DecodeRFC2231value
-            return null;
+            int q1 = value.IndexOf('\'');
+            if (q1 == -1)
+            {
+                return value;
+            }
+            string mimeCharset = value.Substring(0, q1);
+            int q2 = value.IndexOf('\'', q1 + 1);
+            if (q2 == -1)
+            {
+                return value;
+            }
+            byte[] bytes = FromHex(value.Substring(q2 + 1));
+            try
+            {
+                return UTF8Encoding.UTF8.GetString(bytes);
+            }
+            catch (Exception)
+            {
+                return value;
+            }
         }
 
-        public static string DecodeContentDisposition(string value,Dictionary<string,string> parameters)
+        protected static byte[] FromHex(string data)
+        {
+            using (MemoryStream stream = new MemoryStream())
+            {
+                for (int i = 0; i < HexDigits.Length; i++)
+                {
+                    HexDecode[(int)HexDigits[i]] = (byte)i;
+                    HexDecode[(int)Char.ToLower(HexDigits[i])] = (byte)i;
+                }
+
+                for (int i = 0; i < data.Length; )
+                {
+                    char c = data[i++];
+                    if (c == '%')
+                    {
+                        if (i > data.Length - 2)
+                        {
+                            break;
+                        }
+                        byte b1 = HexDecode[data[i++] & 0x7f];
+                        byte b2 = HexDecode[data[i++] & 0x7f];
+                        stream.WriteByte((byte)((b1 << 4) | b2));
+                    }
+                    else
+                    {
+                        stream.WriteByte((byte)c);
+                    }
+
+                }
+                return stream.ToArray();
+            }
+        }
+
+        public static string DecodeContentDisposition(string value, Dictionary<string, string> parameters)
         {
             try
             {
