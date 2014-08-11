@@ -265,6 +265,8 @@ namespace DotCMIS.Binding
         public const string BindingSpiAtomPub = "DotCMIS.Binding.AtomPub.CmisAtomPubSpi";
         // Default CMIS Web Services binding SPI implementation
         public const string BindingSpiWebServices = "DotCMIS.Binding.WebServices.CmisWebServicesSpi";
+        // Default CMIS Browser binding SPI implementation
+        public const string BindingSpiBrowser = "DotCMIS.Binding.Browser.CmisBrowserSpi";
 
         public const string StandardAuthenticationProviderClass = "DotCMIS.Binding.StandardAuthenticationProvider";
 
@@ -301,6 +303,29 @@ namespace DotCMIS.Binding
         {
             CheckSessionParameters(sessionParameters, true);
             AddDefaultParameters(sessionParameters);
+
+            return new CmisBinding(sessionParameters, authenticationProvider);
+        }
+
+        public ICmisBinding CreateCmisBrowserBinding(IDictionary<string, string> sessionParameters, IAuthenticationProvider authenticationProvider)
+        {
+            CheckSessionParameters(sessionParameters, false);
+            sessionParameters[SessionParameter.BindingSpiClass] = BindingSpiBrowser;
+            if (authenticationProvider == null)
+            {
+                if (!sessionParameters.ContainsKey(SessionParameter.AuthenticationProviderClass))
+                {
+                    sessionParameters[SessionParameter.AuthenticationProviderClass] = StandardAuthenticationProviderClass;
+                }
+            }
+
+            AddDefaultParameters(sessionParameters);
+            if (!sessionParameters.ContainsKey(SessionParameter.BrowserSuccinct))
+            {
+                sessionParameters.Add(SessionParameter.BrowserSuccinct, "true");
+            }
+
+            Check(sessionParameters, SessionParameter.BrowserUrl);
 
             return new CmisBinding(sessionParameters, authenticationProvider);
         }

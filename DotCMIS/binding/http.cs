@@ -245,6 +245,7 @@ namespace DotCMIS.Binding.Impl
             public string ErrorContent { get; private set; }
             public string ContentType { get; private set; }
             public long? ContentLength { get; private set; }
+            public Dictionary<string, string[]> Headers { get; private set; }
 
             public Response(HttpWebResponse httpResponse)
             {
@@ -255,6 +256,12 @@ namespace DotCMIS.Binding.Impl
                 ContentLength = httpResponse.ContentLength == -1 ? null : (long?)httpResponse.ContentLength;
                 string contentTransferEncoding = httpResponse.Headers["Content-Transfer-Encoding"];
                 bool isBase64 = contentTransferEncoding != null && contentTransferEncoding.Equals("base64", StringComparison.CurrentCultureIgnoreCase);
+                Headers = new Dictionary<string,string[]>();
+                foreach (string key in httpResponse.Headers.AllKeys)
+                {
+                    string[] values = httpResponse.Headers.GetValues(key);
+                    Headers.Add(key, values);
+                }
 
                 if (httpResponse.StatusCode == HttpStatusCode.OK ||
                     httpResponse.StatusCode == HttpStatusCode.Created ||
@@ -362,6 +369,18 @@ namespace DotCMIS.Binding.Impl
             uri = new UriBuilder(url);
         }
 
+        public UrlBuilder AddPath(string path)
+        {
+            if (path == null || path.Length == 0)
+            {
+                return this;
+            }
+            uri.Path = uri.Path.TrimEnd('/', '\\');
+            path = path.TrimStart('/', '\\');
+            uri.Path = uri.Path + "/" + path;
+            return this;
+        }
+
         public UrlBuilder AddParameter(string name, object value)
         {
             if ((name == null) || (value == null))
@@ -456,11 +475,15 @@ namespace DotCMIS.Binding.Impl
         public const string ContentDisposition = "Content-Disposition";
         public const string DispositionAttachment = "attachment";
         public const string DispositionFilename = "filename";
+        public const string DispositionName = "name";
+        public const string DispositionFormDataContent = "form-data; " + DispositionName + "=\"content\"";
 
         private const string MIMESpecials = "()<>@,;:\\\"/[]?=" + "\t ";
         private const string RFC2231Specials = "*'%" + MIMESpecials;
         private static char[] HexDigits = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-
+        private static byte[] HexDecode = new byte[0x80];
+   
+              
         public static string EncodeContentDisposition(string disposition, string filename)
         {
             if (disposition == null)
@@ -515,6 +538,369 @@ namespace DotCMIS.Binding.Impl
                 }
             }
             return encoded;
+        }
+
+        protected static string DecodeRFC2231value(string value)
+        {
+            int q1 = value.IndexOf('\'');
+            if (q1 == -1)
+            {
+                return value;
+            }
+            string mimeCharset = value.Substring(0, q1);
+            int q2 = value.IndexOf('\'', q1 + 1);
+            if (q2 == -1)
+            {
+                return value;
+            }
+            byte[] bytes = FromHex(value.Substring(q2 + 1));
+            try
+            {
+                return UTF8Encoding.UTF8.GetString(bytes);
+            }
+            catch (Exception)
+            {
+                return value;
+            }
+        }
+
+        protected static byte[] FromHex(string data)
+        {
+            using (MemoryStream stream = new MemoryStream())
+            {
+                for (int i = 0; i < HexDigits.Length; i++)
+                {
+                    HexDecode[(int)HexDigits[i]] = (byte)i;
+                    HexDecode[(int)Char.ToLower(HexDigits[i])] = (byte)i;
+                }
+
+                for (int i = 0; i < data.Length; )
+                {
+                    char c = data[i++];
+                    if (c == '%')
+                    {
+                        if (i > data.Length - 2)
+                        {
+                            break;
+                        }
+                        byte b1 = HexDecode[data[i++] & 0x7f];
+                        byte b2 = HexDecode[data[i++] & 0x7f];
+                        stream.WriteByte((byte)((b1 << 4) | b2));
+                    }
+                    else
+                    {
+                        stream.WriteByte((byte)c);
+                    }
+
+                }
+                return stream.ToArray();
+            }
+        }
+
+        public static string DecodeContentDisposition(string value, Dictionary<string, string> parameters)
+        {
+            try
+            {
+                HeaderTokenizer tokenizer = new HeaderTokenizer(value);
+                Token token = tokenizer.Next();
+                if (token.Type != Token.Atomic)
+                {
+                    return null;
+                }
+                string disposition = token.Value;
+
+                string remainder = tokenizer.Remainder;
+                if (remainder != null)
+                {
+                    GetParameters(remainder, parameters);
+                }
+
+                return disposition;
+            }
+            catch (ParseException)
+            {
+                return null;
+            }
+        }
+
+        private static void GetParameters(string list, Dictionary<string, string> parameters)
+        {
+            HeaderTokenizer tokenizer = new HeaderTokenizer(list);
+            while (true)
+            {
+                Token token = tokenizer.Next();
+                switch (token.Type)
+                {
+                    case Token.EOF:
+                        return;
+                    case ';':
+                        token = tokenizer.Next();
+                        if (token.Type == Token.EOF)
+                        {
+                            return;
+                        }
+                        if (token.Type != Token.Atomic)
+                        {
+                            throw new ParseException("Invalid parameter name: " + token.Value);
+                        }
+                        string name = token.Value.ToLower(new System.Globalization.CultureInfo("en"));
+                        token = tokenizer.Next();
+                        if (token.Type != '=')
+                        {
+                            throw new ParseException("Missing '='");
+                        }
+                        token = tokenizer.Next();
+                        if (token.Type != Token.Atomic && token.Type != Token.QuotedString)
+                        {
+                            throw new ParseException("Invalid parameter value: " + token.Value);
+                        }
+                        string value = token.Value;
+                        if (name.EndsWith("*"))
+                        {
+                            name = name.Substring(0, name.Length - 1);
+                            value = DecodeRFC2231value(value);
+                        }
+                        parameters[name] = value;
+                        break;
+                    default:
+                        throw new ParseException("Missing ';'");
+                }
+            }
+        }
+
+        protected class ParseException : Exception
+        {
+            public ParseException(string message)
+                : base(message)
+                {
+                }
+
+            public ParseException()
+            {
+            }
+        }
+
+        protected class Token
+        {
+            public const int Atomic = -1;
+            public const int QuotedString = -2;
+            public const int Comment = -3;
+            public const int EOF = -4;
+
+            public int Type { get; private set; }
+            public string Value { get; private set; }
+
+            public Token(int type, string value)
+            {
+                Type = type;
+                Value = value;
+            }
+        }
+
+        protected class HeaderTokenizer
+        {
+            private static readonly Token EOF = new Token(Token.EOF, null);
+
+            private readonly string Header;
+            private readonly string Delimiters;
+            private readonly bool SkipComments;
+            private int pos;
+
+            public HeaderTokenizer(string header)
+                : this(header, MIMESpecials, true)
+            {
+            }
+
+            protected HeaderTokenizer(string header, string delimiters, bool skipComments)
+            {
+                Header = header;
+                Delimiters = delimiters;
+                SkipComments = skipComments;
+            }
+
+            public string Remainder
+            {
+                get
+                {
+                    if (pos >= Header.Length)
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        return Header.Substring(pos);
+                    }
+                }
+            }
+
+            public Token Next()
+            {
+                return ReadToken();
+            }
+
+            private Token ReadToken()
+            {
+                while (pos < Header.Length && char.IsWhiteSpace(Header[pos]))
+                {
+                    ++pos;
+                }
+
+                if (pos >= Header.Length)
+                {
+                    return EOF;
+                }
+
+                char c = Header[pos];
+                if (c == '(')
+                {
+                    Token comment = ReadComment();
+                    if (SkipComments)
+                    {
+                        return ReadToken();
+                    }
+                    else
+                    {
+                        return comment;
+                    }
+                }
+                else if (c == '\"')
+                {
+                    return ReadQuotedString();
+                }
+                else if (c < 32 || c >= 127 || Delimiters.Contains(new string(c, 1)))
+                {
+                    pos++;
+                    return new Token((int)c, new string(c, 1));
+                }
+                else
+                {
+                    return ReadAtomicToken();
+                }
+            }
+
+            private Token ReadAtomicToken()
+            {
+                int start = pos;
+                while (++pos < Header.Length)
+                {
+                    char c = Header[pos];
+                    if (Delimiters.Contains(new string(c, 1)) || c < 32 || c >= 127)
+                    {
+                        break;
+                    }
+                }
+                return new Token(Token.Atomic, Header.Substring(start, pos - start));
+            }
+
+            private Token ReadQuotedString()
+            {
+                int start = pos + 1;
+                bool requireEscape = false;
+                while (++pos < Header.Length)
+                {
+                    char c = Header[pos];
+                    if (c == '"')
+                    {
+                        string value;
+                        if (requireEscape)
+                        {
+                            value = GetEscapedValue(start, pos - start);
+                        }
+                        else
+                        {
+                            value = Header.Substring(start, pos - start);
+                        }
+                        return new Token(Token.Comment, value);
+                    }
+                    else if (c == '\\')
+                    {
+                        pos++;
+                        requireEscape = true;
+                    }
+                    else if (c == '\r')
+                    {
+                        requireEscape = true;
+                    }
+                }
+                throw new ParseException("Missing '\"'");
+            }
+
+            private Token ReadComment()
+            {
+                int start = pos + 1;
+                int nesting = 1;
+                bool requireEscape = false;
+                while (++pos < Header.Length)
+                {
+                    char c = Header[pos];
+                    if (c == ')')
+                    {
+                        nesting--;
+                        if (nesting == 0)
+                        {
+                            break;
+                        }
+                    }
+                    else if (c == '(')
+                    {
+                        nesting++;
+                    }
+                    else if (c == '\\')
+                    {
+                        pos++;
+                        requireEscape = true;
+                    }
+                    else if (c == '\r')
+                    {
+                        requireEscape = true;
+                    }
+                }
+                if (nesting != 0)
+                {
+                    throw new ParseException("Unbalanced comments");
+                }
+                string value;
+                if (requireEscape)
+                {
+                    value = GetEscapedValue(start, pos);
+                }
+                else
+                {
+                    value = Header.Substring(start, pos - start);
+                }
+                pos++;
+                return new Token(Token.Comment, value);
+            }
+
+            private string GetEscapedValue(int start, int end)
+            {
+                StringBuilder value = new StringBuilder();
+                for (int i = start; i < end; i++)
+                {
+                    char c = Header[i];
+                    if (c == '\\')
+                    {
+                        i++;
+                        if (i == end)
+                        {
+                            throw new ParseException("Invalid escape character");
+                        }
+                        value.Append(Header[i]);
+                    }
+                    else if (c == '\r')
+                    {
+                        if (i < end - 1 && Header[i + 1] == '\n')
+                        {
+                            i++;
+                        }
+                    }
+                    else
+                    {
+                        value.Append(Header[i]);
+                    }
+                }
+                return value.ToString();
+            }
         }
     }
 }

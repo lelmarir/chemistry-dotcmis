@@ -660,7 +660,7 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamOnlyBasicPermissions, onlyBasicPermissions);
+            url.AddParameter(Parameters.ParamOnlyBasicPermissions, onlyBasicPermissions);
 
             // read and parse
             HttpUtils.Response resp = Read(url);
@@ -680,7 +680,7 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder aclUrl = new UrlBuilder(link);
-            aclUrl.AddParameter(AtomPubConstants.ParamACLPropagation, aclPropagation);
+            aclUrl.AddParameter(Parameters.ParamACLPropagation, aclPropagation);
 
             // set up object and writer
             cmisAccessControlListType cmisAcl = Converter.Convert(acl);
@@ -702,7 +702,7 @@ namespace DotCMIS.Binding.AtomPub
 
             // retrieve service doc
             UrlBuilder url = new UrlBuilder(GetServiceDocURL());
-            url.AddParameter(AtomPubConstants.ParamRepositoryId, repositoryId);
+            url.AddParameter(Parameters.ParamRepositoryId, repositoryId);
 
             // read and parse
             HttpUtils.Response resp = Read(url);
@@ -748,19 +748,19 @@ namespace DotCMIS.Binding.AtomPub
             IObjectData result = null;
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
-            parameters[AtomPubConstants.ParamId] = objectIdOrPath;
-            parameters[AtomPubConstants.ParamPath] = objectIdOrPath;
-            parameters[AtomPubConstants.ParamReturnVersion] = returnVersion;
+            parameters[Parameters.ParamId] = objectIdOrPath;
+            parameters[Parameters.ParamPath] = objectIdOrPath;
+            parameters[Parameters.ParamReturnVersion] = returnVersion;
             if (filter == null)
             {
                 filter = "*";
             }
-            parameters[AtomPubConstants.ParamFilter] = filter;
-            parameters[AtomPubConstants.ParamAllowableActions] = includeAllowableActions;
-            parameters[AtomPubConstants.ParamACL] = includeAcl;
-            parameters[AtomPubConstants.ParamPolicyIds] = includePolicyIds;
-            parameters[AtomPubConstants.ParamRelationships] = includeRelationships;
-            parameters[AtomPubConstants.ParamRenditionFilter] = renditionFilter;
+            parameters[Parameters.ParamFilter] = filter;
+            parameters[Parameters.ParamAllowableActions] = includeAllowableActions;
+            parameters[Parameters.ParamACL] = includeAcl;
+            parameters[Parameters.ParamPolicyIds] = includePolicyIds;
+            parameters[Parameters.ParamRelationships] = includeRelationships;
+            parameters[Parameters.ParamRenditionFilter] = renditionFilter;
 
             string link = LoadTemplateLink(repositoryId, (idOrPath == IdentifierType.Id ? AtomPubConstants.TemplateObjectById
                     : AtomPubConstants.TemplateObjectByPath), parameters);
@@ -773,7 +773,7 @@ namespace DotCMIS.Binding.AtomPub
             // workaround for missing template parameter in the CMIS spec
             if ((returnVersion != null) && (returnVersion != ReturnVersion.This))
             {
-                url.AddParameter(AtomPubConstants.ParamReturnVersion, returnVersion);
+                url.AddParameter(Parameters.ParamReturnVersion, returnVersion);
             }
 
             HttpUtils.Response resp = Read(url);
@@ -809,7 +809,7 @@ namespace DotCMIS.Binding.AtomPub
             ITypeDefinition result = null;
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
-            parameters[AtomPubConstants.ParamId] = typeId;
+            parameters[Parameters.ParamId] = typeId;
 
             string link = LoadTemplateLink(repositoryId, AtomPubConstants.TemplateTypeById, parameters);
             if (link == null)
@@ -898,9 +898,9 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamPropertyDefinitions, includePropertyDefinitions);
-            url.AddParameter(AtomPubConstants.ParamMaxItems, maxItems);
-            url.AddParameter(AtomPubConstants.ParamSkipCount, skipCount);
+            url.AddParameter(Parameters.ParamPropertyDefinitions, includePropertyDefinitions);
+            url.AddParameter(Parameters.ParamMaxItems, maxItems);
+            url.AddParameter(Parameters.ParamSkipCount, skipCount);
 
             // read and parse
             HttpUtils.Response resp = Read(url);
@@ -972,8 +972,8 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamDepth, depth);
-            url.AddParameter(AtomPubConstants.ParamPropertyDefinitions, includePropertyDefinitions);
+            url.AddParameter(Parameters.ParamDepth, depth);
+            url.AddParameter(Parameters.ParamPropertyDefinitions, includePropertyDefinitions);
 
             // read and parse
             HttpUtils.Response resp = Read(url);
@@ -1054,14 +1054,14 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamFilter, filter);
-            url.AddParameter(AtomPubConstants.ParamOrderBy, orderBy);
-            url.AddParameter(AtomPubConstants.ParamAllowableActions, includeAllowableActions);
-            url.AddParameter(AtomPubConstants.ParamRelationships, includeRelationships);
-            url.AddParameter(AtomPubConstants.ParamRenditionFilter, renditionFilter);
-            url.AddParameter(AtomPubConstants.ParamPathSegment, includePathSegment);
-            url.AddParameter(AtomPubConstants.ParamMaxItems, maxItems);
-            url.AddParameter(AtomPubConstants.ParamSkipCount, skipCount);
+            url.AddParameter(Parameters.ParamFilter, filter);
+            url.AddParameter(Parameters.ParamOrderBy, orderBy);
+            url.AddParameter(Parameters.ParamAllowableActions, includeAllowableActions);
+            url.AddParameter(Parameters.ParamRelationships, includeRelationships);
+            url.AddParameter(Parameters.ParamRenditionFilter, renditionFilter);
+            url.AddParameter(Parameters.ParamPathSegment, includePathSegment);
+            url.AddParameter(Parameters.ParamMaxItems, maxItems);
+            url.AddParameter(Parameters.ParamSkipCount, skipCount);
 
             // read and parse
             HttpUtils.Response resp = Read(url);
@@ -1140,12 +1140,12 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamDepth, depth);
-            url.AddParameter(AtomPubConstants.ParamFilter, filter);
-            url.AddParameter(AtomPubConstants.ParamAllowableActions, includeAllowableActions);
-            url.AddParameter(AtomPubConstants.ParamRelationships, includeRelationships);
-            url.AddParameter(AtomPubConstants.ParamRenditionFilter, renditionFilter);
-            url.AddParameter(AtomPubConstants.ParamPathSegment, includePathSegment);
+            url.AddParameter(Parameters.ParamDepth, depth);
+            url.AddParameter(Parameters.ParamFilter, filter);
+            url.AddParameter(Parameters.ParamAllowableActions, includeAllowableActions);
+            url.AddParameter(Parameters.ParamRelationships, includeRelationships);
+            url.AddParameter(Parameters.ParamRenditionFilter, renditionFilter);
+            url.AddParameter(Parameters.ParamPathSegment, includePathSegment);
 
             // read and parse
             HttpUtils.Response resp = Read(url);
@@ -1172,12 +1172,12 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamDepth, depth);
-            url.AddParameter(AtomPubConstants.ParamFilter, filter);
-            url.AddParameter(AtomPubConstants.ParamAllowableActions, includeAllowableActions);
-            url.AddParameter(AtomPubConstants.ParamRelationships, includeRelationships);
-            url.AddParameter(AtomPubConstants.ParamRenditionFilter, renditionFilter);
-            url.AddParameter(AtomPubConstants.ParamPathSegment, includePathSegment);
+            url.AddParameter(Parameters.ParamDepth, depth);
+            url.AddParameter(Parameters.ParamFilter, filter);
+            url.AddParameter(Parameters.ParamAllowableActions, includeAllowableActions);
+            url.AddParameter(Parameters.ParamRelationships, includeRelationships);
+            url.AddParameter(Parameters.ParamRenditionFilter, renditionFilter);
+            url.AddParameter(Parameters.ParamPathSegment, includePathSegment);
 
             // read and parse
             HttpUtils.Response resp = Read(url);
@@ -1205,11 +1205,11 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamFilter, filter);
-            url.AddParameter(AtomPubConstants.ParamAllowableActions, includeAllowableActions);
-            url.AddParameter(AtomPubConstants.ParamRelationships, includeRelationships);
-            url.AddParameter(AtomPubConstants.ParamRenditionFilter, renditionFilter);
-            url.AddParameter(AtomPubConstants.ParamRelativePathSegment, includeRelativePathSegment);
+            url.AddParameter(Parameters.ParamFilter, filter);
+            url.AddParameter(Parameters.ParamAllowableActions, includeAllowableActions);
+            url.AddParameter(Parameters.ParamRelationships, includeRelationships);
+            url.AddParameter(Parameters.ParamRenditionFilter, renditionFilter);
+            url.AddParameter(Parameters.ParamRelativePathSegment, includeRelativePathSegment);
 
             // read and parse
             HttpUtils.Response resp = Read(url);
@@ -1297,7 +1297,7 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamFilter, filter);
+            url.AddParameter(Parameters.ParamFilter, filter);
 
             // read
             HttpUtils.Response resp = Read(url);
@@ -1360,14 +1360,14 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamFolderId, folderId);
-            url.AddParameter(AtomPubConstants.ParamFilter, filter);
-            url.AddParameter(AtomPubConstants.ParamOrderBy, orderBy);
-            url.AddParameter(AtomPubConstants.ParamAllowableActions, includeAllowableActions);
-            url.AddParameter(AtomPubConstants.ParamRelationships, includeRelationships);
-            url.AddParameter(AtomPubConstants.ParamRenditionFilter, renditionFilter);
-            url.AddParameter(AtomPubConstants.ParamMaxItems, maxItems);
-            url.AddParameter(AtomPubConstants.ParamSkipCount, skipCount);
+            url.AddParameter(Parameters.ParamFolderId, folderId);
+            url.AddParameter(Parameters.ParamFilter, filter);
+            url.AddParameter(Parameters.ParamOrderBy, orderBy);
+            url.AddParameter(Parameters.ParamAllowableActions, includeAllowableActions);
+            url.AddParameter(Parameters.ParamRelationships, includeRelationships);
+            url.AddParameter(Parameters.ParamRenditionFilter, renditionFilter);
+            url.AddParameter(Parameters.ParamMaxItems, maxItems);
+            url.AddParameter(Parameters.ParamSkipCount, skipCount);
 
             // read and parse
             HttpUtils.Response resp = Read(url);
@@ -1516,7 +1516,7 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamVersioningState, versioningState);
+            url.AddParameter(Parameters.ParamVersioningState, versioningState);
 
             // set up object and writer
             cmisObjectType cmisObject = CreateObject(properties, null, policies);
@@ -1796,7 +1796,7 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamStreamId, streamId);
+            url.AddParameter(Parameters.ParamStreamId, streamId);
 
             // get the content
             if (offset != null && offset > Int64.MaxValue)
@@ -1841,7 +1841,7 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamChangeToken, changeToken);
+            url.AddParameter(Parameters.ParamChangeToken, changeToken);
 
             // set up object and writer
             cmisObjectType cmisObject = CreateObject(properties, changeToken, null);
@@ -1921,7 +1921,7 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamSourceFolderId, sourceFolderId);
+            url.AddParameter(Parameters.ParamSourceFolderId, sourceFolderId);
 
             // set up object and writer
             AtomEntryWriter entryWriter = new AtomEntryWriter(CreateIdObject(objectId));
@@ -1946,7 +1946,7 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamAllVersions, allVersions);
+            url.AddParameter(Parameters.ParamAllVersions, allVersions);
 
             Delete(url);
         }
@@ -1993,9 +1993,9 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamAllVersions, allVersions);
-            url.AddParameter(AtomPubConstants.ParamUnfildeObjects, unfileObjects);
-            url.AddParameter(AtomPubConstants.ParamContinueOnFailure, continueOnFailure);
+            url.AddParameter(Parameters.ParamAllVersions, allVersions);
+            url.AddParameter(Parameters.ParamUnfildeObjects, unfileObjects);
+            url.AddParameter(Parameters.ParamContinueOnFailure, continueOnFailure);
 
             // make the call
             HttpUtils.Response resp = HttpUtils.InvokeDELETE(url, Session);
@@ -2018,14 +2018,14 @@ namespace DotCMIS.Binding.AtomPub
                 {
                     url = new UrlBuilder(link);
                     // we only want the object ids
-                    url.AddParameter(AtomPubConstants.ParamFilter, "cmis:objectId");
-                    url.AddParameter(AtomPubConstants.ParamAllowableActions, false);
-                    url.AddParameter(AtomPubConstants.ParamRelationships, IncludeRelationshipsFlag.None);
-                    url.AddParameter(AtomPubConstants.ParamRenditionFilter, "cmis:none");
-                    url.AddParameter(AtomPubConstants.ParamPathSegment, false);
+                    url.AddParameter(Parameters.ParamFilter, "cmis:objectId");
+                    url.AddParameter(Parameters.ParamAllowableActions, false);
+                    url.AddParameter(Parameters.ParamRelationships, IncludeRelationshipsFlag.None);
+                    url.AddParameter(Parameters.ParamRenditionFilter, "cmis:none");
+                    url.AddParameter(Parameters.ParamPathSegment, false);
                     // 1000 children should be enough to indicate a problem
-                    url.AddParameter(AtomPubConstants.ParamMaxItems, 1000);
-                    url.AddParameter(AtomPubConstants.ParamSkipCount, 0);
+                    url.AddParameter(Parameters.ParamMaxItems, 1000);
+                    url.AddParameter(Parameters.ParamSkipCount, 0);
 
                     // read and parse
                     resp = Read(url);
@@ -2072,8 +2072,8 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamChangeToken, changeToken);
-            url.AddParameter(AtomPubConstants.ParamOverwriteFlag, overwriteFlag);
+            url.AddParameter(Parameters.ParamChangeToken, changeToken);
+            url.AddParameter(Parameters.ParamOverwriteFlag, overwriteFlag);
 
             HttpUtils.Output output = delegate(Stream stream)
             {
@@ -2127,7 +2127,7 @@ namespace DotCMIS.Binding.AtomPub
             UrlBuilder url = new UrlBuilder(link);
             if (changeToken != null)
             {
-                url.AddParameter(AtomPubConstants.ParamChangeToken, changeToken);
+                url.AddParameter(Parameters.ParamChangeToken, changeToken);
             }
 
             Delete(url);
@@ -2159,9 +2159,9 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamAppend, true);
-            url.AddParameter(AtomPubConstants.ParamIsLastChunk, isLastChunk);
-            url.AddParameter(AtomPubConstants.ParamChangeToken, changeToken);
+            url.AddParameter(Parameters.ParamAppend, true);
+            url.AddParameter(Parameters.ParamIsLastChunk, isLastChunk);
+            url.AddParameter(Parameters.ParamChangeToken, changeToken);
 
             HttpUtils.Output output = delegate(Stream stream)
             {
@@ -2339,9 +2339,9 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamCheckinComment, checkinComment);
-            url.AddParameter(AtomPubConstants.ParamMajor, major);
-            url.AddParameter(AtomPubConstants.ParamCheckIn, "true");
+            url.AddParameter(Parameters.ParamCheckinComment, checkinComment);
+            url.AddParameter(Parameters.ParamMajor, major);
+            url.AddParameter(Parameters.ParamCheckIn, "true");
 
             // set up object and writer
             cmisObjectType cmisObject = CreateObject(properties, null, policies);
@@ -2457,8 +2457,8 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamFilter, filter);
-            url.AddParameter(AtomPubConstants.ParamAllowableActions, includeAllowableActions);
+            url.AddParameter(Parameters.ParamFilter, filter);
+            url.AddParameter(Parameters.ParamAllowableActions, includeAllowableActions);
 
             // read and parse
             HttpUtils.Response resp = Read(url);
@@ -2523,13 +2523,13 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamSubRelationshipTypes, includeSubRelationshipTypes);
-            url.AddParameter(AtomPubConstants.ParamRelationshipDirection, relationshipDirection);
-            url.AddParameter(AtomPubConstants.ParamTypeId, typeId);
-            url.AddParameter(AtomPubConstants.ParamFilter, filter);
-            url.AddParameter(AtomPubConstants.ParamAllowableActions, includeAllowableActions);
-            url.AddParameter(AtomPubConstants.ParamMaxItems, maxItems);
-            url.AddParameter(AtomPubConstants.ParamSkipCount, skipCount);
+            url.AddParameter(Parameters.ParamSubRelationshipTypes, includeSubRelationshipTypes);
+            url.AddParameter(Parameters.ParamRelationshipDirection, relationshipDirection);
+            url.AddParameter(Parameters.ParamTypeId, typeId);
+            url.AddParameter(Parameters.ParamFilter, filter);
+            url.AddParameter(Parameters.ParamAllowableActions, includeAllowableActions);
+            url.AddParameter(Parameters.ParamMaxItems, maxItems);
+            url.AddParameter(Parameters.ParamSkipCount, skipCount);
 
             // read and parse
             HttpUtils.Response resp = Read(url);
@@ -2679,12 +2679,12 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamChangeLogToken, changeLogToken);
-            url.AddParameter(AtomPubConstants.ParamProperties, includeProperties);
-            url.AddParameter(AtomPubConstants.ParamFilter, filter);
-            url.AddParameter(AtomPubConstants.ParamPolicyIds, includePolicyIds);
-            url.AddParameter(AtomPubConstants.ParamACL, includeAcl);
-            url.AddParameter(AtomPubConstants.ParamMaxItems, maxItems);
+            url.AddParameter(Parameters.ParamChangeLogToken, changeLogToken);
+            url.AddParameter(Parameters.ParamProperties, includeProperties);
+            url.AddParameter(Parameters.ParamFilter, filter);
+            url.AddParameter(Parameters.ParamPolicyIds, includePolicyIds);
+            url.AddParameter(Parameters.ParamACL, includeAcl);
+            url.AddParameter(Parameters.ParamMaxItems, maxItems);
 
             // read and parse
             HttpUtils.Response resp = Read(url);
@@ -2698,7 +2698,7 @@ namespace DotCMIS.Binding.AtomPub
                     if (IsNextLink(element))
                     {
                         result.HasMoreItems = true;
-                        string token = new UrlParser(((AtomLink)element.Object).Href).GetQueryValue(AtomPubConstants.ParamChangeLogToken);
+                        string token = new UrlParser(((AtomLink)element.Object).Href).GetQueryValue(Parameters.ParamChangeLogToken);
                         if (token != null)
                         {
                             changeLogToken = token;
@@ -2762,7 +2762,7 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamAllVersions, allVersions);
+            url.AddParameter(Parameters.ParamAllVersions, allVersions);
 
             // set up object and writer
             AtomEntryWriter entryWriter = new AtomEntryWriter(CreateIdObject(objectId));
@@ -2787,7 +2787,7 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamRemoveFrom, folderId);
+            url.AddParameter(Parameters.ParamRemoveFrom, folderId);
 
             // set up object and writer
             AtomEntryWriter entryWriter = new AtomEntryWriter(CreateIdObject(objectId));
@@ -2877,7 +2877,7 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamFilter, PropertyIds.ObjectId);
+            url.AddParameter(Parameters.ParamFilter, PropertyIds.ObjectId);
 
             // read and parse
             HttpUtils.Response resp = Read(url);
@@ -2939,7 +2939,7 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             UrlBuilder url = new UrlBuilder(link);
-            url.AddParameter(AtomPubConstants.ParamFilter, filter);
+            url.AddParameter(Parameters.ParamFilter, filter);
 
             // read and parse
             HttpUtils.Response resp = Read(url);
