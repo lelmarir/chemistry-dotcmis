@@ -281,7 +281,17 @@ namespace DotCMIS.Binding.Browser
         {
             Session = session;
             string succinct = (string)session.GetValue(SessionParameter.BrowserSuccinct);
-            Succinct = (succinct == null ? true : bool.Parse(succinct));
+            if (succinct == null)
+            {
+                Succinct = true;
+            }
+            else
+            {
+                if (!bool.TryParse(succinct, out Succinct))
+                {
+                    Succinct = true;
+                }
+            }
         }
 
         protected String GetSuccinctParameter()
@@ -376,7 +386,10 @@ namespace DotCMIS.Binding.Browser
             JToken json;
             try
             {
-                json = JToken.ReadFrom(new JsonTextReader(new StreamReader(stream)));
+                using (JsonTextReader reader = new JsonTextReader(new StreamReader(stream)))
+                {
+                    json = JToken.ReadFrom(reader);
+                }
             }
             finally
             {
@@ -395,7 +408,10 @@ namespace DotCMIS.Binding.Browser
             JToken json;
             try
             {
-                json = JToken.ReadFrom(new JsonTextReader(new StreamReader(stream)));
+                using (JsonTextReader reader = new JsonTextReader(new StreamReader(stream)))
+                {
+                    json = JToken.ReadFrom(reader);
+                }
             }
             finally
             {

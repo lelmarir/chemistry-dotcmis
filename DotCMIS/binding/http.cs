@@ -24,11 +24,12 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
+using System.Reflection;
+using System.Runtime.Serialization;
 
 using DotCMIS.Enums;
 using DotCMIS.Exceptions;
 using DotCMIS.Util;
-using System.Reflection;
 
 namespace DotCMIS.Binding.Impl
 {
@@ -668,7 +669,8 @@ namespace DotCMIS.Binding.Impl
             }
         }
 
-        protected class ParseException : Exception
+        [Serializable]
+        public class ParseException : FormatException
         {
             public ParseException(string message)
                 : base(message)
@@ -676,6 +678,16 @@ namespace DotCMIS.Binding.Impl
                 }
 
             public ParseException()
+            {
+            }
+
+            public ParseException(string message, Exception inner)
+                : base(message, inner)
+            {
+            }
+
+            protected ParseException(SerializationInfo info, StreamingContext context)
+                : base(info, context)
             {
             }
         }
