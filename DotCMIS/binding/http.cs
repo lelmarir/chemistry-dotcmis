@@ -30,6 +30,52 @@ using DotCMIS.Exceptions;
 using DotCMIS.Util;
 using System.Reflection;
 
+namespace DotCMIS.Binding
+{
+    public class HttpWebRequestResource : IDisposable
+    {
+        private static object ResourceLock = new object();
+        private static HashSet<HttpWebRequest> ResourceSet = new HashSet<HttpWebRequest>(); 
+
+        private HttpWebRequest Request;
+
+        public static void AbortAll()
+        {
+            lock (ResourceLock) {
+                foreach (HttpWebRequest request in ResourceSet) {
+                    request.Abort ();
+                }
+            }
+        }
+
+        public HttpWebRequestResource()
+        {
+            Request = null;
+        }
+
+        public void StartResource(HttpWebRequest request)
+        {
+            lock (ResourceLock) {
+                if (Request != null) {
+                    ResourceSet.Remove (Request);
+                }
+                Request = request;
+                ResourceSet.Add (Request);
+            }
+        }
+
+        public void Dispose()
+        {
+            if (Request != null) {
+                lock (ResourceLock) {
+                    ResourceSet.Remove (Request);
+                }
+            }
+        }
+    }
+
+}
+
 namespace DotCMIS.Binding.Impl
 {
     internal static class HttpUtils
@@ -68,6 +114,8 @@ namespace DotCMIS.Binding.Impl
             string request = method + " " + url;
             Stopwatch watch = new Stopwatch();
             watch.Start();
+            using (HttpWebRequestResource resource = new HttpWebRequestResource ())
+            {
             try
             {
                 // log before connect
@@ -80,6 +128,7 @@ namespace DotCMIS.Binding.Impl
                     // create connection
                     HttpWebRequest conn = (HttpWebRequest)WebRequest.Create(url.Url);
                     conn.Method = method;
+                    resource.StartResource(conn);
 
                     // device management
                     string deviceIdentifier = session.GetValue(SessionParameter.DeviceIdentifier) as String;
@@ -232,6 +281,7 @@ namespace DotCMIS.Binding.Impl
                 watch.Stop();
                 Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] Cannot access {1}: {2} after {3} ms", tag.ToString(), request, e.Message, watch.ElapsedMilliseconds));
                 throw new CmisConnectionException("Cannot access " + url + ": " + e.Message, e);
+            }
             }
         }
 
