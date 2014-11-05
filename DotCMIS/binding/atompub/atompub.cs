@@ -2083,8 +2083,7 @@ namespace DotCMIS.Binding.AtomPub
                 {
                     stream.Write(buffer, 0, b);
                 }
-
-                contentStream.Stream.Close();
+                // user is responsible for closing the stream
             };
 
             IDictionary<string, string> headers = null;
@@ -2171,8 +2170,7 @@ namespace DotCMIS.Binding.AtomPub
                 {
                     stream.Write(buffer, 0, b);
                 }
-
-                contentStream.Stream.Close();
+                // user is responsible for closing the stream
             };
 
             IDictionary<string, string> headers = null;
