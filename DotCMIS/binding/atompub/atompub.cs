@@ -344,23 +344,38 @@ namespace DotCMIS.Binding.AtomPub
 
         // ---- exceptions ----
 
-        protected CmisBaseException ConvertStatusCode(HttpStatusCode code, string message, string errorContent, Exception e)
+        protected CmisBaseException ConvertToCmisException(HttpUtils.Response resp, Exception e = null)
         {
-            switch (code)
+            var message = resp.Message;
+            var errorContent = resp.ErrorContent;
+            CmisBaseException exception = null;
+            switch (resp.StatusCode)
             {
-                case HttpStatusCode.BadRequest:
-                    return new CmisInvalidArgumentException(message, errorContent, e);
-                case HttpStatusCode.NotFound:
-                    return new CmisObjectNotFoundException(message, errorContent, e);
-                case HttpStatusCode.Forbidden:
-                    return new CmisPermissionDeniedException(message, errorContent, e);
-                case HttpStatusCode.MethodNotAllowed:
-                    return new CmisNotSupportedException(message, errorContent, e);
-                case HttpStatusCode.Conflict:
-                    return new CmisConstraintException(message, errorContent, e);
-                default:
-                    return new CmisRuntimeException(message, errorContent, e);
+            case HttpStatusCode.BadRequest:
+                exception = new CmisInvalidArgumentException(message, errorContent, e);
+                break;
+            case HttpStatusCode.NotFound:
+                exception = new CmisObjectNotFoundException(message, errorContent, e);
+                break;
+            case HttpStatusCode.Forbidden:
+                exception = new CmisPermissionDeniedException(message, errorContent, e);
+                break;
+            case HttpStatusCode.MethodNotAllowed:
+                exception = new CmisNotSupportedException(message, errorContent, e);
+                break;
+            case HttpStatusCode.Conflict:
+                exception = new CmisConstraintException(message, errorContent, e);
+                break;
+            default:
+                exception = new CmisRuntimeException(message, errorContent, e);
+                break;
             }
+
+            foreach (var header in resp.Headers) {
+                exception.Data.Add(header.Key, header.Value);
+            }
+
+            return exception;
         }
 
         protected void ThrowLinkException(String repositoryId, String id, String rel, String type)
@@ -416,7 +431,7 @@ namespace DotCMIS.Binding.AtomPub
 
             if (resp.StatusCode != HttpStatusCode.OK)
             {
-                throw ConvertStatusCode(resp.StatusCode, resp.Message, resp.ErrorContent, null);
+                throw ConvertToCmisException(resp);
             }
 
             return resp;
@@ -428,7 +443,7 @@ namespace DotCMIS.Binding.AtomPub
 
             if (resp.StatusCode != HttpStatusCode.Created)
             {
-                throw ConvertStatusCode(resp.StatusCode, resp.Message, resp.ErrorContent, null);
+                throw ConvertToCmisException(resp);
             }
 
             return resp;
@@ -440,7 +455,7 @@ namespace DotCMIS.Binding.AtomPub
 
             if ((int)resp.StatusCode < 200 || (int)resp.StatusCode > 299)
             {
-                throw ConvertStatusCode(resp.StatusCode, resp.Message, resp.ErrorContent, null);
+                throw ConvertToCmisException(resp);
             }
 
             return resp;
@@ -452,7 +467,7 @@ namespace DotCMIS.Binding.AtomPub
 
             if (resp.StatusCode != HttpStatusCode.NoContent)
             {
-                throw ConvertStatusCode(resp.StatusCode, resp.Message, resp.ErrorContent, null);
+                throw ConvertToCmisException(resp);
             }
         }
 
@@ -1812,7 +1827,7 @@ namespace DotCMIS.Binding.AtomPub
             // check response code
             if (resp.StatusCode != HttpStatusCode.OK && resp.StatusCode != HttpStatusCode.PartialContent)
             {
-                throw ConvertStatusCode(resp.StatusCode, resp.Message, resp.ErrorContent, null);
+                throw ConvertToCmisException(resp);
             }
 
             result.FileName = null;
@@ -2046,7 +2061,7 @@ namespace DotCMIS.Binding.AtomPub
                 }
             }
 
-            throw ConvertStatusCode(resp.StatusCode, resp.Message, resp.ErrorContent, null);
+            throw ConvertToCmisException(resp);
         }
 
         public void SetContentStream(string repositoryId, ref string objectId, bool? overwriteFlag, ref string changeToken,
@@ -2101,7 +2116,7 @@ namespace DotCMIS.Binding.AtomPub
             // check response code
             if (resp.StatusCode != HttpStatusCode.OK && resp.StatusCode != HttpStatusCode.Created && resp.StatusCode != HttpStatusCode.NoContent)
             {
-                throw ConvertStatusCode(resp.StatusCode, resp.Message, resp.ErrorContent, null);
+                throw ConvertToCmisException(resp);
             }
 
             objectId = null;
@@ -2188,7 +2203,7 @@ namespace DotCMIS.Binding.AtomPub
             // check response code
             if (resp.StatusCode != HttpStatusCode.OK && resp.StatusCode != HttpStatusCode.Created && resp.StatusCode != HttpStatusCode.NoContent)
             {
-                throw ConvertStatusCode(resp.StatusCode, resp.Message, resp.ErrorContent, null);
+                throw ConvertToCmisException(resp);
             }
 
             objectId = null;
