@@ -288,17 +288,18 @@ namespace DotCMIS.Binding.Impl
         internal class Response
         {
             private readonly WebResponse response;
-
             public HttpStatusCode StatusCode { get; private set; }
             public string Message { get; private set; }
             public Stream Stream { get; private set; }
             public string ErrorContent { get; private set; }
             public string ContentType { get; private set; }
             public long? ContentLength { get; private set; }
+            public Dictionary<string, string[]> Headers { get; private set; }
 
             public Response(HttpWebResponse httpResponse)
             {
                 this.response = httpResponse;
+                this.ExtractHeader();
                 StatusCode = httpResponse.StatusCode;
                 Message = httpResponse.StatusDescription;
                 ContentType = httpResponse.ContentType;
@@ -330,7 +331,7 @@ namespace DotCMIS.Binding.Impl
             public Response(WebException exception)
             {
                 response = exception.Response;
-
+                this.ExtractHeader();
                 HttpWebResponse httpResponse = response as HttpWebResponse;
                 if (httpResponse != null)
                 {
@@ -370,6 +371,13 @@ namespace DotCMIS.Binding.Impl
                 if (Stream != null)
                 {
                     Stream.Close();
+                }
+            }
+
+            private void ExtractHeader() {
+                this.Headers = new Dictionary<string, string[]>();
+                for (int i = 0; i < this.response.Headers.Count; ++i) {
+                    this.Headers.Add(this.response.Headers.GetKey(i), this.response.Headers.GetValues(i));
                 }
             }
         }
