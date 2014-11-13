@@ -584,7 +584,7 @@ namespace DotCMIS
 
         // parent object
         public const string ObjectParentsObject = "object";
-        public const string ObjectParentsRelavivePathSegment = "pathSegment";
+        public const string ObjectParentsRelavivePathSegment = "relativePathSegment";
 
         public static readonly HashSet<string> ObjectParentsKeys = new HashSet<string>()
         {

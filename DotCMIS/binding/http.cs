@@ -24,11 +24,58 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
+using System.Reflection;
+using System.Runtime.Serialization;
 
 using DotCMIS.Enums;
 using DotCMIS.Exceptions;
 using DotCMIS.Util;
-using System.Reflection;
+
+namespace DotCMIS.Binding
+{
+    public class HttpWebRequestResource : IDisposable
+    {
+        private static object ResourceLock = new object();
+        private static HashSet<HttpWebRequest> ResourceSet = new HashSet<HttpWebRequest>(); 
+
+        private HttpWebRequest Request;
+
+        public static void AbortAll()
+        {
+            lock (ResourceLock) {
+                foreach (HttpWebRequest request in ResourceSet) {
+                    request.Abort ();
+                }
+            }
+        }
+
+        public HttpWebRequestResource()
+        {
+            Request = null;
+        }
+
+        public void StartResource(HttpWebRequest request)
+        {
+            lock (ResourceLock) {
+                if (Request != null) {
+                    ResourceSet.Remove (Request);
+                }
+                Request = request;
+                ResourceSet.Add (Request);
+            }
+        }
+
+        public void Dispose()
+        {
+            if (Request != null) {
+                lock (ResourceLock) {
+                    ResourceSet.Remove (Request);
+                }
+            }
+        }
+    }
+
+}
 
 namespace DotCMIS.Binding.Impl
 {
@@ -64,13 +111,17 @@ namespace DotCMIS.Binding.Impl
         private static Response Invoke(UrlBuilder url, String method, String contentType, Output writer, BindingSession session,
                 long? offset, long? length, IDictionary<string, string> headers)
         {
+            Guid tag = Guid.NewGuid();
+            string request = method + " " + url;
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+            using (HttpWebRequestResource resource = new HttpWebRequestResource ())
+            {
             try
             {
                 // log before connect
-                if (DotCMISDebug.DotCMISSwitch.TraceInfo)
-                {
-                    Trace.WriteLine(method + " " + url);
-                }
+                Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] starting {1}", tag.ToString(), request));
+
                 //Handles infrequent networking conditions
                 int retry = 0;
                 for(;;){
@@ -78,6 +129,7 @@ namespace DotCMIS.Binding.Impl
                     // create connection
                     HttpWebRequest conn = (HttpWebRequest)WebRequest.Create(url.Url);
                     conn.Method = method;
+                    resource.StartResource(conn);
 
                     // device management
                     string deviceIdentifier = session.GetValue(SessionParameter.DeviceIdentifier) as String;
@@ -204,35 +256,39 @@ namespace DotCMIS.Binding.Impl
                         {
                             authProvider.HandleResponse(response);
                         }
+                        watch.Stop();
+                        Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] received response after {1} ms", tag.ToString(), watch.ElapsedMilliseconds.ToString()));
 
                         return new Response(response);
                     }
                     catch (WebException we)
                     {
-                        if (we.Response is HttpWebResponse && (we.Response as HttpWebResponse).StatusCode == HttpStatusCode.NotFound) {
-                            return new Response(we);
-                        }
-
-                        if (5 == retry) {
+                        if (ExceptionFixabilityDecider.CanExceptionBeFixedByRetry(we) == false || retry == 5) {
+                            watch.Stop();
+                            Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] received response after {1} ms", tag.ToString(), watch.ElapsedMilliseconds.ToString()));
                             return new Response(we);
                         }
 
                         retry++;
+                        watch.Stop();
                         Thread.Sleep(50);
-                        Trace.WriteLine(we.Message + " retry No " + retry.ToString());
+                        watch.Start();
+                        Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] {1} retry No {2}", tag.ToString(), we.Message, retry.ToString()));
                     }
                 }
             }
             catch (Exception e)
             {
+                watch.Stop();
+                Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] Cannot access {1}: {2} after {3} ms", tag.ToString(), request, e.Message, watch.ElapsedMilliseconds));
                 throw new CmisConnectionException("Cannot access " + url + ": " + e.Message, e);
+            }
             }
         }
 
         internal class Response
         {
             private readonly WebResponse response;
-
             public HttpStatusCode StatusCode { get; private set; }
             public string Message { get; private set; }
             public Stream Stream { get; private set; }
@@ -244,6 +300,7 @@ namespace DotCMIS.Binding.Impl
             public Response(HttpWebResponse httpResponse)
             {
                 this.response = httpResponse;
+                this.ExtractHeader();
                 StatusCode = httpResponse.StatusCode;
                 Message = httpResponse.StatusDescription;
                 ContentType = httpResponse.ContentType;
@@ -281,7 +338,7 @@ namespace DotCMIS.Binding.Impl
             public Response(WebException exception)
             {
                 response = exception.Response;
-
+                this.ExtractHeader();
                 HttpWebResponse httpResponse = response as HttpWebResponse;
                 if (httpResponse != null)
                 {
@@ -323,6 +380,31 @@ namespace DotCMIS.Binding.Impl
                     Stream.Close();
                 }
             }
+
+            private void ExtractHeader() {
+                this.Headers = new Dictionary<string, string[]>();
+                for (int i = 0; i < this.response.Headers.Count; ++i) {
+                    this.Headers.Add(this.response.Headers.GetKey(i), this.response.Headers.GetValues(i));
+                }
+            }
+        }
+    }
+
+    public static class ExceptionFixabilityDecider {
+        public static bool CanExceptionBeFixedByRetry(WebException we)
+        {
+            if(!(we.Response is HttpWebResponse)){
+                return true;
+            }
+            return CanExceptionStatusCodeBeFixedByRetry((we.Response as HttpWebResponse).StatusCode);
+        }
+
+        public static bool CanExceptionStatusCodeBeFixedByRetry(HttpStatusCode code)
+        {
+            if(code == HttpStatusCode.NotFound || code == HttpStatusCode.Forbidden) {
+                return false;
+            }
+            return true;
         }
     }
 
@@ -644,7 +726,8 @@ namespace DotCMIS.Binding.Impl
             }
         }
 
-        protected class ParseException : Exception
+        [Serializable]
+        public class ParseException : FormatException
         {
             public ParseException(string message)
                 : base(message)
@@ -652,6 +735,16 @@ namespace DotCMIS.Binding.Impl
                 }
 
             public ParseException()
+            {
+            }
+
+            public ParseException(string message, Exception inner)
+                : base(message, inner)
+            {
+            }
+
+            protected ParseException(SerializationInfo info, StreamingContext context)
+                : base(info, context)
             {
             }
         }

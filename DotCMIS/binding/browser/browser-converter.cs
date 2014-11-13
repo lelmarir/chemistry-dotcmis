@@ -1149,7 +1149,8 @@ namespace DotCMIS.Binding.Browser
 
         internal static string ConvertDateTimeString(DateTime date)
         {
-            return (date - new DateTime(1970, 1, 1)).TotalMilliseconds.ToString();
+            long milliseconds = (long)(date - new DateTime(1970, 1, 1)).TotalMilliseconds;
+            return milliseconds.ToString();
         }
 
     }

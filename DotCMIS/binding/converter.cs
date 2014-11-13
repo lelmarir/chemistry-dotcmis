@@ -78,7 +78,8 @@ namespace DotCMIS.Binding
         private static long? DeserializeInteger(XmlElement element)
         {
             string s = DeserializeString(element);
-            return s == null ? (long?)null : Int64.Parse(s);
+            long l;
+            return Int64.TryParse(s, out l) ? (long?)l : null;
         }
 
         /// <summary>
@@ -87,7 +88,8 @@ namespace DotCMIS.Binding
         private static decimal? DeserializeDecimal(XmlElement element)
         {
             string s = DeserializeString(element);
-            return s == null ? (decimal?)null : Decimal.Parse(s);
+            decimal d;
+            return Decimal.TryParse(s, out d) ? (decimal?)d : null;
         }
 
         /// <summary>
@@ -634,11 +636,13 @@ namespace DotCMIS.Binding
 
                 if (cpd.maxValue != null)
                 {
-                    pd.MaxValue = Int64.Parse(cpd.maxValue);
+                    long l;
+                    pd.MaxValue = Int64.TryParse(cpd.maxValue, out l) ? (long?)l : null;
                 }
                 if (cpd.minValue != null)
                 {
-                    pd.MinValue = Int64.Parse(cpd.minValue);
+                    long l;
+                    pd.MinValue = Int64.TryParse(cpd.minValue, out l) ? (long?)l : null;
                 }
 
                 ProcessAnyElements(cpd.Any, (element) =>
@@ -691,7 +695,8 @@ namespace DotCMIS.Binding
 
                 if (cpd.maxLength != null)
                 {
-                    pd.MaxLength = Int64.Parse(cpd.maxLength);
+                    long l;
+                    pd.MaxLength = Int64.TryParse(cpd.maxLength, out l) ? (long?)l : null;
                 }
 
                 ProcessAnyElements(cpd.Any, (element) =>
@@ -969,7 +974,8 @@ namespace DotCMIS.Binding
             }
 
             result.HasMoreItems = typeDefList.hasMoreItems;
-            result.NumItems = typeDefList.numItems == null ? null : (long?)Int64.Parse(typeDefList.numItems);
+            long l;
+            result.NumItems = Int64.TryParse(typeDefList.numItems, out l) ? (long?)l : null;
 
             ConvertExtension(typeDefList, result);
 
@@ -1552,15 +1558,15 @@ namespace DotCMIS.Binding
         public static IRenditionData Convert(cmisRenditionType rendition)
         {
             if (rendition == null) { return null; }
-
+            long l;
             RenditionData result = new RenditionData();
             result.StreamId = rendition.streamId;
             result.MimeType = rendition.mimetype;
-            result.Length = rendition.length == null ? null : (long?)Int64.Parse(rendition.length);
+            result.Length = Int64.TryParse(rendition.length, out l) ? (long?)l : null;
             result.Kind = rendition.kind;
             result.Title = rendition.title;
-            result.Height = rendition.height == null ? null : (long?)Int64.Parse(rendition.height);
-            result.Width = rendition.width == null ? null : (long?)Int64.Parse(rendition.width);
+            result.Height = Int64.TryParse(rendition.height, out l) ? (long?)l : null;
+            result.Width = Int64.TryParse(rendition.width, out l) ? (long?)l : null;
             result.RenditionDocumentId = rendition.renditionDocumentId;
 
             ConvertExtension(rendition, result);
@@ -1595,7 +1601,8 @@ namespace DotCMIS.Binding
                 }
             }
             result.HasMoreItems = list.hasMoreItems;
-            result.NumItems = list.numItems == null ? null : (long?)Int64.Parse(list.numItems);
+            long l;
+            result.NumItems = Int64.TryParse(list.numItems, out l) ? (long?)l : null;
 
             ConvertExtension(list, result);
 
@@ -1664,7 +1671,8 @@ namespace DotCMIS.Binding
             }
 
             result.HasMoreItems = list.hasMoreItems;
-            result.NumItems = list.numItems == null ? null : (long?)Int64.Parse(list.numItems);
+            long l;
+            result.NumItems = Int64.TryParse(list.numItems, out l) ? (long?)l : null;
 
             ConvertExtension(list, result);
 
@@ -1676,10 +1684,8 @@ namespace DotCMIS.Binding
             if (contentStream == null) { return null; }
 
             ContentStream result = new ContentStream();
-            if (contentStream.length != null)
-            {
-                result.Length = Int64.Parse(contentStream.length);
-            }
+            long l;
+            result.Length = Int64.TryParse(contentStream.length, out l) ? (long?)l : null;
             result.MimeType = contentStream.mimeType;
             result.FileName = contentStream.filename;
             // Todo: enable real streaming

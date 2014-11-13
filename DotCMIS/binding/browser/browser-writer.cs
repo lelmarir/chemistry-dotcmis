@@ -95,7 +95,7 @@ namespace DotCMIS.Binding.Browser
                     continue;
                 }
 
-                string indexString = "[" + index + "]";
+                string indexString = "[" + index.ToString() + "]";
                 AddParameter(BrowserConstants.ControlPropertyId + indexString, property.Id);
 
                 if (property.Values != null && property.Values.Count > 0)
@@ -109,7 +109,7 @@ namespace DotCMIS.Binding.Browser
                         int vIndex = 0;
                         foreach (object value in property.Values)
                         {
-                            string vIndexString = "[" + vIndex + "]";
+                            string vIndexString = "[" + vIndex.ToString() + "]";
                             AddParameter(BrowserConstants.ControlPropertyValue + indexString + vIndexString, ConvertPropertyValue(value));
                             vIndex++;
                         }
@@ -147,7 +147,7 @@ namespace DotCMIS.Binding.Browser
             {
                 if (policy != null)
                 {
-                    string idxStr = "[" + idx + "]";
+                    string idxStr = "[" + idx.ToString() + "]";
                     AddParameter(BrowserConstants.ControlPolicy + idxStr, policy);
                     idx++;
                 }
@@ -177,14 +177,14 @@ namespace DotCMIS.Binding.Browser
             {
                 if (ace.PrincipalId != null && ace.Permissions != null && ace.Permissions.Count > 0)
                 {
-                    string idxStr = "[" + idx + "]";
+                    string idxStr = "[" + idx.ToString() + "]";
                     AddParameter(principalControl + idxStr, ace.PrincipalId);
                     int permIdx = 0;
                     foreach (string perm in ace.Permissions)
                     {
                         if (perm != null)
                         {
-                            string permIdxStr = "[" + permIdx + "]";
+                            string permIdxStr = "[" + permIdx.ToString() + "]";
                             AddParameter(permissionControl + idxStr + permIdxStr, perm);
                             permIdx++;
                         }
