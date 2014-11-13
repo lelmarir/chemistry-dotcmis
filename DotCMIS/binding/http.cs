@@ -263,7 +263,7 @@ namespace DotCMIS.Binding.Impl
                     }
                     catch (WebException we)
                     {
-                        if (ExceptionFixabilityDecider.CanExceptionBeFixedByRetry(we) == false || retry == 5) {
+                        if (method != "GET" || !ExceptionFixabilityDecider.CanExceptionBeFixedByRetry(we) || retry == 5) {
                             watch.Stop();
                             Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] received response after {1} ms", tag.ToString(), watch.ElapsedMilliseconds.ToString()));
                             return new Response(we);
