@@ -344,7 +344,12 @@ namespace DotCMIS.Binding.AtomPub
 
         // ---- exceptions ----
 
-        protected CmisBaseException ConvertToCmisException(HttpUtils.Response resp, Exception e = null)
+        protected CmisBaseException ConvertToCmisException(HttpUtils.Response resp)
+        {
+            return ConvertToCmisException(resp, null);
+        }
+
+        protected CmisBaseException ConvertToCmisException(HttpUtils.Response resp, Exception e)
         {
             var message = resp.Message;
             var errorContent = resp.ErrorContent;
