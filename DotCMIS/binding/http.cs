@@ -228,10 +228,34 @@ namespace DotCMIS.Binding.Impl
                     // send data
                     if (writer != null)
                     {
+#if __MonoCS__ // Unchunked upload for Mono, because of Mono bug 21135
+
+						// First write request to temporary file, inefficient but easier than rewriting large parts of DotCMIS
+						string tempFile = System.IO.Path.GetTempFileName();
+						// Make the temporary file readable only by the user, since data might be confidential.
+						Mono.Unix.Native.Syscall.chmod(tempFile,
+							Mono.Unix.Native.FilePermissions.S_IWUSR | Mono.Unix.Native.FilePermissions.S_IRUSR);
+						using (var tempStream = new StreamWriter(tempFile))
+						{
+							writer(tempStream.BaseStream);
+						}
+
+						// Send the request to the server
+						FileStream tempFileStream = new FileStream(tempFile, FileMode.Open, FileAccess.Read);
+						conn.ContentLength = tempFileStream.Length;
+						Stream requestStream = conn.GetRequestStream();
+						tempFileStream.CopyTo(requestStream);
+						requestStream.Close();
+
+						// Remove temporary file
+						tempFileStream.Close();
+						File.Delete(tempFile);
+#else
                         conn.SendChunked = true;
                         Stream requestStream = conn.GetRequestStream();
                         writer(requestStream);
                         requestStream.Close();
+#endif
                     }
                     else
                     {
