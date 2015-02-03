@@ -111,7 +111,7 @@ namespace DotCMIS.Binding
             string user = GetUser();
             string password = GetPassword();
 
-            request.AllowWriteStreamBuffering = false;
+            request.AllowWriteStreamBuffering = true;
             request.CookieContainer = Cookies;
             if (user != null || password != null)
             {
