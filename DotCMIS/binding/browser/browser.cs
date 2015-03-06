@@ -388,7 +388,11 @@ namespace DotCMIS.Binding.Browser
             {
                 using (JsonTextReader reader = new JsonTextReader(new StreamReader(stream)))
                 {
-                    json = JToken.ReadFrom(reader);
+                    try {
+                        json = JToken.ReadFrom(reader);
+                    } catch (WebException e) {
+                        throw new CmisConnectionException(e.Message, e);
+                    }
                 }
             }
             finally
@@ -410,7 +414,11 @@ namespace DotCMIS.Binding.Browser
             {
                 using (JsonTextReader reader = new JsonTextReader(new StreamReader(stream)))
                 {
-                    json = JToken.ReadFrom(reader);
+                    try {
+                        json = JToken.ReadFrom(reader);
+                    } catch (WebException e) {
+                        throw new CmisConnectionException(e.Message, e);
+                    }
                 }
             }
             finally
