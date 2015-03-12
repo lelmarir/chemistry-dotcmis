@@ -2212,7 +2212,13 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             if (resp.StatusCode == HttpStatusCode.Created) {
-                objectId = new UrlParser(resp.Headers[HttpResponseHeader.Location][0]).GetQueryValue(Parameters.ParamId);
+                try {
+                    objectId = new UrlParser(resp.Headers[HttpResponseHeader.Location.ToString()][0]).GetQueryValue(Parameters.ParamId);
+                } catch (NullReferenceException) {
+                    objectId = null;
+                } catch (IndexOutOfRangeException) {
+                    objectId = null;
+                }
             } else {
                 objectId = null;
             }
