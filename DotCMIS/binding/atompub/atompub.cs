@@ -2203,24 +2203,18 @@ namespace DotCMIS.Binding.AtomPub
 
             // send content
             HttpUtils.Response resp = HttpUtils.InvokePUT(url, contentStream.MimeType, headers, output, Session);
+            resp.CloseStream();
 
             // check response code
             if (resp.StatusCode != HttpStatusCode.OK && resp.StatusCode != HttpStatusCode.Created && resp.StatusCode != HttpStatusCode.NoContent)
             {
-                resp.CloseStream();
                 throw ConvertToCmisException(resp);
             }
 
-            try {
-                if (resp.StatusCode == HttpStatusCode.Created) {
-                    // parse the response
-                    AtomEntry entry = Parse<AtomEntry>(resp.Stream);
-                    objectId = entry.Id;
-                } else {
-                    objectId = null;
-                }
-            } finally {
-                resp.CloseStream();
+            if (resp.StatusCode == HttpStatusCode.Created) {
+                objectId = new UrlParser(resp.Headers[HttpResponseHeader.Location][0]).GetQueryValue(Parameters.ParamId);
+            } else {
+                objectId = null;
             }
 
             changeToken = null;
