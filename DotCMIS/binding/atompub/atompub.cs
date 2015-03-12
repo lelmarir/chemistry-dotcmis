@@ -2211,7 +2211,14 @@ namespace DotCMIS.Binding.AtomPub
                 throw ConvertToCmisException(resp);
             }
 
-            objectId = null;
+            if (resp.StatusCode == HttpStatusCode.Created) {
+                // parse the response
+                AtomEntry entry = Parse<AtomEntry>(resp.Stream);
+                objectId = entry.Id;
+            } else {
+                objectId = null;
+            }
+
             changeToken = null;
         }
 
