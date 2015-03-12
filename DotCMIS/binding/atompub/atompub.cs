@@ -2211,16 +2211,13 @@ namespace DotCMIS.Binding.AtomPub
                 throw ConvertToCmisException(resp);
             }
 
+            objectId = null;
             if (resp.StatusCode == HttpStatusCode.Created) {
                 try {
                     objectId = new UrlParser(resp.Headers[HttpResponseHeader.Location.ToString()][0]).GetQueryValue(Parameters.ParamId);
                 } catch (NullReferenceException) {
-                    objectId = null;
                 } catch (IndexOutOfRangeException) {
-                    objectId = null;
                 }
-            } else {
-                objectId = null;
             }
 
             changeToken = null;
