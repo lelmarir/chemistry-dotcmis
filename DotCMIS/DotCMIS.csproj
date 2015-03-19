@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DotCMIS</RootNamespace>
     <AssemblyName>DotCMIS</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -91,7 +91,7 @@
     <Compile Include="util.cs" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadata Include="Service References\" />
+    <WCFMetadata Include="Service References" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -156,7 +156,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadataStorage Include="Service References\CMISWebServicesReference\" />
+    <WCFMetadataStorage Include="Service References\CMISWebServicesReference" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\CMISWebServicesReference\configuration91.svcinfo" />
