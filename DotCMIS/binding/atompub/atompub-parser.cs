@@ -79,6 +79,7 @@ namespace DotCMIS.Binding.AtomPub
             XmlReaderSettings settings = new XmlReaderSettings();
             settings.IgnoreWhitespace = true;
             settings.IgnoreComments = true;
+            settings.DtdProcessing = DtdProcessing.Ignore; // Fix for https://github.com/aegif/CmisSync/issues/540
 
             try {
                 using (XmlReader reader = XmlReader.Create(stream, settings))
