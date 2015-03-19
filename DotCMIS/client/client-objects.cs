@@ -932,7 +932,9 @@ namespace DotCMIS.Client.Impl
 
             if (ObjectId != objectId.Id)
             {
-                return (IDocument)Session.GetObject(objectId, CreationContext);
+                IDocument newDoc = Session.GetObject(objectId, CreationContext) as IDocument;
+                newDoc.Refresh();
+                return newDoc;
             }
 
             return this;
@@ -952,8 +954,7 @@ namespace DotCMIS.Client.Impl
                 newObjectId = objectId;
             }
 
-            if (refresh)
-            {
+            if (!(newObjectId != null && this.ObjectId != newObjectId) && refresh) {
                 Refresh();
             }
 
