@@ -369,7 +369,12 @@ namespace DotCMIS.Binding.AtomPub
                 exception = new CmisNotSupportedException(message, errorContent, e);
                 break;
             case HttpStatusCode.Conflict:
-                exception = new CmisConstraintException(message, errorContent, e);
+                if (string.Equals(message, "nameConstraintViolation", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisNameConstraintViolationException(message, errorContent, e);
+                } else {
+                    exception = new CmisConstraintException(message, errorContent, e);
+                }
+
                 break;
             default:
                 exception = new CmisRuntimeException(message, errorContent, e);
