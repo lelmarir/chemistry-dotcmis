@@ -353,6 +353,7 @@ namespace DotCMIS.Binding.AtomPub
         {
             var message = resp.Message;
             var errorContent = resp.ErrorContent;
+            var ex = ExtractException(errorContent);
             CmisBaseException exception = null;
             switch (resp.StatusCode)
             {
@@ -369,7 +370,7 @@ namespace DotCMIS.Binding.AtomPub
                 exception = new CmisNotSupportedException(message, errorContent, e);
                 break;
             case HttpStatusCode.Conflict:
-                if (string.Equals(message, "nameConstraintViolation", StringComparison.OrdinalIgnoreCase)) {
+                if (string.Equals(ex, @"nameConstraintViolation", StringComparison.OrdinalIgnoreCase)) {
                     exception = new CmisNameConstraintViolationException(message, errorContent, e);
                 } else {
                     exception = new CmisConstraintException(message, errorContent, e);
@@ -386,6 +387,22 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             return exception;
+        }
+
+        private static string ExtractException(string errorContent) {
+            if (errorContent == null) {
+                return null;
+            }
+
+            int begin = errorContent.IndexOf(@"<!--exception-->");
+            int end = errorContent.IndexOf(@"<!--/exception-->");
+
+            if (begin == -1 || end == -1 || begin > end) {
+                return null;
+            }
+
+            begin += @"<!--exception-->".Length;
+            return errorContent.Substring(begin, end - begin);
         }
 
         protected void ThrowLinkException(String repositoryId, String id, String rel, String type)
