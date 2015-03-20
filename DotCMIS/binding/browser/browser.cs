@@ -334,6 +334,13 @@ namespace DotCMIS.Binding.Browser
 
         protected CmisBaseException ConvertStatusCode(HttpStatusCode code, string message, string errorContent, Exception e)
         {
+            string jsonError = null;
+            try {
+                jsonError = (JObject.Parse(errorContent) as JObject).GetValue(@"exception").ToString();
+            } catch(Exception) {
+            } finally {
+            }
+
             switch (code)
             {
                 case HttpStatusCode.Moved:
@@ -351,7 +358,7 @@ namespace DotCMIS.Binding.Browser
                 case HttpStatusCode.MethodNotAllowed:
                     return new CmisNotSupportedException(message, errorContent,e);
                 case HttpStatusCode.Conflict:
-                    if (string.Equals(message, "nameConstraintViolation", StringComparison.OrdinalIgnoreCase)) {
+                    if (string.Equals(jsonError, @"nameConstraintViolation", StringComparison.OrdinalIgnoreCase)) {
                         return new CmisNameConstraintViolationException(message, errorContent, e);
                     } else {
                         return new CmisConstraintException(message, errorContent, e);
