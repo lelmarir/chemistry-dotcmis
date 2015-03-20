@@ -351,7 +351,11 @@ namespace DotCMIS.Binding.Browser
                 case HttpStatusCode.MethodNotAllowed:
                     return new CmisNotSupportedException(message, errorContent,e);
                 case HttpStatusCode.Conflict:
-                    return new CmisConstraintException(message, errorContent, e);
+                    if (string.Equals(message, "nameConstraintViolation", StringComparison.OrdinalIgnoreCase)) {
+                        return new CmisNameConstraintViolationException(message, errorContent, e);
+                    } else {
+                        return new CmisConstraintException(message, errorContent, e);
+                    }
                 default:
                     return new CmisRuntimeException(message, errorContent, e);
             }
