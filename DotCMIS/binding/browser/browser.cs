@@ -219,19 +219,23 @@ namespace DotCMIS.Binding.Browser
         private PolicyService PolicyService;
         private AclService AclService;
 
-        public void initialize(BindingSession session)
+        public void initialize(IBindingSession session)
         {
-            Session = session;
+            this.Session = session as BindingSession;
+            if (this.Session == null)
+            {
+                throw new ArgumentException("Invalid binding session!");
+            }
 
-            RepositoryService = new RepositoryService(session);
-            NavigationService = new NavigationService(session);
-            ObjectService = new ObjectService(session);
-            VersioningService = new VersioningService(session);
-            DiscoveryService = new DiscoveryService(session);
-            MultiFilingService = new MultiFilingService(session);
-            RelationshipService = new RelationshipService(session);
-            PolicyService = new PolicyService(session);
-            AclService = new AclService(session);
+            RepositoryService = new RepositoryService(this.Session);
+            NavigationService = new NavigationService(this.Session);
+            ObjectService = new ObjectService(this.Session);
+            VersioningService = new VersioningService(this.Session);
+            DiscoveryService = new DiscoveryService(this.Session);
+            MultiFilingService = new MultiFilingService(this.Session);
+            RelationshipService = new RelationshipService(this.Session);
+            PolicyService = new PolicyService(this.Session);
+            AclService = new AclService(this.Session);
         }
 
         public IRepositoryService GetRepositoryService()
