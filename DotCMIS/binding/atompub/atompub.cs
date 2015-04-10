@@ -46,17 +46,23 @@ namespace DotCMIS.Binding.AtomPub
         private PolicyService policyService;
         private AclService aclService;
 
-        public void initialize(BindingSession session)
+        public void initialize(IBindingSession session)
         {
-            repositoryService = new RepositoryService(session);
-            navigationService = new NavigationService(session);
-            objectService = new ObjectService(session);
-            versioningService = new VersioningService(session);
-            discoveryService = new DiscoveryService(session);
-            multiFilingService = new MultiFilingService(session);
-            relationshipService = new RelationshipService(session);
-            policyService = new PolicyService(session);
-            aclService = new AclService(session);
+            BindingSession bindingSession = session as BindingSession;
+            if (bindingSession == null)
+            {
+                throw new ArgumentException("Invalid binding session!");
+            }
+
+            repositoryService = new RepositoryService(bindingSession);
+            navigationService = new NavigationService(bindingSession);
+            objectService = new ObjectService(bindingSession);
+            versioningService = new VersioningService(bindingSession);
+            discoveryService = new DiscoveryService(bindingSession);
+            multiFilingService = new MultiFilingService(bindingSession);
+            relationshipService = new RelationshipService(bindingSession);
+            policyService = new PolicyService(bindingSession);
+            aclService = new AclService(bindingSession);
         }
 
         public IRepositoryService GetRepositoryService()
@@ -474,6 +480,33 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             return resp;
+        }
+
+        protected void PostAndConsume(UrlBuilder url, string contentType, HttpUtils.Output writer)
+        {
+            HttpUtils.Response resp = HttpUtils.InvokePOST(url, contentType, writer, Session);
+
+            if (resp.StatusCode != HttpStatusCode.Created)
+            {
+                throw ConvertToCmisException(resp, null);
+            }
+
+            if (resp.Stream != null)
+            {
+                Stream stream = resp.Stream;
+                try
+                {
+                    byte[] buffer = new byte[8 * 1024];
+                    while (stream.Read(buffer, 0, buffer.Length) > 0)
+                    {
+                    }
+                }
+                finally
+                {
+                    try { stream.Close(); }
+                    catch (Exception) { }
+                }
+            }
         }
 
         protected HttpUtils.Response Put(UrlBuilder url, string contentType, HttpUtils.Output writer)
@@ -2816,7 +2849,7 @@ namespace DotCMIS.Binding.AtomPub
             AtomEntryWriter entryWriter = new AtomEntryWriter(CreateIdObject(objectId));
 
             // post addObjectToFolder request
-            Post(url, AtomPubConstants.MediatypeEntry, new HttpUtils.Output(entryWriter.Write));
+            PostAndConsume(url, AtomPubConstants.MediatypeEntry, new HttpUtils.Output(entryWriter.Write));
         }
 
         public void RemoveObjectFromFolder(string repositoryId, string objectId, string folderId, IExtensionsData extension)
@@ -2841,7 +2874,7 @@ namespace DotCMIS.Binding.AtomPub
             AtomEntryWriter entryWriter = new AtomEntryWriter(CreateIdObject(objectId));
 
             // post removeObjectFromFolder request
-            Post(url, AtomPubConstants.MediatypeEntry, new HttpUtils.Output(entryWriter.Write));
+            PostAndConsume(url, AtomPubConstants.MediatypeEntry, new HttpUtils.Output(entryWriter.Write));
         }
     }
 
@@ -2905,7 +2938,7 @@ namespace DotCMIS.Binding.AtomPub
             AtomEntryWriter entryWriter = new AtomEntryWriter(CreateIdObject(objectId));
 
             // post applyPolicy request
-            Post(url, AtomPubConstants.MediatypeEntry, new HttpUtils.Output(entryWriter.Write));
+            PostAndConsume(url, AtomPubConstants.MediatypeEntry, new HttpUtils.Output(entryWriter.Write));
         }
 
         public void RemovePolicy(string repositoryId, string policyId, string objectId, IExtensionsData extension)
