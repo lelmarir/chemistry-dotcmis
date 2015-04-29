@@ -680,6 +680,8 @@ namespace DotCMIS.Client.Impl
 
         public bool? IsLatestMajorVersion { get { return GetPropertyValue(PropertyIds.IsLatestMajorVersion) as bool?; } }
 
+        public bool? IsPrivateWorkingCopy { get { return GetPropertyValue(PropertyIds.IsPrivateWorkingCopy) as bool?; } }
+
         public string VersionLabel { get { return GetPropertyValue(PropertyIds.VersionLabel) as string; } }
 
         public string VersionSeriesId { get { return GetPropertyValue(PropertyIds.VersionSeriesId) as string; } }

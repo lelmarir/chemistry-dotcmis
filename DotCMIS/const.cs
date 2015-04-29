@@ -126,6 +126,7 @@ namespace DotCMIS
         public const string IsLatestVersion = "cmis:isLatestVersion";
         public const string IsMajorVersion = "cmis:isMajorVersion";
         public const string IsLatestMajorVersion = "cmis:isLatestMajorVersion";
+        public const string IsPrivateWorkingCopy = "cmis:isPrivateWorkingCopy";
         public const string VersionLabel = "cmis:versionLabel";
         public const string VersionSeriesId = "cmis:versionSeriesId";
         public const string IsVersionSeriesCheckedOut = "cmis:isVersionSeriesCheckedOut";
