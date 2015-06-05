@@ -121,6 +121,14 @@ namespace DotCMIS.Binding.AtomPub
         {
             if (KnownLinks.Contains(rel))
             {
+                // Fix for eXo XCMIS.
+                // See https://jira.exoplatform.org/browse/CMIS-565
+                if (type != null)
+                {
+                    type = type.Replace(" ", "");
+                }
+                //End of eXo XCMIS fix.
+
                 linkCache.Put(new string[] { repositoryId, id, rel, type }, link);
             }
         }
