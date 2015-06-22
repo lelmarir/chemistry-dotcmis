@@ -337,7 +337,7 @@ namespace DotCMIS.Binding.Impl
 
             public Response(WebException exception)
             {
-                response = exception.Response;
+                this.response = exception.Response;
                 this.ExtractHeader();
                 HttpWebResponse httpResponse = response as HttpWebResponse;
                 if (httpResponse != null)
@@ -383,8 +383,10 @@ namespace DotCMIS.Binding.Impl
 
             private void ExtractHeader() {
                 this.Headers = new Dictionary<string, string[]>();
-                for (int i = 0; i < this.response.Headers.Count; ++i) {
-                    this.Headers.Add(this.response.Headers.GetKey(i), this.response.Headers.GetValues(i));
+                if (this.response != null && this.response.Headers != null) {
+                    for (int i = 0; i < this.response.Headers.Count; ++i) {
+                        this.Headers.Add(this.response.Headers.GetKey(i), this.response.Headers.GetValues(i));
+                    }
                 }
             }
         }
