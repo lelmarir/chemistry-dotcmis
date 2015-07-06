@@ -54,6 +54,20 @@ namespace DotCMIS.Exceptions
 
         public long? Code { get; protected set; }
         public string ErrorContent { get; protected set; }
+
+        public override string StackTrace {
+            get {
+                if (string.IsNullOrEmpty(this.ErrorContent)) {
+                    return base.StackTrace;
+                } else {
+                    return string.Format(
+                        "----- Begin ErrorContent -----{0}{1}{0}-----  End ErrorContent  -----{0}{2}",
+                        Environment.NewLine,
+                        this.ErrorContent,
+                        base.StackTrace);
+                }
+            }
+        }
     }
 
     [Serializable]
