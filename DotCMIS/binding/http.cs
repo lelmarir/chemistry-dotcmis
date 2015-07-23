@@ -127,7 +127,7 @@ namespace DotCMIS.Binding.Impl
                 for(;;){
 
                     // create connection
-                    HttpWebRequest conn = (HttpWebRequest)WebRequest.Create(url.Url);
+                    HttpWebRequest conn = WebRequest.CreateHttp(url.Url);
                     conn.Method = method;
                     resource.StartResource(conn);
 
