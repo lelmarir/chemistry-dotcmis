@@ -340,7 +340,11 @@ namespace DotCMIS.Binding.Browser
         {
             string jsonError = null;
             try {
-                jsonError = (JObject.Parse(errorContent) as JObject).GetValue(@"exception").ToString();
+                var jsonObject = (JObject.Parse(errorContent) as JObject);
+                var jsonExceptionObject = jsonObject.GetValue(@"exception");
+                var jsonMessageObject = jsonObject.GetValue(@"message");
+                jsonError = jsonExceptionObject.ToString();
+                message = jsonMessageObject.ToString();
             } catch(Exception) {
             } finally {
             }

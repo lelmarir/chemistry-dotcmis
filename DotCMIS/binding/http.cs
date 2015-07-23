@@ -346,7 +346,7 @@ namespace DotCMIS.Binding.Impl
                     Message = httpResponse.StatusDescription;
                     ContentType = httpResponse.ContentType;
 
-                    if (ContentType != null && ContentType.ToLower().StartsWith("text/"))
+                    if (ContentType != null && (ContentType.ToLower().StartsWith("text/") || ContentType.ToLower().StartsWith("application/json;")))
                     {
                         StringBuilder sb = new StringBuilder();
 
