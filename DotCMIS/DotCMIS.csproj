@@ -40,10 +40,6 @@
     <AssemblyOriginatorKeyFile>dotcmis.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
@@ -52,6 +48,9 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net35\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="binding\atompub\atompub-parser.cs" />
@@ -95,7 +94,6 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="dotcmis.snk" />
-    <None Include="packages.config" />
     <None Include="Service References\CMISWebServicesReference\CMIS-Core.xsd" />
     <None Include="Service References\CMISWebServicesReference\CMIS-Messaging.xsd" />
     <None Include="Service References\CMISWebServicesReference\CMISWebServices.wsdl" />
@@ -153,6 +151,7 @@
     <None Include="Service References\CMISWebServicesReference\DotCMIS.CMISWebServicesReference.deleteTreeResponseFailedToDelete.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\CMISWebServicesReference" />
