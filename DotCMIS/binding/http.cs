@@ -115,6 +115,8 @@ namespace DotCMIS.Binding.Impl
             string request = method + " " + url;
             Stopwatch watch = new Stopwatch();
             watch.Start();
+            int maxRetries = 5;
+            int.TryParse(session.GetValue(SessionParameter.MaximumRequestRetries, "5") as String, out maxRetries);
             using (HttpWebRequestResource resource = new HttpWebRequestResource ())
             {
             try
@@ -263,7 +265,7 @@ namespace DotCMIS.Binding.Impl
                     }
                     catch (WebException we)
                     {
-                        if (method != "GET" || !ExceptionFixabilityDecider.CanExceptionBeFixedByRetry(we) || retry == 5) {
+                        if (method != "GET" || !ExceptionFixabilityDecider.CanExceptionBeFixedByRetry(we) || retry == maxRetries) {
                             watch.Stop();
                             Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] received response after {1} ms", tag.ToString(), watch.ElapsedMilliseconds.ToString()));
                             return new Response(we);

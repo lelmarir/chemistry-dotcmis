@@ -87,6 +87,9 @@ namespace DotCMIS
         // http user agent
         public const string UserAgent = "org.apache.chemistry.dotcmis.http.useragent";
 
+        // http stability tweek
+        public const string MaximumRequestRetries = "org.apache.chemistry.dotcmis.http.maximumretries";
+
         // session parameter
         public const string ObjectFactoryClass = "org.apache.chemistry.dotcmis.objectfactory.classname";
         public const string CacheClass = "org.apache.chemistry.dotcmis.cache.classname";
