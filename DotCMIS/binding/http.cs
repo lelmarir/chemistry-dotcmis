@@ -291,7 +291,8 @@ namespace DotCMIS.Binding.Impl
         internal class Response
         {
             private readonly WebResponse response;
-            public HttpStatusCode StatusCode { get; private set; }
+            public WebException Exception { get; private set; }
+            public HttpStatusCode? StatusCode { get; private set; }
             public string Message { get; private set; }
             public Stream Stream { get; private set; }
             public string ErrorContent { get; private set; }
@@ -340,6 +341,7 @@ namespace DotCMIS.Binding.Impl
             public Response(WebException exception)
             {
                 this.response = exception.Response;
+                this.Exception = exception;
                 this.ExtractHeader();
                 HttpWebResponse httpResponse = response as HttpWebResponse;
                 if (httpResponse != null)
@@ -367,7 +369,7 @@ namespace DotCMIS.Binding.Impl
                 }
                 else
                 {
-                    StatusCode = HttpStatusCode.InternalServerError;
+                    StatusCode = null;
                     Message = exception.Status.ToString();
                 }
 

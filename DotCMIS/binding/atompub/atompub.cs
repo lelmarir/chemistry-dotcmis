@@ -350,19 +350,16 @@ namespace DotCMIS.Binding.AtomPub
 
         // ---- exceptions ----
 
-        protected CmisBaseException ConvertToCmisException(HttpUtils.Response resp)
-        {
+        protected CmisBaseException ConvertToCmisException(HttpUtils.Response resp) {
             return ConvertToCmisException(resp, null);
         }
 
-        protected CmisBaseException ConvertToCmisException(HttpUtils.Response resp, Exception e)
-        {
+        protected CmisBaseException ConvertToCmisException(HttpUtils.Response resp, Exception e) {
             var message = resp.Message;
             var errorContent = resp.ErrorContent;
             var ex = ExtractException(errorContent);
             CmisBaseException exception = null;
-            switch (resp.StatusCode)
-            {
+            switch (resp.StatusCode) {
             case HttpStatusCode.BadRequest:
                 exception = new CmisInvalidArgumentException(message, errorContent, e);
                 break;
@@ -382,6 +379,9 @@ namespace DotCMIS.Binding.AtomPub
                     exception = new CmisConstraintException(message, errorContent, e);
                 }
 
+                break;
+            case null:
+                exception = new CmisConnectionException(message, resp.Exception);
                 break;
             default:
                 exception = new CmisRuntimeException(message, errorContent, e);

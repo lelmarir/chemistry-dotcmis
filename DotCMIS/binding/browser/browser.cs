@@ -331,58 +331,72 @@ namespace DotCMIS.Binding.Browser
             return Session.GetValue(SessionParameter.BrowserUrl) as string;
         }
 
-        private RepositoryUrlCache GetRepositoryUrlCache()
-        {
+        private RepositoryUrlCache GetRepositoryUrlCache() {
             return BrowserBindingSessionUtility.GetRepositoryUrlCache(Session);
         }
 
-        protected CmisBaseException ConvertStatusCode(HttpStatusCode code, string message, string errorContent, Exception e)
-        {
+        protected CmisBaseException ConvertToCmisException(HttpUtils.Response resp, Exception e) {
             string jsonError = null;
+            string message = resp.Message;
+            string errorContent = resp.ErrorContent;
             try {
-                var jsonObject = (JObject.Parse(errorContent) as JObject);
+                var jsonObject = (JObject.Parse(resp.ErrorContent) as JObject);
                 var jsonExceptionObject = jsonObject.GetValue(@"exception");
                 var jsonMessageObject = jsonObject.GetValue(@"message");
                 jsonError = jsonExceptionObject.ToString();
                 message = jsonMessageObject.ToString();
             } catch(Exception) {
-            } finally {
             }
 
-            switch (code)
-            {
-                case HttpStatusCode.Moved:
-                case HttpStatusCode.Found:
-                case HttpStatusCode.SeeOther:
-                case HttpStatusCode.TemporaryRedirect:
-                    return new CmisConnectionException("Redirects are not supported (HTTP status code " + code + "): "
-                            + message, errorContent, e);
-                case HttpStatusCode.BadRequest:
-                    return new CmisInvalidArgumentException(message, errorContent, e);
-                case HttpStatusCode.Forbidden:
-                    return new CmisPermissionDeniedException(message, errorContent, e);
-                case HttpStatusCode.NotFound:
-                    return new CmisObjectNotFoundException(message, errorContent, e);
-                case HttpStatusCode.MethodNotAllowed:
-                    return new CmisNotSupportedException(message, errorContent,e);
-                case HttpStatusCode.Conflict:
-                    if (string.Equals(jsonError, @"nameConstraintViolation", StringComparison.OrdinalIgnoreCase)) {
-                        return new CmisNameConstraintViolationException(message, errorContent, e);
-                    } else {
-                        return new CmisConstraintException(message, errorContent, e);
-                    }
-                default:
-                    return new CmisRuntimeException(message, errorContent, e);
+            CmisBaseException exception = null;
+            switch (resp.StatusCode) {
+            case HttpStatusCode.Moved:
+            case HttpStatusCode.Found:
+            case HttpStatusCode.SeeOther:
+            case HttpStatusCode.TemporaryRedirect:
+                exception = new CmisConnectionException("Redirects are not supported (HTTP status code " + resp.StatusCode + "): "
+                    + message, errorContent, e);
+                break;
+            case HttpStatusCode.BadRequest:
+                exception = new CmisInvalidArgumentException(message, errorContent, e);
+                break;
+            case HttpStatusCode.Forbidden:
+                exception = new CmisPermissionDeniedException(message, errorContent, e);
+                break;
+            case HttpStatusCode.NotFound:
+                exception = new CmisObjectNotFoundException(message, errorContent, e);
+                break;
+            case HttpStatusCode.MethodNotAllowed:
+                exception = new CmisNotSupportedException(message, errorContent,e);
+                break;
+            case HttpStatusCode.Conflict:
+                if (string.Equals(jsonError, @"nameConstraintViolation", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisNameConstraintViolationException(message, errorContent, e);
+                } else {
+                    exception = new CmisConstraintException(message, errorContent, e);
+                }
+
+                break;
+            case null:
+                exception =  new CmisConnectionException(message, errorContent, resp.Exception);
+                break;
+            default:
+                exception =  new CmisRuntimeException(message, errorContent, e);
+                break;
             }
+
+            foreach (var header in resp.Headers) {
+                exception.Data.Add(header.Key, header.Value);
+            }
+
+            return exception;
         }
 
-        protected HttpUtils.Response Read(UrlBuilder url)
-        {
+        protected HttpUtils.Response Read(UrlBuilder url) {
             HttpUtils.Response resp = HttpUtils.InvokeGET(url, Session);
 
-            if (resp.StatusCode != HttpStatusCode.OK)
-            {
-                throw ConvertStatusCode(resp.StatusCode, resp.Message, resp.ErrorContent, null);
+            if (resp.StatusCode != HttpStatusCode.OK) {
+                throw ConvertToCmisException(resp, null);
             }
 
             return resp;
@@ -394,7 +408,7 @@ namespace DotCMIS.Binding.Browser
 
             if (resp.StatusCode != HttpStatusCode.OK && resp.StatusCode != HttpStatusCode.Created)
             {
-                throw ConvertStatusCode(resp.StatusCode, resp.Message, resp.ErrorContent, null);
+                throw ConvertToCmisException(resp, null);
             }
 
             return resp;
@@ -1013,7 +1027,7 @@ namespace DotCMIS.Binding.Browser
             HttpUtils.Response resp = HttpUtils.InvokeGET(url, Session, offset, length);
             if (resp.StatusCode != HttpStatusCode.OK && resp.StatusCode != HttpStatusCode.PartialContent)
             {
-                throw ConvertStatusCode(resp.StatusCode, resp.Message, resp.ErrorContent, null);
+                throw ConvertToCmisException(resp, null);
             }
 
             string filename = null;
