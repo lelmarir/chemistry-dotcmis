@@ -436,7 +436,14 @@ namespace DotCMIS.Binding.AtomPub
 
             if (resp.StatusCode != HttpStatusCode.OK)
             {
-                throw ConvertToCmisException(resp);
+//                // Workaround for Documentum, see https://github.com/aegif/CmisSync/issues/607
+//                string documentumWorkaroundUrl = url.ToString().Replace("cmis:path,", "");
+//                resp = HttpUtils.InvokeGET(new UrlBuilder(documentumWorkaroundUrl), Session);
+//
+//                if (resp.StatusCode != HttpStatusCode.OK)
+//                {
+                    throw ConvertToCmisException(resp);
+//                }
             }
 
             return resp;
