@@ -28,6 +28,8 @@ using DotCMIS.Data.Extensions;
 using DotCMIS.Data.Impl;
 using DotCMIS.Enums;
 using DotCMIS.Exceptions;
+using log4net;
+using System.Text;
 
 namespace DotCMIS.Binding.AtomPub
 {
@@ -122,6 +124,9 @@ namespace DotCMIS.Binding.AtomPub
 
     internal abstract class AbstractAtomPubService
     {
+        // Log.
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(AbstractAtomPubService));
+
         protected const string NameCollection = "collection";
         protected const string NameURITemplate = "uritemplate";
         protected const string NamePathSegment = "pathSegment";
@@ -434,6 +439,22 @@ namespace DotCMIS.Binding.AtomPub
         {
             HttpUtils.Response resp = HttpUtils.InvokeGET(url, Session);
 
+            // If Internal Server Error, output both request and response to the log for investigation.
+            if (resp.StatusCode == HttpStatusCode.InternalServerError)
+            {
+                StreamReader reader = new StreamReader(resp.Stream, Encoding.UTF8);
+                String responseString = reader.ReadToEnd();
+                Logger.Warn("----------------------------------------------------------------------");
+                Logger.Warn("Your CMIS server has returned: 500 Internal Server Error.");
+                Logger.Warn("This should never happen. It is a problem with your CMIS server.");
+                Logger.Warn("Please send this whole message (up to END) to your CMIS server support");
+                Logger.Warn("GET request sent by CmisSync:");
+                Logger.Warn(url);
+                Logger.Warn("Response received by CmisSync:");
+                Logger.Warn(responseString);
+                Logger.Warn("--------------------------- END --------------------------------------");
+            }
+
             if (resp.StatusCode != HttpStatusCode.OK)
             {
                 // Workaround for Documentum, see https://github.com/aegif/CmisSync/issues/607
@@ -442,6 +463,7 @@ namespace DotCMIS.Binding.AtomPub
 
                 if (resp.StatusCode != HttpStatusCode.OK)
                 {
+
                     throw ConvertToCmisException(resp);
                 }
             }
