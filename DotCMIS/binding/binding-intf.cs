@@ -115,11 +115,7 @@ namespace DotCMIS.Binding
             request.CookieContainer = Cookies;
             if (user != null || password != null)
             {
-                //request.Credentials = new NetworkCredential(user ?? string.Empty, password ?? string.Empty);
-                if (request.Headers.GetValues("Authorization") == null)
-                {
-                    request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(System.Text.Encoding.GetEncoding(28591).GetBytes((user ?? "") + ":" + (password ?? ""))));
-                }
+                request.Credentials = new NetworkCredential(user ?? string.Empty, password ?? string.Empty);
             }
         }
 
