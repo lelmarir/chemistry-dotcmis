@@ -358,10 +358,20 @@ namespace DotCMIS.Binding.Browser
                     + message, errorContent, e);
                 break;
             case HttpStatusCode.BadRequest:
-                exception = new CmisInvalidArgumentException(message, errorContent, e);
+                if (string.Equals(jsonError, @"filterNotValid", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisFilterNotValidException(message, errorContent, e);
+                } else {
+                    exception = new CmisInvalidArgumentException(message, errorContent, e);
+                }
+
                 break;
             case HttpStatusCode.Forbidden:
-                exception = new CmisPermissionDeniedException(message, errorContent, e);
+                if (string.Equals(jsonError, @"streamNotSupported", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisStreamNotSupportedException(message, errorContent, e);
+                } else {
+                    exception = new CmisPermissionDeniedException(message, errorContent, e);
+                }
+
                 break;
             case HttpStatusCode.NotFound:
                 exception = new CmisObjectNotFoundException(message, errorContent, e);
@@ -372,8 +382,22 @@ namespace DotCMIS.Binding.Browser
             case HttpStatusCode.Conflict:
                 if (string.Equals(jsonError, @"nameConstraintViolation", StringComparison.OrdinalIgnoreCase)) {
                     exception = new CmisNameConstraintViolationException(message, errorContent, e);
+                } else if (string.Equals(jsonError, @"versioning", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisVersioningException(message, errorContent, e);
+                } else if (string.Equals(jsonError, @"contentAlreadyExists", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisContentAlreadyExistsException(message, errorContent, e);
+                } else if (string.Equals(jsonError, @"updateConflict", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisUpdateConflictException(message, errorContent, e);
                 } else {
                     exception = new CmisConstraintException(message, errorContent, e);
+                }
+
+                break;
+            case HttpStatusCode.InternalServerError:
+                if (string.Equals(jsonError, @"storage", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisStorageException(message, errorContent, e);
+                } else {
+                    exception = new CmisRuntimeException(message, errorContent, e);
                 }
 
                 break;
