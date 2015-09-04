@@ -628,6 +628,7 @@ namespace DotCMIS
         };
 
         public const string ObjectListObjects = "objects";
+        public const string ObjectListObject = "object";
         public const string ObjectListHasMoreItems = "hasMoreItems";
         public const string ObjectListNumItems = "numItems";
         public const string ObjectListChangeLogToken = "changeLogToken";

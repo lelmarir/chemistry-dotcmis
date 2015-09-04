@@ -629,9 +629,9 @@ namespace DotCMIS.Binding.Browser
             IList<IObjectData> objects = new List<IObjectData>();
             if (jsonChildren != null)
             {
-                foreach (JToken jsonChild in jsonChildren.Children())
+                foreach (JToken obj in jsonChildren.Children())
                 {
-                    objects.Add(ConvertObjectData(jsonChild, typeCache));
+                    objects.Add(ConvertObjectData(obj[BrowserConstants.ObjectListObject], typeCache));
                 }
             }
             result.Objects = objects;
