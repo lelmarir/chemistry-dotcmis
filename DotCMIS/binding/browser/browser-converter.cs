@@ -631,7 +631,11 @@ namespace DotCMIS.Binding.Browser
             {
                 foreach (JToken obj in jsonChildren.Children())
                 {
-                    objects.Add(ConvertObjectData(obj[BrowserConstants.ObjectListObject], typeCache));
+                    if (obj[BrowserConstants.ObjectListObject] != null) {
+                        objects.Add(ConvertObjectData(obj[BrowserConstants.ObjectListObject], typeCache));
+                    } else {
+                        objects.Add(ConvertObjectData(obj, typeCache));
+                    }
                 }
             }
             result.Objects = objects;
