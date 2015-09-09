@@ -918,7 +918,7 @@ namespace DotCMIS.Binding.Browser
         {
             UrlBuilder url = string.IsNullOrEmpty(folderId) ? GetRepositoryUrl(repositoryId) : GetObjectUrl(repositoryId, folderId);
 
-            FormDataWriter formData = new FormDataWriter(repositoryId);
+            FormDataWriter formData = new FormDataWriter(BrowserConstants.ActionCreatePolicy);
             formData.AddPropertiesParameters(properties);
             formData.AddPoliciesParameters(policies);
             formData.AddAddAcesParameters(addAces);
@@ -943,7 +943,7 @@ namespace DotCMIS.Binding.Browser
         {
             UrlBuilder url = string.IsNullOrEmpty(folderId) ? GetRepositoryUrl(repositoryId) : GetObjectUrl(repositoryId, folderId);
 
-            FormDataWriter formData = new FormDataWriter(repositoryId);
+            FormDataWriter formData = new FormDataWriter(BrowserConstants.ActionCreateItem);
             formData.AddPropertiesParameters(properties);
             formData.AddPoliciesParameters(policies);
             formData.AddAddAcesParameters(addAces);

@@ -785,6 +785,8 @@ namespace DotCMIS
         public const string ActionCancelCheckOut = "cancelCheckOut";
         public const string ActionCheckIn = "checkIn";
         public const string ActionCreateRelationship = "createRelationship";
+        public const string ActionCreateItem = "createItem";
+        public const string ActionCreatePolicy = "createPolicy";
         public const string ActionQuery = "query";
         public const string ActionApplyPolicy = "applyPolicy";
         public const string ActionRemovePolicy = "removePolicy";
