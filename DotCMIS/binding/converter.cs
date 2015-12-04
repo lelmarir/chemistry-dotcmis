@@ -1713,7 +1713,7 @@ namespace DotCMIS.Binding
                 else
                 {
                     MemoryStream memStream = new MemoryStream();
-                    byte[] buffer = new byte[4096];
+                    byte[] buffer = new byte[64 * 1024];
                     int bytes;
                     while ((bytes = contentStream.Stream.Read(buffer, 0, buffer.Length)) > 0)
                     {
