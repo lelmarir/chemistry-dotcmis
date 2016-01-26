@@ -142,7 +142,7 @@ namespace DotCMIS.Binding.Impl
 
                     // user agent
                     string userAgent = session.GetValue(SessionParameter.UserAgent) as String;
-                    conn.UserAgent = userAgent == null ? "Apache Chemistry DotCMIS" : userAgent;
+                    conn.UserAgent = userAgent == null ? "ApacheChemistryDotCMIS" : userAgent;
 
                     // timeouts
                     int connectTimeout = session.GetValue(SessionParameter.ConnectTimeout, -2);
