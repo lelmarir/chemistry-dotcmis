@@ -401,6 +401,9 @@ namespace DotCMIS.Binding.Browser
                 }
 
                 break;
+            case HttpStatusCode.ServiceUnavailable:
+                exception = new CmisConnectionException(message, errorContent, resp.Exception);
+                break;
             case null:
                 exception =  new CmisConnectionException(message, errorContent, resp.Exception);
                 break;

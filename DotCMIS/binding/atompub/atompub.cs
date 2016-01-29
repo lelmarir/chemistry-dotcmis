@@ -404,6 +404,9 @@ namespace DotCMIS.Binding.AtomPub
                 }
 
                 break;
+            case HttpStatusCode.ServiceUnavailable:
+                exception = new CmisConnectionException(message, resp.Exception);
+                break;
             case null:
                 exception = new CmisConnectionException(message, resp.Exception);
                 break;
