@@ -290,7 +290,14 @@ namespace DotCMIS.Binding.Impl
                         if (method != "GET" || !ExceptionFixabilityDecider.CanExceptionBeFixedByRetry(we) || retry == 5) {
                             watch.Stop();
                             Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] received response after {1} ms", tag.ToString(), watch.ElapsedMilliseconds.ToString()));
-                            return new Response(we);
+                            if (we.Response != null)
+                            {
+                                return new Response(we);
+                            }
+                            else
+                            {
+                                throw;
+                            }
                         }
 
                         retry++;
@@ -362,6 +369,7 @@ namespace DotCMIS.Binding.Impl
             public Response(WebException exception)
             {
                 response = exception.Response;
+
                 this.ExtractHeader();
                 HttpWebResponse httpResponse = response as HttpWebResponse;
                 if (httpResponse != null)
