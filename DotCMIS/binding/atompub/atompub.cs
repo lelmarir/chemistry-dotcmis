@@ -379,6 +379,9 @@ namespace DotCMIS.Binding.AtomPub
                 }
 
                 break;
+            case HttpStatusCode.Unauthorized:
+                exception = new CmisPermissionDeniedException(message, errorContent, e);
+                break;
             case HttpStatusCode.MethodNotAllowed:
                 exception = new CmisNotSupportedException(message, errorContent, e);
                 break;

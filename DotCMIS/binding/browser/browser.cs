@@ -373,6 +373,9 @@ namespace DotCMIS.Binding.Browser
                 }
 
                 break;
+            case HttpStatusCode.Unauthorized:
+                exception = new CmisPermissionDeniedException(message, errorContent, e);
+                break;
             case HttpStatusCode.NotFound:
                 exception = new CmisObjectNotFoundException(message, errorContent, e);
                 break;
