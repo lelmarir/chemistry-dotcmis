@@ -872,6 +872,12 @@ namespace DotCMIS.Client
         string VersionSeriesCheckedOutId { get; }
 
         /// <summary>
+        /// Gets a value indicating whether this instance is a private working copy. (CMIS property <c>cmis:isPrivateWorkingCopy</c>).
+        /// </summary>
+        /// <value><c>true</c> if this instance is a private working copy; otherwise, <c>false</c>.</value>
+        bool? IsPrivateWorkingCopy { get; }
+
+        /// <summary>
         /// Gets the checkin comment (CMIS property <c>cmis:checkinComment</c>).
         /// </summary>
         string CheckinComment { get; }

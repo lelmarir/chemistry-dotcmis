@@ -54,6 +54,20 @@ namespace DotCMIS.Exceptions
 
         public long? Code { get; protected set; }
         public string ErrorContent { get; protected set; }
+
+        public override string StackTrace {
+            get {
+                if (string.IsNullOrEmpty(this.ErrorContent)) {
+                    return base.StackTrace;
+                } else {
+                    return string.Format(
+                        "----- Begin ErrorContent -----{0}{1}{0}-----  End ErrorContent  -----{0}{2}",
+                        Environment.NewLine,
+                        this.ErrorContent,
+                        base.StackTrace);
+                }
+            }
+        }
     }
 
     [Serializable]
@@ -69,7 +83,7 @@ namespace DotCMIS.Exceptions
         public CmisConnectionException(string message, long? code)
             : base(message) { }
         public CmisConnectionException(string message, string errorContent)
-            : base(message) { }
+            : base(message, errorContent) { }
         public CmisConnectionException(string message, string errorContent, Exception inner)
             : base(message, errorContent, inner) { }
     }
@@ -87,7 +101,7 @@ namespace DotCMIS.Exceptions
         public CmisConstraintException(string message, long? code)
             : base(message) { }
         public CmisConstraintException(string message, string errorContent)
-            : base(message) { }
+            : base(message, errorContent) { }
         public CmisConstraintException(string message, string errorContent, Exception inner)
             : base(message, errorContent, inner) { }
     }
@@ -105,7 +119,7 @@ namespace DotCMIS.Exceptions
         public CmisContentAlreadyExistsException(string message, long? code)
             : base(message) { }
         public CmisContentAlreadyExistsException(string message, string errorContent)
-            : base(message) { }
+            : base(message, errorContent) { }
         public CmisContentAlreadyExistsException(string message, string errorContent, Exception inner)
             : base(message, errorContent, inner) { }
     }
@@ -123,7 +137,7 @@ namespace DotCMIS.Exceptions
         public CmisFilterNotValidException(string message, long? code)
             : base(message) { }
         public CmisFilterNotValidException(string message, string errorContent)
-            : base(message) { }
+            : base(message, errorContent) { }
         public CmisFilterNotValidException(string message, string errorContent, Exception inner)
             : base(message, errorContent, inner) { }
     }
@@ -141,7 +155,7 @@ namespace DotCMIS.Exceptions
         public CmisInvalidArgumentException(string message, long? code)
             : base(message) { }
         public CmisInvalidArgumentException(string message, string errorContent)
-            : base(message) { }
+            : base(message, errorContent) { }
         public CmisInvalidArgumentException(string message, string errorContent, Exception inner)
             : base(message, errorContent, inner) { }
     }
@@ -159,7 +173,7 @@ namespace DotCMIS.Exceptions
         public CmisNameConstraintViolationException(string message, long? code)
             : base(message) { }
         public CmisNameConstraintViolationException(string message, string errorContent)
-            : base(message) { }
+            : base(message, errorContent) { }
         public CmisNameConstraintViolationException(string message, string errorContent, Exception inner)
             : base(message, errorContent, inner) { }
     }
@@ -177,7 +191,7 @@ namespace DotCMIS.Exceptions
         public CmisNotSupportedException(string message, long? code)
             : base(message) { }
         public CmisNotSupportedException(string message, string errorContent)
-            : base(message) { }
+            : base(message, errorContent) { }
         public CmisNotSupportedException(string message, string errorContent, Exception inner)
             : base(message, errorContent, inner) { }
     }
@@ -195,7 +209,7 @@ namespace DotCMIS.Exceptions
         public CmisObjectNotFoundException(string message, long? code)
             : base(message) { }
         public CmisObjectNotFoundException(string message, string errorContent)
-            : base(message) { }
+            : base(message, errorContent) { }
         public CmisObjectNotFoundException(string message, string errorContent, Exception inner)
             : base(message, errorContent, inner) { }
     }
@@ -213,7 +227,7 @@ namespace DotCMIS.Exceptions
         public CmisPermissionDeniedException(string message, long? code)
             : base(message) { }
         public CmisPermissionDeniedException(string message, string errorContent)
-            : base(message) { }
+            : base(message, errorContent) { }
         public CmisPermissionDeniedException(string message, string errorContent, Exception inner)
             : base(message, errorContent, inner) { }
     }
@@ -231,7 +245,7 @@ namespace DotCMIS.Exceptions
         public CmisRuntimeException(string message, long? code)
             : base(message) { }
         public CmisRuntimeException(string message, string errorContent)
-            : base(message) { }
+            : base(message, errorContent) { }
         public CmisRuntimeException(string message, string errorContent, Exception inner)
             : base(message, errorContent, inner) { }
     }
@@ -249,7 +263,7 @@ namespace DotCMIS.Exceptions
         public CmisStorageException(string message, long? code)
             : base(message) { }
         public CmisStorageException(string message, string errorContent)
-            : base(message) { }
+            : base(message, errorContent) { }
         public CmisStorageException(string message, string errorContent, Exception inner)
             : base(message, errorContent, inner) { }
     }
@@ -267,7 +281,7 @@ namespace DotCMIS.Exceptions
         public CmisStreamNotSupportedException(string message, long? code)
             : base(message) { }
         public CmisStreamNotSupportedException(string message, string errorContent)
-            : base(message) { }
+            : base(message, errorContent) { }
         public CmisStreamNotSupportedException(string message, string errorContent, Exception inner)
             : base(message, errorContent, inner) { }
     }
@@ -285,7 +299,7 @@ namespace DotCMIS.Exceptions
         public CmisUpdateConflictException(string message, long? code)
             : base(message) { }
         public CmisUpdateConflictException(string message, string errorContent)
-            : base(message) { }
+            : base(message, errorContent) { }
         public CmisUpdateConflictException(string message, string errorContent, Exception inner)
             : base(message, errorContent, inner) { }
     }
@@ -303,7 +317,7 @@ namespace DotCMIS.Exceptions
         public CmisVersioningException(string message, long? code)
             : base(message) { }
         public CmisVersioningException(string message, string errorContent)
-            : base(message) { }
+            : base(message, errorContent) { }
         public CmisVersioningException(string message, string errorContent, Exception inner)
             : base(message, errorContent, inner) { }
     }

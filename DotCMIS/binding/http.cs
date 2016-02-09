@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -115,6 +115,8 @@ namespace DotCMIS.Binding.Impl
             string request = method + " " + url;
             Stopwatch watch = new Stopwatch();
             watch.Start();
+            int maxRetries = 5;
+            int.TryParse(session.GetValue(SessionParameter.MaximumRequestRetries, "5") as String, out maxRetries);
             using (HttpWebRequestResource resource = new HttpWebRequestResource ())
             {
             try
@@ -287,13 +289,13 @@ namespace DotCMIS.Binding.Impl
                     }
                     catch (WebException we)
                     {
-                        if (method != "GET" || !ExceptionFixabilityDecider.CanExceptionBeFixedByRetry(we) || retry == 5) {
+                        if (method != "GET" || !ExceptionFixabilityDecider.CanExceptionBeFixedByRetry(we) || retry == maxRetries) {
                             watch.Stop();
                             Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] received response after {1} ms", tag.ToString(), watch.ElapsedMilliseconds.ToString()));
                             if (we.Response != null)
                             {
-                                return new Response(we);
-                            }
+                            return new Response(we);
+                        }
                             else
                             {
                                 throw;
@@ -320,7 +322,8 @@ namespace DotCMIS.Binding.Impl
         internal class Response
         {
             private readonly WebResponse response;
-            public HttpStatusCode StatusCode { get; private set; }
+            public WebException Exception { get; private set; }
+            public HttpStatusCode? StatusCode { get; private set; }
             public string Message { get; private set; }
             public Stream Stream { get; private set; }
             public string ErrorContent { get; private set; }
@@ -368,8 +371,8 @@ namespace DotCMIS.Binding.Impl
 
             public Response(WebException exception)
             {
-                response = exception.Response;
-
+                this.response = exception.Response;
+                this.Exception = exception;
                 this.ExtractHeader();
                 HttpWebResponse httpResponse = response as HttpWebResponse;
                 if (httpResponse != null)
@@ -378,7 +381,7 @@ namespace DotCMIS.Binding.Impl
                     Message = httpResponse.StatusDescription;
                     ContentType = httpResponse.ContentType;
 
-                    if (ContentType != null && ContentType.ToLower().StartsWith("text/"))
+                    if (ContentType != null && (ContentType.ToLower().StartsWith("text/") || ContentType.ToLower().StartsWith("application/json;")))
                     {
                         StringBuilder sb = new StringBuilder();
 
@@ -397,7 +400,7 @@ namespace DotCMIS.Binding.Impl
                 }
                 else
                 {
-                    StatusCode = HttpStatusCode.InternalServerError;
+                    StatusCode = null;
                     Message = exception.Status.ToString();
                 }
 
@@ -415,11 +418,13 @@ namespace DotCMIS.Binding.Impl
 
             private void ExtractHeader() {
                 this.Headers = new Dictionary<string, string[]>();
+                if (this.response != null && this.response.Headers != null) {
                 for (int i = 0; i < this.response.Headers.Count; ++i) {
                     this.Headers.Add(this.response.Headers.GetKey(i), this.response.Headers.GetValues(i));
                 }
             }
         }
+    }
     }
 
     public static class ExceptionFixabilityDecider {

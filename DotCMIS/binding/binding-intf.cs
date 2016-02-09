@@ -111,7 +111,7 @@ namespace DotCMIS.Binding
             string user = GetUser();
             string password = GetPassword();
 
-            request.AllowWriteStreamBuffering = false;
+            request.AllowWriteStreamBuffering = true;
             request.CookieContainer = Cookies;
             if (user != null || password != null)
             {
@@ -391,7 +391,7 @@ namespace DotCMIS.Binding
             {
                 string spiClass;
 
-                if (sessionParameters.TryGetValue(SessionParameter.BindingSpiClass, out spiClass))
+                if (!sessionParameters.TryGetValue(SessionParameter.BindingSpiClass, out spiClass))
                 {
                     throw new ArgumentException("SPI class entry (" + SessionParameter.BindingSpiClass + ") is missing!");
                 }

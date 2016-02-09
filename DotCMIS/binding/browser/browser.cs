@@ -1,3 +1,26 @@
+//-----------------------------------------------------------------------
+// <copyright file="browser.cs" company="GRAU DATA AG">
+//
+//   Licensed to the Apache Software Foundation (ASF) under one
+//   or more contributor license agreements.  See the NOTICE file
+//   distributed with this work for additional information
+//   regarding copyright ownership.  The ASF licenses this file
+//   to you under the Apache License, Version 2.0 (the
+//   "License"); you may not use this file except in compliance
+//   with the License.  You may obtain a copy of the License at
+//   
+//   http://www.apache.org/licenses/LICENSE-2.0
+//   
+//   Unless required by applicable law or agreed to in writing,
+//   software distributed under the License is distributed on an
+//   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+//   KIND, either express or implied.  See the License for the
+//   specific language governing permissions and limitations
+//   under the License.
+//
+// </copyright>
+//-----------------------------------------------------------------------
+
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -196,19 +219,23 @@ namespace DotCMIS.Binding.Browser
         private PolicyService PolicyService;
         private AclService AclService;
 
-        public void initialize(BindingSession session)
+        public void initialize(IBindingSession session)
         {
-            Session = session;
+            this.Session = session as BindingSession;
+            if (this.Session == null)
+            {
+                throw new ArgumentException("Invalid binding session!");
+            }
 
-            RepositoryService = new RepositoryService(session);
-            NavigationService = new NavigationService(session);
-            ObjectService = new ObjectService(session);
-            VersioningService = new VersioningService(session);
-            DiscoveryService = new DiscoveryService(session);
-            MultiFilingService = new MultiFilingService(session);
-            RelationshipService = new RelationshipService(session);
-            PolicyService = new PolicyService(session);
-            AclService = new AclService(session);
+            RepositoryService = new RepositoryService(this.Session);
+            NavigationService = new NavigationService(this.Session);
+            ObjectService = new ObjectService(this.Session);
+            VersioningService = new VersioningService(this.Session);
+            DiscoveryService = new DiscoveryService(this.Session);
+            MultiFilingService = new MultiFilingService(this.Session);
+            RelationshipService = new RelationshipService(this.Session);
+            PolicyService = new PolicyService(this.Session);
+            AclService = new AclService(this.Session);
         }
 
         public IRepositoryService GetRepositoryService()
@@ -304,43 +331,96 @@ namespace DotCMIS.Binding.Browser
             return Session.GetValue(SessionParameter.BrowserUrl) as string;
         }
 
-        private RepositoryUrlCache GetRepositoryUrlCache()
-        {
+        private RepositoryUrlCache GetRepositoryUrlCache() {
             return BrowserBindingSessionUtility.GetRepositoryUrlCache(Session);
         }
 
-        protected CmisBaseException ConvertStatusCode(HttpStatusCode code, string message, string errorContent, Exception e)
-        {
-            switch (code)
-            {
-                case HttpStatusCode.Moved:
-                case HttpStatusCode.Found:
-                case HttpStatusCode.SeeOther:
-                case HttpStatusCode.TemporaryRedirect:
-                    return new CmisConnectionException("Redirects are not supported (HTTP status code " + code + "): "
-                            + message, errorContent, e);
-                case HttpStatusCode.BadRequest:
-                    return new CmisInvalidArgumentException(message, errorContent, e);
-                case HttpStatusCode.Forbidden:
-                    return new CmisPermissionDeniedException(message, errorContent, e);
-                case HttpStatusCode.NotFound:
-                    return new CmisObjectNotFoundException(message, errorContent, e);
-                case HttpStatusCode.MethodNotAllowed:
-                    return new CmisNotSupportedException(message, errorContent,e);
-                case HttpStatusCode.Conflict:
-                    return new CmisConstraintException(message, errorContent, e);
-                default:
-                    return new CmisRuntimeException(message, errorContent, e);
+        protected CmisBaseException ConvertToCmisException(HttpUtils.Response resp, Exception e) {
+            string jsonError = null;
+            string message = resp.Message;
+            string errorContent = resp.ErrorContent;
+            try {
+                var jsonObject = (JObject.Parse(resp.ErrorContent) as JObject);
+                var jsonExceptionObject = jsonObject.GetValue(@"exception");
+                var jsonMessageObject = jsonObject.GetValue(@"message");
+                jsonError = jsonExceptionObject.ToString();
+                message = jsonMessageObject.ToString();
+            } catch(Exception) {
             }
+
+            CmisBaseException exception = null;
+            switch (resp.StatusCode) {
+            case HttpStatusCode.Moved:
+            case HttpStatusCode.Found:
+            case HttpStatusCode.SeeOther:
+            case HttpStatusCode.TemporaryRedirect:
+                exception = new CmisConnectionException("Redirects are not supported (HTTP status code " + resp.StatusCode + "): "
+                    + message, errorContent, e);
+                break;
+            case HttpStatusCode.BadRequest:
+                if (string.Equals(jsonError, @"filterNotValid", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisFilterNotValidException(message, errorContent, e);
+                } else {
+                    exception = new CmisInvalidArgumentException(message, errorContent, e);
+                }
+
+                break;
+            case HttpStatusCode.Forbidden:
+                if (string.Equals(jsonError, @"streamNotSupported", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisStreamNotSupportedException(message, errorContent, e);
+                } else {
+                    exception = new CmisPermissionDeniedException(message, errorContent, e);
+                }
+
+                break;
+            case HttpStatusCode.NotFound:
+                exception = new CmisObjectNotFoundException(message, errorContent, e);
+                break;
+            case HttpStatusCode.MethodNotAllowed:
+                exception = new CmisNotSupportedException(message, errorContent,e);
+                break;
+            case HttpStatusCode.Conflict:
+                if (string.Equals(jsonError, @"nameConstraintViolation", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisNameConstraintViolationException(message, errorContent, e);
+                } else if (string.Equals(jsonError, @"versioning", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisVersioningException(message, errorContent, e);
+                } else if (string.Equals(jsonError, @"contentAlreadyExists", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisContentAlreadyExistsException(message, errorContent, e);
+                } else if (string.Equals(jsonError, @"updateConflict", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisUpdateConflictException(message, errorContent, e);
+                } else {
+                    exception = new CmisConstraintException(message, errorContent, e);
+                }
+
+                break;
+            case HttpStatusCode.InternalServerError:
+                if (string.Equals(jsonError, @"storage", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisStorageException(message, errorContent, e);
+                } else {
+                    exception = new CmisRuntimeException(message, errorContent, e);
+                }
+
+                break;
+            case null:
+                exception =  new CmisConnectionException(message, errorContent, resp.Exception);
+                break;
+            default:
+                exception =  new CmisRuntimeException(message, errorContent, e);
+                break;
+            }
+
+            foreach (var header in resp.Headers) {
+                exception.Data.Add(header.Key, header.Value);
+            }
+
+            return exception;
         }
 
-        protected HttpUtils.Response Read(UrlBuilder url)
-        {
+        protected HttpUtils.Response Read(UrlBuilder url) {
             HttpUtils.Response resp = HttpUtils.InvokeGET(url, Session);
 
-            if (resp.StatusCode != HttpStatusCode.OK)
-            {
-                throw ConvertStatusCode(resp.StatusCode, resp.Message, resp.ErrorContent, null);
+            if (resp.StatusCode != HttpStatusCode.OK) {
+                throw ConvertToCmisException(resp, null);
             }
 
             return resp;
@@ -352,7 +432,7 @@ namespace DotCMIS.Binding.Browser
 
             if (resp.StatusCode != HttpStatusCode.OK && resp.StatusCode != HttpStatusCode.Created)
             {
-                throw ConvertStatusCode(resp.StatusCode, resp.Message, resp.ErrorContent, null);
+                throw ConvertToCmisException(resp, null);
             }
 
             return resp;
@@ -388,7 +468,11 @@ namespace DotCMIS.Binding.Browser
             {
                 using (JsonTextReader reader = new JsonTextReader(new StreamReader(stream)))
                 {
-                    json = JToken.ReadFrom(reader);
+                    try {
+                        json = JToken.ReadFrom(reader);
+                    } catch (WebException e) {
+                        throw new CmisConnectionException(e.Message, e);
+                    }
                 }
             }
             finally
@@ -410,7 +494,11 @@ namespace DotCMIS.Binding.Browser
             {
                 using (JsonTextReader reader = new JsonTextReader(new StreamReader(stream)))
                 {
-                    json = JToken.ReadFrom(reader);
+                    try {
+                        json = JToken.ReadFrom(reader);
+                    } catch (WebException e) {
+                        throw new CmisConnectionException(e.Message, e);
+                    }
                 }
             }
             finally
@@ -830,7 +918,7 @@ namespace DotCMIS.Binding.Browser
         {
             UrlBuilder url = string.IsNullOrEmpty(folderId) ? GetRepositoryUrl(repositoryId) : GetObjectUrl(repositoryId, folderId);
 
-            FormDataWriter formData = new FormDataWriter(repositoryId);
+            FormDataWriter formData = new FormDataWriter(BrowserConstants.ActionCreatePolicy);
             formData.AddPropertiesParameters(properties);
             formData.AddPoliciesParameters(policies);
             formData.AddAddAcesParameters(addAces);
@@ -855,7 +943,7 @@ namespace DotCMIS.Binding.Browser
         {
             UrlBuilder url = string.IsNullOrEmpty(folderId) ? GetRepositoryUrl(repositoryId) : GetObjectUrl(repositoryId, folderId);
 
-            FormDataWriter formData = new FormDataWriter(repositoryId);
+            FormDataWriter formData = new FormDataWriter(BrowserConstants.ActionCreateItem);
             formData.AddPropertiesParameters(properties);
             formData.AddPoliciesParameters(policies);
             formData.AddAddAcesParameters(addAces);
@@ -963,7 +1051,7 @@ namespace DotCMIS.Binding.Browser
             HttpUtils.Response resp = HttpUtils.InvokeGET(url, Session, offset, length);
             if (resp.StatusCode != HttpStatusCode.OK && resp.StatusCode != HttpStatusCode.PartialContent)
             {
-                throw ConvertStatusCode(resp.StatusCode, resp.Message, resp.ErrorContent, null);
+                throw ConvertToCmisException(resp, null);
             }
 
             string filename = null;

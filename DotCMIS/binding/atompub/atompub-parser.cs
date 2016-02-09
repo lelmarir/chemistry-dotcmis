@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -80,6 +80,8 @@ namespace DotCMIS.Binding.AtomPub
             settings.IgnoreWhitespace = true;
             settings.IgnoreComments = true;
             settings.DtdProcessing = DtdProcessing.Ignore; // Fix for https://github.com/aegif/CmisSync/issues/540
+            settings.ProhibitDtd = false;
+            settings.MaxCharactersFromEntities = 1024;
 
             try {
                 using (XmlReader reader = XmlReader.Create(stream, settings))

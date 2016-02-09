@@ -48,17 +48,23 @@ namespace DotCMIS.Binding.AtomPub
         private PolicyService policyService;
         private AclService aclService;
 
-        public void initialize(BindingSession session)
+        public void initialize(IBindingSession session)
         {
-            repositoryService = new RepositoryService(session);
-            navigationService = new NavigationService(session);
-            objectService = new ObjectService(session);
-            versioningService = new VersioningService(session);
-            discoveryService = new DiscoveryService(session);
-            multiFilingService = new MultiFilingService(session);
-            relationshipService = new RelationshipService(session);
-            policyService = new PolicyService(session);
-            aclService = new AclService(session);
+            BindingSession bindingSession = session as BindingSession;
+            if (bindingSession == null)
+            {
+                throw new ArgumentException("Invalid binding session!");
+            }
+
+            repositoryService = new RepositoryService(bindingSession);
+            navigationService = new NavigationService(bindingSession);
+            objectService = new ObjectService(bindingSession);
+            versioningService = new VersioningService(bindingSession);
+            discoveryService = new DiscoveryService(bindingSession);
+            multiFilingService = new MultiFilingService(bindingSession);
+            relationshipService = new RelationshipService(bindingSession);
+            policyService = new PolicyService(bindingSession);
+            aclService = new AclService(bindingSession);
         }
 
         public IRepositoryService GetRepositoryService()
@@ -349,32 +355,62 @@ namespace DotCMIS.Binding.AtomPub
 
         // ---- exceptions ----
 
-        protected CmisBaseException ConvertToCmisException(HttpUtils.Response resp)
-        {
+        protected CmisBaseException ConvertToCmisException(HttpUtils.Response resp) {
             return ConvertToCmisException(resp, null);
         }
 
-        protected CmisBaseException ConvertToCmisException(HttpUtils.Response resp, Exception e)
-        {
+        protected CmisBaseException ConvertToCmisException(HttpUtils.Response resp, Exception e) {
             var message = resp.Message;
             var errorContent = resp.ErrorContent;
+            var ex = ExtractException(errorContent);
             CmisBaseException exception = null;
-            switch (resp.StatusCode)
-            {
+            switch (resp.StatusCode) {
             case HttpStatusCode.BadRequest:
-                exception = new CmisInvalidArgumentException(message, errorContent, e);
+                if (string.Equals(ex, @"filterNotValid", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisFilterNotValidException(message, errorContent, e);
+                } else {
+                    exception = new CmisInvalidArgumentException(message, errorContent, e);
+                }
+
                 break;
             case HttpStatusCode.NotFound:
                 exception = new CmisObjectNotFoundException(message, errorContent, e);
                 break;
             case HttpStatusCode.Forbidden:
-                exception = new CmisPermissionDeniedException(message, errorContent, e);
+                if (string.Equals(ex, @"streamNotSupported", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisStreamNotSupportedException(message, errorContent, e);
+                } else {
+                    exception = new CmisPermissionDeniedException(message, errorContent, e);
+                }
+
                 break;
             case HttpStatusCode.MethodNotAllowed:
                 exception = new CmisNotSupportedException(message, errorContent, e);
                 break;
             case HttpStatusCode.Conflict:
-                exception = new CmisConstraintException(message, errorContent, e);
+                if (string.Equals(ex, @"nameConstraintViolation", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisNameConstraintViolationException(message, errorContent, e);
+                } else if (string.Equals(ex, @"versioning", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisVersioningException(message, errorContent, e);
+                } else if (string.Equals(ex, @"contentAlreadyExists", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisContentAlreadyExistsException(message, errorContent, e);
+                } else if (string.Equals(ex, @"updateConflict", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisUpdateConflictException(message, errorContent, e);
+                } else {
+                    exception = new CmisConstraintException(message, errorContent, e);
+                }
+
+                break;
+            case HttpStatusCode.InternalServerError:
+                if (string.Equals(ex, @"storage", StringComparison.OrdinalIgnoreCase)) {
+                    exception = new CmisStorageException(message, errorContent, e);
+                } else {
+                    exception = new CmisRuntimeException(message, errorContent, e);
+                }
+
+                break;
+            case null:
+                exception = new CmisConnectionException(message, resp.Exception);
                 break;
             default:
                 exception = new CmisRuntimeException(message, errorContent, e);
@@ -386,6 +422,22 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             return exception;
+        }
+
+        private static string ExtractException(string errorContent) {
+            if (errorContent == null) {
+                return null;
+            }
+
+            int begin = errorContent.IndexOf(@"<!--exception-->");
+            int end = errorContent.IndexOf(@"<!--/exception-->");
+
+            if (begin == -1 || end == -1 || begin > end) {
+                return null;
+            }
+
+            begin += @"<!--exception-->".Length;
+            return errorContent.Substring(begin, end - begin);
         }
 
         protected void ThrowLinkException(String repositoryId, String id, String rel, String type)
@@ -488,6 +540,33 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             return resp;
+        }
+
+        protected void PostAndConsume(UrlBuilder url, string contentType, HttpUtils.Output writer)
+        {
+            HttpUtils.Response resp = HttpUtils.InvokePOST(url, contentType, writer, Session);
+
+            if (resp.StatusCode != HttpStatusCode.Created)
+            {
+                throw ConvertToCmisException(resp, null);
+            }
+
+            if (resp.Stream != null)
+            {
+                Stream stream = resp.Stream;
+                try
+                {
+                    byte[] buffer = new byte[8 * 1024];
+                    while (stream.Read(buffer, 0, buffer.Length) > 0)
+                    {
+                    }
+                }
+                finally
+                {
+                    try { stream.Close(); }
+                    catch (Exception) { }
+                }
+            }
         }
 
         protected HttpUtils.Response Put(UrlBuilder url, string contentType, HttpUtils.Output writer)
@@ -2248,6 +2327,14 @@ namespace DotCMIS.Binding.AtomPub
             }
 
             objectId = null;
+            if (resp.StatusCode == HttpStatusCode.Created) {
+                try {
+                    objectId = new UrlParser(resp.Headers[HttpResponseHeader.Location.ToString()][0]).GetQueryValue(Parameters.ParamId);
+                } catch (NullReferenceException) {
+                } catch (IndexOutOfRangeException) {
+                }
+            }
+
             changeToken = null;
         }
 
@@ -2822,7 +2909,7 @@ namespace DotCMIS.Binding.AtomPub
             AtomEntryWriter entryWriter = new AtomEntryWriter(CreateIdObject(objectId));
 
             // post addObjectToFolder request
-            Post(url, AtomPubConstants.MediatypeEntry, new HttpUtils.Output(entryWriter.Write));
+            PostAndConsume(url, AtomPubConstants.MediatypeEntry, new HttpUtils.Output(entryWriter.Write));
         }
 
         public void RemoveObjectFromFolder(string repositoryId, string objectId, string folderId, IExtensionsData extension)
@@ -2847,7 +2934,7 @@ namespace DotCMIS.Binding.AtomPub
             AtomEntryWriter entryWriter = new AtomEntryWriter(CreateIdObject(objectId));
 
             // post removeObjectFromFolder request
-            Post(url, AtomPubConstants.MediatypeEntry, new HttpUtils.Output(entryWriter.Write));
+            PostAndConsume(url, AtomPubConstants.MediatypeEntry, new HttpUtils.Output(entryWriter.Write));
         }
     }
 
@@ -2911,7 +2998,7 @@ namespace DotCMIS.Binding.AtomPub
             AtomEntryWriter entryWriter = new AtomEntryWriter(CreateIdObject(objectId));
 
             // post applyPolicy request
-            Post(url, AtomPubConstants.MediatypeEntry, new HttpUtils.Output(entryWriter.Write));
+            PostAndConsume(url, AtomPubConstants.MediatypeEntry, new HttpUtils.Output(entryWriter.Write));
         }
 
         public void RemovePolicy(string repositoryId, string policyId, string objectId, IExtensionsData extension)

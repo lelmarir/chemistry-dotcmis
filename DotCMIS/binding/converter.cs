@@ -1185,7 +1185,7 @@ namespace DotCMIS.Binding
 
             cmisProperty result = null;
             IList<object> values = property.Values;
-            int count = values.Count;
+            int count = values == null ? 0 : values.Count;
 
             switch (property.PropertyType)
             {

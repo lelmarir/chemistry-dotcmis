@@ -87,6 +87,9 @@ namespace DotCMIS
         // http user agent
         public const string UserAgent = "org.apache.chemistry.dotcmis.http.useragent";
 
+        // http stability tweek
+        public const string MaximumRequestRetries = "org.apache.chemistry.dotcmis.http.maximumretries";
+
         // session parameter
         public const string ObjectFactoryClass = "org.apache.chemistry.dotcmis.objectfactory.classname";
         public const string CacheClass = "org.apache.chemistry.dotcmis.cache.classname";
@@ -126,6 +129,7 @@ namespace DotCMIS
         public const string IsLatestVersion = "cmis:isLatestVersion";
         public const string IsMajorVersion = "cmis:isMajorVersion";
         public const string IsLatestMajorVersion = "cmis:isLatestMajorVersion";
+        public const string IsPrivateWorkingCopy = "cmis:isPrivateWorkingCopy";
         public const string VersionLabel = "cmis:versionLabel";
         public const string VersionSeriesId = "cmis:versionSeriesId";
         public const string IsVersionSeriesCheckedOut = "cmis:isVersionSeriesCheckedOut";
@@ -624,6 +628,7 @@ namespace DotCMIS
         };
 
         public const string ObjectListObjects = "objects";
+        public const string ObjectListObject = "object";
         public const string ObjectListHasMoreItems = "hasMoreItems";
         public const string ObjectListNumItems = "numItems";
         public const string ObjectListChangeLogToken = "changeLogToken";
@@ -780,6 +785,8 @@ namespace DotCMIS
         public const string ActionCancelCheckOut = "cancelCheckOut";
         public const string ActionCheckIn = "checkIn";
         public const string ActionCreateRelationship = "createRelationship";
+        public const string ActionCreateItem = "createItem";
+        public const string ActionCreatePolicy = "createPolicy";
         public const string ActionQuery = "query";
         public const string ActionApplyPolicy = "applyPolicy";
         public const string ActionRemovePolicy = "removePolicy";
