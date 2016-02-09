@@ -451,15 +451,15 @@ namespace DotCMIS.Binding.AtomPub
                 else {
                     responseString = "*NULL*";
                 }
-                Logger.Warn("----------------------------------------------------------------------");
-                Logger.Warn("Your CMIS server has returned: 500 Internal Server Error.");
-                Logger.Warn("This should never happen. It is a problem with your CMIS server.");
-                Logger.Warn("Please send this whole message (up to END) to your CMIS server support");
-                Logger.Warn("GET request sent by CmisSync:");
-                Logger.Warn(url);
-                Logger.Warn("Response received by CmisSync:");
-                Logger.Warn(responseString);
-                Logger.Warn("--------------------------- END --------------------------------------");
+                Logger.Warn("----------------------------------------------------------------------"+"\n"+
+                "Your CMIS server has returned: 500 Internal Server Error."+"\n"+
+                "This should never happen. It is a problem with your CMIS server."+"\n"+
+                "Please send this whole message (up to END) to your CMIS server support"+"\n"+
+                "GET request sent by CmisSync:"+"\n"+
+                url+"\n"+
+                "Response received by CmisSync:"+"\n"+
+                responseString+"\n"+
+                "--------------------------- END --------------------------------------");
             }
 
             if (resp.StatusCode != HttpStatusCode.OK)
