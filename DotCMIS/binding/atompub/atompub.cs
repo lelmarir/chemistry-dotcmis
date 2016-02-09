@@ -442,8 +442,15 @@ namespace DotCMIS.Binding.AtomPub
             // If Internal Server Error, output both request and response to the log for investigation.
             if (resp.StatusCode == HttpStatusCode.InternalServerError)
             {
-                StreamReader reader = new StreamReader(resp.Stream, Encoding.UTF8);
-                String responseString = reader.ReadToEnd();
+                String responseString;
+                if (resp.Stream != null)
+                {
+                    StreamReader reader = new StreamReader(resp.Stream, Encoding.UTF8);
+                    responseString = reader.ReadToEnd();
+                }
+                else {
+                    responseString = "*NULL*";
+                }
                 Logger.Warn("----------------------------------------------------------------------");
                 Logger.Warn("Your CMIS server has returned: 500 Internal Server Error.");
                 Logger.Warn("This should never happen. It is a problem with your CMIS server.");
