@@ -294,8 +294,8 @@ namespace DotCMIS.Binding.Impl
                             Trace.WriteLineIf(DotCMISDebug.DotCMISSwitch.TraceInfo, string.Format("[{0}] received response after {1} ms", tag.ToString(), watch.ElapsedMilliseconds.ToString()));
                             if (we.Response != null)
                             {
-                            return new Response(we);
-                        }
+                                return new Response(we);
+                            }
                             else
                             {
                                 throw;
