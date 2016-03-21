@@ -161,7 +161,7 @@ namespace DotCMISUnitTest
             }
         }
 
-        [Test]
+        [Test, Category("Query")]
         public void SmokeTestQuery()
         {
             if (Session.RepositoryInfo.Capabilities.QueryCapability != null)
