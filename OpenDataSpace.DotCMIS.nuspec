@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>OpenDataSpace.DotCMIS</id>
+    <version>$version$-devel</version>
+    <authors>Florian Müller, Till Lorentzen, More Zeng, Fred Roth, Stefan Burnicki, Achim Derigs, Nicolas Raoul</authors>
+    <owners>tlorentzen</owners>
+    <licenseUrl>https://raw.githubusercontent.com/OpenDataSpace/chemistry-dotcmis/stable/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/OpenDataSpace/chemistry-dotcmis</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/OpenDataSpace/Artwork/master/OpenDataSpaceLogo.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>OpenDataSpace.DotCMIS is an extended and modified version of the Apache Chemistry DotCMIS. Apache Chemistry DotCMIS is a Content Management Interoperability Services (CMIS) client library for the .NET framework 3.5 or higher. See http://chemistry.apache.org/dotnet/dotcmis.html for more information. See http://chemistry.apache.org/dotnet/getting-started-with-dotcmis.html for code samples and DotCMISDoc.chm for the API documentation.</description>
+    <releaseNotes>Support for AtomPub and Browser bindings.</releaseNotes>
+    <copyright>
+        Copyright 2009-2015 The Apache Software Foundation
+        Copyright 2013-2016 GRAUDATA AG
+    </copyright>
+    <tags>OpenDataSpace DataSpace GRAUDATA DotCMIS CMIS</tags>
+    <dependencies>
+      <dependency id="Newtonsoft.Json" version="8.0.3" />
+    </dependencies>
+  </metadata>
+</package>
+
