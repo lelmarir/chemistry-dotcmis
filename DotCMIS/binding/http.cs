@@ -611,7 +611,6 @@ namespace DotCMIS.Binding.Impl
             {
                 return value;
             }
-            string mimeCharset = value.Substring(0, q1);
             int q2 = value.IndexOf('\'', q1 + 1);
             if (q2 == -1)
             {
