@@ -9,6 +9,7 @@
     <projectUrl>https://github.com/OpenDataSpace/chemistry-dotcmis</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/OpenDataSpace/Artwork/master/OpenDataSpaceLogo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>OpenDataSpace.DotCMIS is an extended and modified version of the Apache Chemistry DotCMIS.</summary>
     <description>OpenDataSpace.DotCMIS is an extended and modified version of the Apache Chemistry DotCMIS. Apache Chemistry DotCMIS is a Content Management Interoperability Services (CMIS) client library for the .NET framework 3.5 or higher. See http://chemistry.apache.org/dotnet/dotcmis.html for more information. See http://chemistry.apache.org/dotnet/getting-started-with-dotcmis.html for code samples and DotCMISDoc.chm for the API documentation.</description>
     <releaseNotes>Support for AtomPub and Browser bindings.</releaseNotes>
     <copyright>
@@ -20,5 +21,8 @@
       <dependency id="Newtonsoft.Json" version="8.0.3" />
     </dependencies>
   </metadata>
+  <files>
+    <file src="bin\Debug\DotCMIS.dll" target="lib" />
+  </files>
 </package>
 
