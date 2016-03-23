@@ -22,7 +22,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Debug\DotCMIS.dll" target="lib" />
+    <file src="bin\Debug\DotCMIS.dll" target="lib\net40" />
   </files>
 </package>
 
