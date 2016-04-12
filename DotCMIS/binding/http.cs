@@ -407,7 +407,7 @@ namespace DotCMIS.Binding.Impl
 
         public static bool CanExceptionStatusCodeBeFixedByRetry(HttpStatusCode code)
         {
-            if(code == HttpStatusCode.NotFound || code == HttpStatusCode.Forbidden) {
+            if(code == HttpStatusCode.NotFound || code == HttpStatusCode.Forbidden || code == HttpStatusCode.Unauthorized) {
                 return false;
             }
             return true;
