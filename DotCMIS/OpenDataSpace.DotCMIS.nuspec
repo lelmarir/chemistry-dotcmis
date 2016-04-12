@@ -5,7 +5,7 @@
     <version>$version$-devel</version>
     <authors>Florian Müller, Till Lorentzen, More Zeng, Fred Roth, Stefan Burnicki, Achim Derigs, Nicolas Raoul</authors>
     <owners>tlorentzen</owners>
-    <licenseUrl>https://raw.githubusercontent.com/OpenDataSpace/chemistry-dotcmis/stable/LICENSE</licenseUrl>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.html</licenseUrl>
     <projectUrl>https://github.com/OpenDataSpace/chemistry-dotcmis</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/OpenDataSpace/Artwork/master/OpenDataSpaceLogo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
