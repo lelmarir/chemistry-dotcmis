@@ -10,3 +10,4 @@ DotCMIS/test-results/
 DotCMISUnitTest/test-results/
 test-results/
 packages/
+*.nupkg
