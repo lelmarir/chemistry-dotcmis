@@ -60,7 +60,7 @@ namespace DotCMISUnitTest
             properties[PropertyIds.Name] = "childrenTestFolder";
             properties[PropertyIds.ObjectTypeId] = "cmis:folder";
 
-            IFolder folder = session.GetRootFolder().CreateFolder(properties);
+            IFolder folder = TestFolder.CreateFolder(properties);
 
             for (int i = 0; i < numOfDocuments; i++)
             {
