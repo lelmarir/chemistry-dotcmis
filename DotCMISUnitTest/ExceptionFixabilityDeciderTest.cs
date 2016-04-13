@@ -35,6 +35,11 @@ namespace DotCMISUnitTest
         {
             Assert.True(ExceptionFixabilityDecider.CanExceptionStatusCodeBeFixedByRetry(HttpStatusCode.RequestTimeout));
         }
+
+        [Test]
+        public void ExceptionWithStatusCodeUnauthorizedCanNotBeRetried()
+        {
+            Assert.That(ExceptionFixabilityDecider.CanExceptionStatusCodeBeFixedByRetry(HttpStatusCode.Unauthorized), Is.False);
+        }
     }
 }
-
